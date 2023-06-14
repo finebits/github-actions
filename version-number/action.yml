@@ -90,7 +90,7 @@ runs:
 
         echo "short=$(echo ${{ env.major }}.${{ env.minor }}.${{ env.patch }}.${{ env.build }})" >> $GITHUB_OUTPUT
         echo "full=$(echo ${{ env.major }}.${{ env.minor }}.${{ env.patch }}.${{ env.build }}$suffix+${{ env.revision }})" >> $GITHUB_OUTPUT
-        echo "full=$(echo ${{ env.major }}.${{ env.minor }}.${{ env.patch }}$suffix+${{ env.revision }}.${{ env.today }}.${{ env.build }}.${{ env.attempt }})" >> $GITHUB_OUTPUT
+        echo "semantic=$(echo ${{ env.major }}.${{ env.minor }}.${{ env.patch }}$suffix+${{ env.revision }}.${{ env.today }}.${{ env.build }}.${{ env.attempt }})" >> $GITHUB_OUTPUT
       env:
         major: ${{ steps.tag-version.outputs.major }}
         minor: ${{ steps.tag-version.outputs.minor }}
