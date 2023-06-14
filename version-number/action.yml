@@ -1,0 +1,102 @@
+################################################################################
+#                                                                              #
+#   Copyright 2023 Finebits (https://finebits.com)                             #
+#                                                                              #
+#   Licensed under the Apache License, Version 2.0 (the "License");            #
+#   you may not use this file except in compliance with the License.           #
+#   You may obtain a copy of the License at                                    #
+#                                                                              #
+#       http://www.apache.org/licenses/LICENSE-2.0                             #
+#                                                                              #
+#   Unless required by applicable law or agreed to in writing, software        #
+#   distributed under the License is distributed on an "AS IS" BASIS,          #
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+#   See the License for the specific language governing permissions and        #
+#   limitations under the License.                                             #
+#                                                                              #
+################################################################################
+
+name: Version number
+
+description: Provides a version number
+
+outputs:
+  major:
+    value: ${{ steps.tag-version.outputs.major }}
+  minor:
+    value: ${{ steps.tag-version.outputs.minor }}
+  patch:
+    value: ${{ steps.tag-version.outputs.patch }}
+  build:
+    value: ${{ steps.action-context.outputs.build }}
+  attempt:
+    value: ${{ steps.action-context.outputs.attempt }}
+  today:
+    value: ${{ steps.action-context.outputs.today }}
+  revision:
+    value: ${{ steps.commit.outputs.revision }}
+  suffix:
+    value: ${{ steps.tag-version.outputs.suffix }}
+  short-version:
+    value: ${{ steps.format.outputs.short }}
+  full-version:
+    value: ${{ steps.format.outputs.full }}
+  semantic-version: # https://semver.org/spec/v2.0.0.html
+    value: ${{ steps.format.outputs.semantic }}
+runs:
+  using: "composite"
+
+  steps:
+    - id: tag-version
+      shell: bash
+      run: |
+        regex="v([0-9]+)\.?([0-9]*)\.?([0-9]*)[^a-zA-Z]?(.*)"
+        version=$(git describe --tags --abbrev=0 --match "v[0-9]*" --always)
+
+        echo "tag: $version"
+
+        if [[ $version =~ $regex ]]; then
+          major=${BASH_REMATCH[1]}
+          minor=${BASH_REMATCH[2]}
+          patch=${BASH_REMATCH[3]}
+          suffix=${BASH_REMATCH[4]}
+        else
+          major=0
+          minor=1
+        fi
+
+        echo "major=$([[ -z $major ]] && echo 1 || echo $major)" >> $GITHUB_OUTPUT
+        echo "minor=$([[ -z $minor ]] && echo 0 || echo $minor)" >> $GITHUB_OUTPUT
+        echo "patch=$([[ -z $patch ]] && echo 0 || echo $patch)" >> $GITHUB_OUTPUT
+        echo "suffix=$([[ -z $suffix ]] && echo '' || echo $suffix)" >> $GITHUB_OUTPUT
+
+    - id: commit
+      shell: bash
+      run: |
+        echo "revision=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+    - id: action-context
+      shell: bash
+      run: |
+        echo "today=$(date -u "+%y%m%d")" >> $GITHUB_OUTPUT
+        echo "build=${{ github.run_number }}" >> $GITHUB_OUTPUT
+        echo "attempt=${{ github.run_attempt }}" >> $GITHUB_OUTPUT
+
+    - id: format
+      shell: bash
+      run: |
+        suffix=${{ env.suffix }}
+        suffix=$([[ -z $suffix ]] && echo '' || echo "-${suffix##*(-)}")
+
+        echo "short=$(echo ${{ env.major }}.${{ env.minor }}.${{ env.patch }}.${{ env.build }})" >> $GITHUB_OUTPUT
+        echo "full=$(echo ${{ env.major }}.${{ env.minor }}.${{ env.patch }}.${{ env.build }}$suffix+${{ env.revision }})" >> $GITHUB_OUTPUT
+        echo "full=$(echo ${{ env.major }}.${{ env.minor }}.${{ env.patch }}$suffix+${{ env.revision }}.${{ env.today }}.${{ env.build }}.${{ env.attempt }})" >> $GITHUB_OUTPUT
+      env:
+        major: ${{ steps.tag-version.outputs.major }}
+        minor: ${{ steps.tag-version.outputs.minor }}
+        patch: ${{ steps.tag-version.outputs.patch }}
+        build: ${{ steps.action-context.outputs.build }}
+        today: ${{ steps.action-context.outputs.today }}
+        attempt: ${{ steps.action-context.outputs.attempt }}
+        revision: ${{ steps.commit.outputs.revision }}
+        suffix: ${{ steps.tag-version.outputs.suffix }}
