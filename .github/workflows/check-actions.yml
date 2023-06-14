@@ -45,7 +45,7 @@ jobs:
       run: | 
         echo "Short version: ${{ steps.version-number.outputs.short-version }}"
         echo "Full version: ${{ steps.version-number.outputs.full-version }}"
-        echo "Semantic version: ${{ steps.version-number.outputs.sem-version }}"
+        echo "Semantic version: ${{ steps.version-number.outputs.semantic-version }}"
         echo "Major: ${{ steps.version-number.outputs.major }}"
         echo "Minor: ${{ steps.version-number.outputs.minor }}"
         echo "Patch: ${{ steps.version-number.outputs.patch }}"
