@@ -40,7 +40,7 @@ jobs:
 
     - name: Run version-number action
       id: version-number
-      uses: finebits/github-actions/version-number@main
+      uses: ./version-number
 
     - name: Check version-number action
       run: | 
