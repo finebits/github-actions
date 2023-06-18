@@ -19,11 +19,11 @@
 name: Check Actions
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  workflow_dispatch:
 
 jobs:
 
@@ -45,13 +45,16 @@ jobs:
     - name: Check version-number action
       run: | 
         echo "Short version: ${{ steps.version-number.outputs.short-version }}"
-        echo "Full version: ${{ steps.version-number.outputs.full-version }}"
+        echo "Suffix version: ${{ steps.version-number.outputs.suffix-version }}"
         echo "Semantic version: ${{ steps.version-number.outputs.semantic-version }}"
+        echo "Short version with hash: ${{ steps.version-number.outputs.short-hash-version }}"
+        echo "Suffix version with hash: ${{ steps.version-number.outputs.suffix-hash-version }}"
+        echo "Semantic version with hash: ${{ steps.version-number.outputs.semantic-hash-version }}"        
         echo "Major: ${{ steps.version-number.outputs.major }}"
         echo "Minor: ${{ steps.version-number.outputs.minor }}"
         echo "Patch: ${{ steps.version-number.outputs.patch }}"
         echo "Build: ${{ steps.version-number.outputs.build }}"
         echo "Attempt: ${{ steps.version-number.outputs.attempt }}"
         echo "Today: ${{ steps.version-number.outputs.today }}"
-        echo "Revision: ${{ steps.version-number.outputs.revision }}"
+        echo "Commit hash: ${{ steps.version-number.outputs.hash }}"
         echo "Suffix: ${{ steps.version-number.outputs.suffix }}"

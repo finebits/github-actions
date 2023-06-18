@@ -33,16 +33,22 @@ outputs:
     value: ${{ steps.action-context.outputs.attempt }}
   today:
     value: ${{ steps.action-context.outputs.today }}
-  revision:
-    value: ${{ steps.commit.outputs.revision }}
+  hash:
+    value: ${{ steps.commit.outputs.hash }}
   suffix:
     value: ${{ steps.tag-version.outputs.suffix }}
   short-version:
-    value: ${{ steps.format.outputs.short }}
-  full-version:
-    value: ${{ steps.format.outputs.full }}
+    value: ${{ steps.format.outputs.short-version }}
+  suffix-version:
+    value: ${{ steps.format.outputs.suffix-version }}
   semantic-version: # https://semver.org/spec/v2.0.0.html
-    value: ${{ steps.format.outputs.semantic }}
+    value: ${{ steps.format.outputs.semantic-version }}
+  short-hash-version:
+    value: ${{ steps.format.outputs.short-hash-version }}
+  suffix-hash-version:
+    value: ${{ steps.format.outputs.suffix-hash-version }}
+  semantic-hash-version: # https://semver.org/spec/v2.0.0.html
+    value: ${{ steps.format.outputs.semantic-hash-version }}
 runs:
   using: "composite"
 
@@ -68,12 +74,12 @@ runs:
         echo "major=$([[ -z $major ]] && echo 1 || echo $major)" >> $GITHUB_OUTPUT
         echo "minor=$([[ -z $minor ]] && echo 0 || echo $minor)" >> $GITHUB_OUTPUT
         echo "patch=$([[ -z $patch ]] && echo 0 || echo $patch)" >> $GITHUB_OUTPUT
-        echo "suffix=$([[ -z $suffix ]] && echo '' || echo $suffix)" >> $GITHUB_OUTPUT
+        echo "suffix=$([[ -z $suffix ]] && echo '' || echo ${suffix##*(-)})" >> $GITHUB_OUTPUT
 
     - id: commit
       shell: bash
       run: |
-        echo "revision=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        echo "hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
     - id: action-context
       shell: bash
@@ -86,11 +92,20 @@ runs:
       shell: bash
       run: |
         suffix=${{ env.suffix }}
-        suffix=$([[ -z $suffix ]] && echo '' || echo "-${suffix##*(-)}")
+        suffix=$([[ -z $suffix ]] && echo '' || echo "-$suffix")
 
-        echo "short=$(echo ${{ env.major }}.${{ env.minor }}.${{ env.patch }}.${{ env.build }})" >> $GITHUB_OUTPUT
-        echo "full=$(echo ${{ env.major }}.${{ env.minor }}.${{ env.patch }}.${{ env.build }}$suffix+${{ env.revision }})" >> $GITHUB_OUTPUT
-        echo "semantic=$(echo ${{ env.major }}.${{ env.minor }}.${{ env.patch }}$suffix+${{ env.revision }}.${{ env.today }}.${{ env.build }}.${{ env.attempt }})" >> $GITHUB_OUTPUT
+        shortversion=${{ env.major }}.${{ env.minor }}.${{ env.patch }}.${{ env.build }}
+        echo "short-version=$(echo $shortversion )" >> $GITHUB_OUTPUT
+        echo "short-hash-version=$(echo $shortversion+${{ env.hash }} )" >> $GITHUB_OUTPUT
+
+        suffixversion=${{ env.major }}.${{ env.minor }}.${{ env.patch }}.${{ env.build }}$suffix
+        echo "suffix-version=$(echo $suffixversion )" >> $GITHUB_OUTPUT
+        echo "suffix-hash-version=$(echo $suffixversion+${{ env.hash }} )" >> $GITHUB_OUTPUT
+
+        semanticversion=${{ env.major }}.${{ env.minor }}.${{ env.patch }}$suffix+${{ env.build }}.${{ env.attempt }}
+        echo "semantic-version=$(echo $semanticversion )" >> $GITHUB_OUTPUT
+        echo "semantic-hash-version=$(echo $semanticversion.${{ env.hash }} )" >> $GITHUB_OUTPUT
+
       env:
         major: ${{ steps.tag-version.outputs.major }}
         minor: ${{ steps.tag-version.outputs.minor }}
@@ -98,5 +113,5 @@ runs:
         build: ${{ steps.action-context.outputs.build }}
         today: ${{ steps.action-context.outputs.today }}
         attempt: ${{ steps.action-context.outputs.attempt }}
-        revision: ${{ steps.commit.outputs.revision }}
+        hash: ${{ steps.commit.outputs.hash }}
         suffix: ${{ steps.tag-version.outputs.suffix }}
