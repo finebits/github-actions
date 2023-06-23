@@ -25,10 +25,13 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  gist-id: ${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}
+  gist-auth-token: ${{ secrets.TOKEN_GITHUB_GIST }}
+
 jobs:
 
   check:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -38,18 +41,25 @@ jobs:
         fetch-depth: 0
         submodules: recursive
 
+    - name: Check Repository Secrets and Variables
+      run: |
+        if [ -z '${{ env.gist-id }}' ] || [ -z '${{ env.gist-auth-token }}' ]; then
+          echo -e "\nSome secret or variable is missing!\n"
+          exit 1
+        fi
+
     - name: Run version-number action
       id: version-number
       uses: ./version-number
 
     - name: Check version-number action
-      run: | 
+      run: |
         echo "Short version: ${{ steps.version-number.outputs.short-version }}"
         echo "Suffix version: ${{ steps.version-number.outputs.suffix-version }}"
         echo "Semantic version: ${{ steps.version-number.outputs.semantic-version }}"
         echo "Short version with hash: ${{ steps.version-number.outputs.short-hash-version }}"
         echo "Suffix version with hash: ${{ steps.version-number.outputs.suffix-hash-version }}"
-        echo "Semantic version with hash: ${{ steps.version-number.outputs.semantic-hash-version }}"        
+        echo "Semantic version with hash: ${{ steps.version-number.outputs.semantic-hash-version }}"
         echo "Major: ${{ steps.version-number.outputs.major }}"
         echo "Minor: ${{ steps.version-number.outputs.minor }}"
         echo "Patch: ${{ steps.version-number.outputs.patch }}"
@@ -58,3 +68,48 @@ jobs:
         echo "Today: ${{ steps.version-number.outputs.today }}"
         echo "Commit hash: ${{ steps.version-number.outputs.hash }}"
         echo "Suffix: ${{ steps.version-number.outputs.suffix }}"
+
+    - name: Run badges/shields-io-badge action
+      if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}
+      id: badges-shields-io-badge
+      uses: ./badges/shields-io-badge
+      with:
+        label: shields.io
+        label-color: lightblue
+        message: badge
+        message-color: gold
+        logo: github
+        logo-color: blue
+        style: flat
+
+        gist-filename: "${{ github.event.repository.name }}-shields-io-badge.json"
+        gist-id: ${{ env.gist-id }}
+        gist-auth-token: ${{ env.gist-auth-token }}
+
+    - name: Check badges/shields-io-badge action
+      if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}
+      run: |
+        link='${{ steps.badges-shields-io-badge.outputs.badge-link }}'
+        echo -e 'Badge link: '$link'\n'
+
+    - name: Run badges/coverlet-coverage-badge action
+      if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}
+      id: badges-coverlet-coverage-badge
+      uses: ./badges/coverlet-coverage-badge
+      with:
+        label-color: 343b42
+        report-root: ./badges/coverlet-coverage-badge/.test-reports
+        report-filename: coverage.cobertura.xml
+        gist-filename-format: "${{ github.event.repository.name }}-{0}-test-coverage.json"
+        gist-id: ${{ env.gist-id }}
+        gist-auth-token: ${{ env.gist-auth-token }}
+
+    - name: Check badges/coverlet-coverage-badge action
+      if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}
+      run: |
+        json='${{ steps.badges-coverlet-coverage-badge.outputs.badges-links }}'
+
+        len=$(echo $json | jq '. | length')
+        for ((i=0; i<$len; i++)); do
+          echo -e "Badge link #"$i" $(echo $json | jq -r '.['$i']')\n"
+        done

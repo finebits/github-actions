@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<coverage line-rate="0.5071" branch-rate="1" version="1.9" timestamp="1687337640" lines-covered="2" lines-valid="5" branches-covered="0" branches-valid="0">
+  <sources>
+    <source>C:\</source>
+  </sources>
+  <packages>
+    <package name="Finebits.Badges.TestPackage0" line-rate="0.505" branch-rate="1" complexity="2" />
+    <package name="Finebits.Badges.TestPackage1" line-rate="0.3303" branch-rate="1" complexity="3" />
+    <package name="Finebits.Badges.TestPackage2" line-rate="0" branch-rate="1" complexity="3" />
+    <package name="Finebits.Badges.TestPackage3" line-rate="0.7" branch-rate="1" complexity="3" />
+    <package name="Finebits.Badges.TestPackage4" line-rate="1" branch-rate="1" complexity="3" />
+  </packages>
+</coverage>

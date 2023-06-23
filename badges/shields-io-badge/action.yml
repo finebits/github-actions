@@ -1,0 +1,126 @@
+################################################################################
+#                                                                              #
+#   Copyright 2023 Finebits (https://finebits.com)                             #
+#                                                                              #
+#   Licensed under the Apache License, Version 2.0 (the "License");            #
+#   you may not use this file except in compliance with the License.           #
+#   You may obtain a copy of the License at                                    #
+#                                                                              #
+#       http://www.apache.org/licenses/LICENSE-2.0                             #
+#                                                                              #
+#   Unless required by applicable law or agreed to in writing, software        #
+#   distributed under the License is distributed on an "AS IS" BASIS,          #
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+#   See the License for the specific language governing permissions and        #
+#   limitations under the License.                                             #
+#                                                                              #
+################################################################################
+
+name: "Shields.io badge generator"
+
+description: "Creates a 'Shields.io' Endpoint Badge [look at https://shields.io/badges/endpoint-badge]"
+
+inputs:
+  label:
+    description: "The left side text of the badge, it might be empty"
+    type: string
+    required: true
+  message:
+    description: "Can't be empty. The right text"
+    type: string
+    required: true
+  message-color:
+    description: "The right color"
+    type: string
+    default: lightgrey
+  label-color: 
+    description: "The left color"
+    type: string
+    default: grey
+  is-error:
+    description: "True to treat this as an error badge"
+    type: boolean
+    default: false
+  logo:
+    description: "One of the named logos supported by Shields"
+    type: string
+  logo-svg:
+    description: "An SVG string containing a custom logo"
+    type: string
+  logo-color:
+    description: "Only works for named logos and Shields logos"
+    type: string
+  style:
+    description: "The default template to use"
+    type: string
+    default: flat
+  logo-width:
+    type: string
+  logo-position:
+    type: string
+
+  badge-description:
+    type: string
+    default: Shields.io badge
+
+  gist-filename:
+    description: "The format name for the 'Github Gist' file that stores the badge's metadata"
+    type: string
+    required: true
+  gist-id:
+    description: "The unique identifier of the 'Github Gist' where badge metadata is stored"
+    type: string
+    required: true
+  gist-auth-token:
+    description: "Authentication token to update the the 'Github Gist"
+    type: string
+    required: true
+
+outputs: 
+  badge-link:
+    value: ${{ steps.create-link.outputs.badge }}
+
+runs:
+  using: "composite"
+
+  steps:
+    - id: create
+      shell: bash
+      run: |
+        files=$(bash ./badges/shields-io-badge/create-badge-metadata.sh \
+          --label '${{ inputs.label }}' \
+          --label-color '${{ inputs.label-color }}' \
+          --message '${{ inputs.message }}' \
+          --message-color '${{ inputs.message-color }}' \
+          --is-error '${{ inputs.is-error }}' \
+          --logo '${{ inputs.logo }}' \
+          --logo-color '${{ inputs.logo-color }}' \
+          --logo-svg '${{ inputs.logo-svg }}' \
+          --logo-width '${{ inputs.logo-width }}' \
+          --logo-position '${{ inputs.logo-position }}' \
+          --style '${{ inputs.style }}' \
+          --gist-filename '${{ inputs.gist-filename }}' \
+        )
+
+        echo "files=$files" >> $GITHUB_OUTPUT
+
+    - id: update
+      shell: bash
+      run: |
+        files='${{ steps.create.outputs.files }}'
+        bash ./badges/shields-io-badge/update-gist.sh \
+          --files "$files" \
+          --gist-id '${{ inputs.gist-id }}' \
+          --gist-auth-token '${{ inputs.gist-auth-token }}' \
+          --gist-description '${{ inputs.badge-description }}'      
+
+    - id: create-link
+      shell: bash
+      run: |
+        owner='${{ github.repository_owner }}'
+        gistid='${{ inputs.gist-id }}'
+        file='${{ inputs.gist-filename }}'
+        description='${{ inputs.badge-description }}'
+
+        link='!['$description'](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/'$owner'/'$gistid'/raw/'$file')'
+        echo "badge=$link" >> $GITHUB_OUTPUT
