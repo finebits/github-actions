@@ -21,10 +21,15 @@ name: Check Actions
 on:
   workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+      - develop
+      - release/**
   pull_request:
-    branches: [ "main" ]
-
+    branches:
+      - main
+      - develop
+      - release/**
 jobs:
 
   check:
