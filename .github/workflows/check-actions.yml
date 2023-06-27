@@ -30,6 +30,10 @@ on:
       - main
       - develop
       - release/**
+
+env:
+  gist-id: ${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}
+  gist-auth-token: ${{ secrets.TOKEN_GITHUB_GIST }}
 jobs:
 
   check:
@@ -43,18 +47,12 @@ jobs:
         submodules: recursive
 
     - name: Check Repository Secrets and Variables
+      if: ${{ github.event_name != 'pull_request' }}
       run: |
-        if [ -z '${{ env.gist-id }}' ]; then
-          echo -e "\n'BADGE_COVERLET_COVERAGE_GIST_ID' variable is missing!\n"
+        if [ -z '${{ env.gist-id }}' ] || [ -z '${{ env.gist-auth-token }}' ]; then
+          echo -e "\nSome secret or variable is missing!\n"
           exit 1
         fi
-        if [ -z '${{ env.gist-auth-token }}' ]; then
-          echo -e "\'TOKEN_GITHUB_GIST' secret is missing!\n"
-          exit 1
-        fi
-      env:
-        gist-id: ${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}
-        gist-auth-token: ${{ secrets.TOKEN_GITHUB_GIST }}
 
     - name: Run version-number action
       id: version-number
@@ -93,18 +91,12 @@ jobs:
         gist-filename: "${{ github.event.repository.name }}-shields-io-badge.json"
         gist-id: ${{ env.gist-id }}
         gist-auth-token: ${{ env.gist-auth-token }}
-      env:
-        gist-id: ${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}
-        gist-auth-token: ${{ secrets.TOKEN_GITHUB_GIST }}
 
     - name: Check badges/shields-io-badge action
       if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}
       run: |
         link='${{ steps.badges-shields-io-badge.outputs.badge-link }}'
         echo -e 'Badge link: '$link'\n'
-      env:
-        gist-id: ${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}
-        gist-auth-token: ${{ secrets.TOKEN_GITHUB_GIST }}
 
     - name: Run badges/coverlet-coverage-badge action
       if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}
@@ -117,9 +109,6 @@ jobs:
         gist-filename-format: "${{ github.event.repository.name }}-{0}-test-coverage.json"
         gist-id: ${{ env.gist-id }}
         gist-auth-token: ${{ env.gist-auth-token }}
-      env:
-        gist-id: ${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}
-        gist-auth-token: ${{ secrets.TOKEN_GITHUB_GIST }}
 
     - name: Check badges/coverlet-coverage-badge action
       if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}
@@ -130,6 +119,3 @@ jobs:
         for ((i=0; i<$len; i++)); do
           echo -e "Badge link #"$i" $(echo $json | jq -r '.['$i']')\n"
         done
-      env:
-        gist-id: ${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}
-        gist-auth-token: ${{ secrets.TOKEN_GITHUB_GIST }}
