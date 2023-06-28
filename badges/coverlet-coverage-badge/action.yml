@@ -1,0 +1,163 @@
+################################################################################
+#                                                                              #
+#   Copyright 2023 Finebits (https://finebits.com)                             #
+#                                                                              #
+#   Licensed under the Apache License, Version 2.0 (the "License");            #
+#   you may not use this file except in compliance with the License.           #
+#   You may obtain a copy of the License at                                    #
+#                                                                              #
+#       http://www.apache.org/licenses/LICENSE-2.0                             #
+#                                                                              #
+#   Unless required by applicable law or agreed to in writing, software        #
+#   distributed under the License is distributed on an "AS IS" BASIS,          #
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+#   See the License for the specific language governing permissions and        #
+#   limitations under the License.                                             #
+#                                                                              #
+################################################################################
+
+name: "Coverlet coverage badge"
+
+description: "It creates test coverage badge from the 'coverlet.collector' test report"
+
+inputs:
+  label:
+    description: "The badge label"
+    required: false
+    default: "Test coverage"
+  package-label-format:
+    description: "The label format of the package badges"
+    required: false
+    default: "{0}: test coverage"
+  label-color: 
+    description: "The left color"
+    type: string
+    default: grey
+  logo:
+    description: "One of the named logos supported by Shields"
+    type: string
+  logo-svg:
+    description: "An SVG string containing a custom logo"
+    type: string
+  logo-color:
+    description: "Only works for named logos and Shields logos"
+    type: string
+  style:
+    description: "The default template to use"
+    type: string
+
+  gist-filename-format:
+    description: "The format name for the 'Github Gist' file that stores the badge's metadata"
+    required: false
+    default: "{0}-test-coverage.json"
+  report-root:
+    description: "Report root directory"
+    required: true
+  report-filename:
+    description: "Report filename"
+    required: false
+    default: "coverage.cobertura.xml"
+  gist-id:
+    description: "The unique identifier of the 'Github Gist' where badge metadata is stored"
+    required: true
+  gist-auth-token:
+    description: "Authentication token to update the the 'Github Gist'"
+    required: true
+  gist-owner:
+    description: "'Github Gist' owner"
+    required: false
+    default: ${{ github.repository_owner }}
+
+outputs: 
+  badges-links:
+    value: ${{ steps.create-links.outputs.badges }}
+
+runs:
+  using: "composite"
+
+  steps:
+    - id: get-report
+      shell: bash
+      run: |
+        filename=${{ inputs.report-filename }}
+        root=${{ inputs.report-root }}
+        report="$root/$filename"
+        echo "report-file=$report" >> $GITHUB_OUTPUT
+
+    - id: parse
+      name: Parse
+      env:
+        report-file: ${{ steps.get-report.outputs.report-file }}
+      shell: pwsh
+      run: |
+        . ./badges/coverlet-coverage-badge/badge-function-set.ps1
+
+        $totalNode = Select-Xml -Path "${{ env.report-file }}" -XPath "./coverage"
+        $badgeJson = $totalNode.node | Get-BadgeMetadata -LabelFormat "${{ inputs.label }}" -OutputFileNameFormat "${{ inputs.gist-filename-format }}"
+
+        $packagesNode = Select-Xml -Path ${{ env.report-file }} -XPath "./coverage/packages//package"
+        $packagesNode.node | foreach { $badgeJson += ",$($_ | Get-BadgeMetadata -LabelFormat "${{ inputs.package-label-format }}" -OutputFileNameFormat "${{ inputs.gist-filename-format }}")" }
+
+        "badgeJson=[$badgeJson]" | Write-Output >> $env:GITHUB_OUTPUT
+
+    - id: create
+      shell: bash
+      env:
+        json: ${{ steps.parse.outputs.badgeJson }}
+      run: |
+        files=""
+        json='${{ env.json }}'
+        len=$(echo $json | jq '. | length')
+        for ((i=0; i<$len; i++)); do
+          label=$(echo $json | jq -r '.['$i'].label')
+          echo 'Label: '$label
+          precent=$(echo $json | jq -r '.['$i'].precent')
+          color=$(echo $json | jq -r '.['$i'].color')
+          filename=$(echo $json | jq -r '.['$i'].file')
+
+          file=$(bash ./badges/shields-io-badge/create-badge-metadata.sh \
+            --label "$label" \
+            --label-color '${{ inputs.label-color }}' \
+            --message "$precent" \
+            --message-color "$color" \
+            --logo '${{ inputs.logo }}' \
+            --logo-color '${{ inputs.logo-color }}' \
+            --logo-svg '${{ inputs.logo-svg }}' \
+            --style '${{ inputs.style }}' \
+            --gist-filename "$filename" \
+          ),
+
+          files+=$file
+        done
+
+        echo "files=${files%%,}" >> $GITHUB_OUTPUT
+
+    - id: update
+      shell: bash
+      run: |
+        files='${{ steps.create.outputs.files }}'
+        bash ./badges/shields-io-badge/update-gist.sh \
+          --files "$files" \
+          --gist-id '${{ inputs.gist-id }}' \
+          --gist-auth-token '${{ inputs.gist-auth-token }}' \
+          --gist-description "Update badge"
+
+    - id: create-links
+      shell: bash
+      env:
+        json: ${{ steps.parse.outputs.badgeJson }}
+      run: |
+        links=''
+        owner=${{ inputs.gist-owner }}
+        gistid=${{ inputs.gist-id }}
+        json='${{ env.json }}'
+
+        len=$(echo $json | jq '. | length')
+        for ((i=0; i<$len; i++)); do
+          file=$(echo $json | jq -r '.['$i'].file')
+          precent=$(echo $json | jq -r '.['$i'].precent')
+          links+='"![Test coverage '$precent'](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/'$owner'/'$gistid'/raw/'$file')",'
+        done
+        links="[${links%','}]"
+        echo "badges links: $links"
+        echo "badges=$links" >> $GITHUB_OUTPUT
