@@ -72,9 +72,13 @@ inputs:
     type: string
     required: true
   gist-auth-token:
-    description: "Authentication token to update the the 'Github Gist"
+    description: "Authentication token to update the the 'Github Gist'"
     type: string
     required: true
+  gist-owner:
+    description: "'Github Gist' owner"
+    required: false
+    default: ${{ github.repository_owner }}
 
 outputs: 
   badge-link:
@@ -117,7 +121,7 @@ runs:
     - id: create-link
       shell: bash
       run: |
-        owner='${{ github.repository_owner }}'
+        owner='${{ inputs.gist-owner }}'
         gistid='${{ inputs.gist-id }}'
         file='${{ inputs.gist-filename }}'
         description='${{ inputs.badge-description }}'
