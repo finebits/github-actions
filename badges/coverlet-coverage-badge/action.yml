@@ -90,7 +90,7 @@ runs:
         report-file: ${{ steps.get-report.outputs.report-file }}
       shell: pwsh
       run: |
-        . ./badges/coverlet-coverage-badge/badge-function-set.ps1
+        . "${{ github.action_path }}/badge-function-set.ps1"
 
         $totalNode = Select-Xml -Path "${{ env.report-file }}" -XPath "./coverage"
         $badgeJson = $totalNode.node | Get-BadgeMetadata -LabelFormat "${{ inputs.label }}" -OutputFileNameFormat "${{ inputs.gist-filename-format }}"
@@ -115,7 +115,7 @@ runs:
           color=$(echo $json | jq -r '.['$i'].color')
           filename=$(echo $json | jq -r '.['$i'].file')
 
-          file=$(bash ./badges/shields-io-badge/create-badge-metadata.sh \
+          file=$(bash "${{ github.action_path }}/../shields-io-badge/create-badge-metadata.sh" \
             --label "$label" \
             --label-color '${{ inputs.label-color }}' \
             --message "$precent" \
@@ -136,7 +136,7 @@ runs:
       shell: bash
       run: |
         files='${{ steps.create.outputs.files }}'
-        bash ./badges/shields-io-badge/update-gist.sh \
+        bash "${{ github.action_path }}/../shields-io-badge/update-gist.sh" \
           --files "$files" \
           --gist-id '${{ inputs.gist-id }}' \
           --gist-auth-token '${{ inputs.gist-auth-token }}' \
