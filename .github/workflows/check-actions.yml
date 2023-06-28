@@ -91,6 +91,7 @@ jobs:
         gist-filename: "${{ github.event.repository.name }}-shields-io-badge.json"
         gist-id: ${{ env.gist-id }}
         gist-auth-token: ${{ env.gist-auth-token }}
+        gist-owner: finebits-github
 
     - name: Check badges/shields-io-badge action
       if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}
@@ -106,9 +107,11 @@ jobs:
         label-color: 343b42
         report-root: ./badges/coverlet-coverage-badge/.test-reports
         report-filename: coverage.cobertura.xml
+
         gist-filename-format: "${{ github.event.repository.name }}-{0}-test-coverage.json"
         gist-id: ${{ env.gist-id }}
         gist-auth-token: ${{ env.gist-auth-token }}
+        gist-owner: finebits-github
 
     - name: Check badges/coverlet-coverage-badge action
       if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}

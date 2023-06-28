@@ -70,8 +70,7 @@ Preset version formats:
 
 ### Summary
 
-  It generates [Shields.io endpoint badge](https://shields.io/badges/endpoint-badge).
-  Sample badge: ![Shields.io badge](https://gist.githubusercontent.com/finebits-github/74f6d448f4f568a286d4622e92afbc75/raw/finebits-github-actions-shields-io-badge.json)
+It generates [Shields.io endpoint badge](https://shields.io/badges/endpoint-badge). Sample badge: <sub><sub>![Shields.io badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/finebits-github/74f6d448f4f568a286d4622e92afbc75/raw/github-actions-shields-io-badge.json)</sub></sub>
 
 ### Using
 
@@ -130,8 +129,7 @@ Preset version formats:
 
 ### Summary
 
-  It creates test coverage [badges](https://shields.io/badges/endpoint-badge) from the `coverlet.collector` test report.
-  Sample badge: ![Shields.io badge](https://gist.githubusercontent.com/finebits-github/74f6d448f4f568a286d4622e92afbc75/raw/finebits-github-actions-total-test-coverage.json)
+It creates test coverage [badges](https://shields.io/badges/endpoint-badge) from the `coverlet.collector` test report. Sample badge: <sub><sub>![Shields.io badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/finebits-github/74f6d448f4f568a286d4622e92afbc75/raw/github-actions-total-test-coverage.json)</sub></sub>
 
 ### Using
 

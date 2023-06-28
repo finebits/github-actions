@@ -61,8 +61,12 @@ inputs:
     description: "The unique identifier of the 'Github Gist' where badge metadata is stored"
     required: true
   gist-auth-token:
-    description: "Authentication token to update the the 'Github Gist"
+    description: "Authentication token to update the the 'Github Gist'"
     required: true
+  gist-owner:
+    description: "'Github Gist' owner"
+    required: false
+    default: ${{ github.repository_owner }}
 
 outputs: 
   badges-links:
@@ -144,7 +148,7 @@ runs:
         json: ${{ steps.parse.outputs.badgeJson }}
       run: |
         links=''
-        owner=${{ github.repository_owner }}
+        owner=${{ inputs.gist-owner }}
         gistid=${{ inputs.gist-id }}
         json='${{ env.json }}'
 
