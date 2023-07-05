@@ -45,8 +45,8 @@ Action has no input.
 
 ### Action outputs
 
-- `build` - contains the workflow run number (look at [github action context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context))
-- `attempt` - contains the workflow re-run number (look at [github action context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context))
+- `build` - contains the workflow run number (look at [github action context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context));
+- `attempt` - contains the workflow re-run number (look at [github action context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context));
 - `today` - contains the date of the workflow execution in the format `yymmdd`;
 - `hash` - contains the git commit hash;
 
@@ -59,12 +59,12 @@ If there is **tag** in the format `v{major}[.{minor}[.{patch}]][-{suffix}]` (ex.
 
 Preset version formats:
 
-- `short-version` - version format: `{major}.{minor}.{patch}.{build}`;
-- `suffix-version` - version format: `{major}.{minor}.{patch}.{build}[-{suffix}]`;
-- `semantic-version` - version format: `{major}.{minor}{patch}[-{suffix}]+{build}.{attempt}`;
-- `short-hash-version` - version format: `{major}.{minor}.{patch}.{build}+{hash}`;
-- `suffix-hash-version` - version format: `{major}.{minor}.{patch}.{build}[-{suffix}]+{hash}`;
-- `semantic-hash-version` - version format: `{major}.{minor}.{patch}.{build}[-{suffix}]+{build}.{attempt}.{hash}`;
+- `short-version` - version format: `{major}.{minor}.{patch}.{build}`
+- `suffix-version` - version format: `{major}.{minor}.{patch}.{build}[-{suffix}]`
+- `semantic-version` - version format: `{major}.{minor}{patch}[-{suffix}]+{build}.{attempt}`
+- `short-hash-version` - version format: `{major}.{minor}.{patch}.{build}+{hash}`
+- `suffix-hash-version` - version format: `{major}.{minor}.{patch}.{build}[-{suffix}]+{hash}`
+- `semantic-hash-version` - version format: `{major}.{minor}.{patch}[-{suffix}]+{build}.{attempt}.{hash}`
 
 ## Action badges/shields-io-badge
 
