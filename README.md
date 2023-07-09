@@ -1,8 +1,9 @@
 # github-actions
 
-[![Check Actions](https://github.com/finebits/github-actions/actions/workflows/check-actions.yml/badge.svg)](https://github.com/finebits/github-actions/actions/workflows/check-actions.yml)
-[![License](https://img.shields.io/github/license/finebits/github-actions.svg?labelColor=343b42)](https://github.com/finebits/github-actions/blob/main/LICENSE)
-[![GitHub release](https://img.shields.io/github/release/finebits/github-actions.svg?labelColor=343b42)](https://GitHub.com/finebits/github-actions/tags/)
+[![GitHub release](https://img.shields.io/github/release/finebits/github-actions.svg)](https://GitHub.com/finebits/github-actions/tags/)
+[![License](https://img.shields.io/github/license/finebits/github-actions.svg)](https://github.com/finebits/github-actions/blob/main/LICENSE)
+[![Main branch: check](https://img.shields.io/github/actions/workflow/status/finebits/github-actions/check-actions.yml?branch=main&logo=github&label=main:%20check)](https://github.com/finebits/github-actions/actions/workflows/check-actions.yml?query=branch%3Amain)
+[![Develop branch: check](https://img.shields.io/github/actions/workflow/status/finebits/github-actions/check-actions.yml?branch=develop&logo=github&label=develop:%20check)](https://github.com/finebits/github-actions/actions/workflows/check-actions.yml?query=branch%3Adevelop)
 
 ## Overview
 
@@ -32,11 +33,11 @@ Gets a version number using a git tag, a git commit, a github workflow context.
 
 ```yaml
     - id: version-number
-      uses: finebits/github-actions/version-number@v1
+      uses: finebits/github-actions/version-number@v1.1.2
 
     - name: 
       run: |
-        echo "Current version: ${{ steps.version-number.outputs.semantic-version }}"
+        echo "Current version: ${{ steps.version-number.outputs.semantic-version-1 }}"
 ```
 
 ### Action inputs
@@ -48,7 +49,7 @@ Action has no input.
 - `build` - contains the workflow run number (look at [github action context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context));
 - `attempt` - contains the workflow re-run number (look at [github action context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context));
 - `today` - contains the date of the workflow execution in the format `yymmdd`;
-- `hash` - contains the git commit hash;
+- `githash` - contains the git commit hash;
 
 If there is **tag** in the format `v{major}[.{minor}[.{patch}]][-{suffix}]` (ex. v1.2-beta) then
 
@@ -59,12 +60,13 @@ If there is **tag** in the format `v{major}[.{minor}[.{patch}]][-{suffix}]` (ex.
 
 Preset version formats:
 
-- `short-version` - version format: `{major}.{minor}.{patch}.{build}`
+- `build-version` - version format: `{major}.{minor}.{patch}.{build}`
 - `suffix-version` - version format: `{major}.{minor}.{patch}.{build}[-{suffix}]`
-- `semantic-version` - version format: `{major}.{minor}{patch}[-{suffix}]+{build}.{attempt}`
-- `short-hash-version` - version format: `{major}.{minor}.{patch}.{build}+{hash}`
-- `suffix-hash-version` - version format: `{major}.{minor}.{patch}.{build}[-{suffix}]+{hash}`
-- `semantic-hash-version` - version format: `{major}.{minor}.{patch}[-{suffix}]+{build}.{attempt}.{hash}`
+- `semantic-version-1` - version format: `{major}.{minor}{patch}[-{suffix}]`
+- `semantic-version-2` - version format: `{major}.{minor}{patch}[-{suffix}]+{build}.{attempt}`
+- `build-githash-version` - version format: `{major}.{minor}.{patch}.{build}+{githash}`
+- `suffix-githash-version` - version format: `{major}.{minor}.{patch}.{build}[-{suffix}]+{githash}`
+- `semantic-githash-version-2` - version format: `{major}.{minor}.{patch}[-{suffix}]+{build}.{attempt}.{githash}`
 
 ## Action badges/shields-io-badge
 
@@ -119,7 +121,8 @@ It generates [Shields.io endpoint badge](https://shields.io/badges/endpoint-badg
 - `badge-description` - gist file description;
 - `gist-filename` - (required) The format name for the 'Github Gist' file that stores the badge's metadata;
 - `gist-id` - (required) The unique identifier of the 'Github Gist' where badge metadata is stored;
-- `gist-auth-token` - (required) Authentication token to update the the 'Github Gist'.
+- `gist-auth-token` - (required) Authentication token to update the the 'Github Gist';
+- `gist-owner` - 'Github Gist' owner, default: ${{ github.repository_owner }}.
 
 ### Action outputs
 
@@ -181,7 +184,8 @@ It creates test coverage [badges](https://shields.io/badges/endpoint-badge) from
 - `report-root` - (required) Report root directory;
 - `report-filename` - Report filename, default: "coverage.cobertura.xml";
 - `gist-id` - (required) The unique identifier of the 'Github Gist' where badge metadata is stored;
-- `gist-auth-token` - (required) Authentication token to update the the 'Github Gist.
+- `gist-auth-token` - (required) Authentication token to update the the 'Github Gist;
+- `gist-owner` - 'Github Gist' owner, default: ${{ github.repository_owner }}.
 
 ### Action outputs
 
