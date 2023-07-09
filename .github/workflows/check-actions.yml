@@ -138,3 +138,12 @@ jobs:
         for ((i=0; i<$len; i++)); do
           echo -e "Badge link #"$i" $(echo $json | jq -r '.['$i']')\n"
         done
+
+    - name: Run pack-nuget action
+      uses: ./pack-nuget
+      with:
+        project: ./pack-nuget/.test-project/Nuget/Nuget.csproj
+        configuration: Release
+        push-to-nuget: false
+        push-to-github: false
+        upload-artifact: false
