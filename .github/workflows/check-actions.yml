@@ -33,6 +33,7 @@ on:
 
 env:
   gist-id: ${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}
+  gist-owner: ${{ vars.GIST_OWNER }}
   gist-auth-token: ${{ secrets.TOKEN_GITHUB_GIST }}
 jobs:
 
@@ -49,8 +50,23 @@ jobs:
     - name: Check Repository Secrets and Variables
       if: ${{ github.event_name != 'pull_request' }}
       run: |
-        if [ -z '${{ env.gist-id }}' ] || [ -z '${{ env.gist-auth-token }}' ]; then
-          echo -e "\nSome secret or variable is missing!\n"
+        exit=false
+        if [ -z '${{ env.gist-id }}' ]; then
+          echo -e "\n'BADGE_COVERLET_COVERAGE_GIST_ID' variable is missing!\n"
+          exit=true
+        fi
+
+        if [ -z '${{ env.gist-auth-token }}' ]; then
+          echo -e "\n'TOKEN_GITHUB_GIST' secret is missing!\n"
+          exit=true
+        fi
+
+        if [ -z '${{ env.gist-owner }}' ]; then
+          echo -e "\n'GIST_OWNER' variable is missing!\n"
+          exit=true
+        fi
+
+        if [ "$exit" = true ]; then
           exit 1
         fi
 
@@ -60,19 +76,20 @@ jobs:
 
     - name: Check version-number action
       run: |
-        echo "Short version: ${{ steps.version-number.outputs.short-version }}"
+        echo "Build version: ${{ steps.version-number.outputs.build-version }}"
         echo "Suffix version: ${{ steps.version-number.outputs.suffix-version }}"
-        echo "Semantic version: ${{ steps.version-number.outputs.semantic-version }}"
-        echo "Short version with hash: ${{ steps.version-number.outputs.short-hash-version }}"
-        echo "Suffix version with hash: ${{ steps.version-number.outputs.suffix-hash-version }}"
-        echo "Semantic version with hash: ${{ steps.version-number.outputs.semantic-hash-version }}"
+        echo "Semantic version 1.0: ${{ steps.version-number.outputs.semantic-version-1 }}"
+        echo "Semantic version 2.0: ${{ steps.version-number.outputs.semantic-version-2 }}"
+        echo "Build version with githash: ${{ steps.version-number.outputs.build-githash-version }}"
+        echo "Suffix version with githash: ${{ steps.version-number.outputs.suffix-githash-version }}"
+        echo "Semantic version 2.0 with githash: ${{ steps.version-number.outputs.semantic-githash-version-2 }}"
         echo "Major: ${{ steps.version-number.outputs.major }}"
         echo "Minor: ${{ steps.version-number.outputs.minor }}"
         echo "Patch: ${{ steps.version-number.outputs.patch }}"
         echo "Build: ${{ steps.version-number.outputs.build }}"
         echo "Attempt: ${{ steps.version-number.outputs.attempt }}"
         echo "Today: ${{ steps.version-number.outputs.today }}"
-        echo "Commit hash: ${{ steps.version-number.outputs.hash }}"
+        echo "Git hash: ${{ steps.version-number.outputs.githash }}"
         echo "Suffix: ${{ steps.version-number.outputs.suffix }}"
 
     - name: Run badges/shields-io-badge action
@@ -91,7 +108,7 @@ jobs:
         gist-filename: "${{ github.event.repository.name }}-shields-io-badge.json"
         gist-id: ${{ env.gist-id }}
         gist-auth-token: ${{ env.gist-auth-token }}
-        gist-owner: finebits-github
+        gist-owner: ${{ env.gist-owner }}
 
     - name: Check badges/shields-io-badge action
       if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}
@@ -104,14 +121,13 @@ jobs:
       id: badges-coverlet-coverage-badge
       uses: ./badges/coverlet-coverage-badge
       with:
-        label-color: 343b42
         report-root: ./badges/coverlet-coverage-badge/.test-reports
         report-filename: coverage.cobertura.xml
 
         gist-filename-format: "${{ github.event.repository.name }}-{0}-test-coverage.json"
         gist-id: ${{ env.gist-id }}
         gist-auth-token: ${{ env.gist-auth-token }}
-        gist-owner: finebits-github
+        gist-owner: ${{ env.gist-owner }}
 
     - name: Check badges/coverlet-coverage-badge action
       if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}

@@ -33,22 +33,24 @@ outputs:
     value: ${{ steps.action-context.outputs.attempt }}
   today:
     value: ${{ steps.action-context.outputs.today }}
-  hash:
-    value: ${{ steps.commit.outputs.hash }}
+  githash:
+    value: ${{ steps.commit.outputs.githash }}
   suffix:
     value: ${{ steps.tag-version.outputs.suffix }}
-  short-version:
-    value: ${{ steps.format.outputs.short-version }}
+  build-version:
+    value: ${{ steps.format.outputs.build-version }}
   suffix-version:
     value: ${{ steps.format.outputs.suffix-version }}
-  semantic-version: # https://semver.org/spec/v2.0.0.html
-    value: ${{ steps.format.outputs.semantic-version }}
-  short-hash-version:
-    value: ${{ steps.format.outputs.short-hash-version }}
-  suffix-hash-version:
-    value: ${{ steps.format.outputs.suffix-hash-version }}
-  semantic-hash-version: # https://semver.org/spec/v2.0.0.html
-    value: ${{ steps.format.outputs.semantic-hash-version }}
+  semantic-version-1: # https://semver.org/spec/v1.0.0.html
+    value: ${{ steps.format.outputs.semantic-version-1 }}
+  semantic-version-2: # https://semver.org/spec/v2.0.0.html
+    value: ${{ steps.format.outputs.semantic-version-2 }}
+  build-githash-version:
+    value: ${{ steps.format.outputs.build-githash-version }}
+  suffix-githash-version:
+    value: ${{ steps.format.outputs.suffix-githash-version }}
+  semantic-githash-version-2: # https://semver.org/spec/v2.0.0.html
+    value: ${{ steps.format.outputs.semantic-githash-version-2 }}
 runs:
   using: "composite"
 
@@ -79,7 +81,7 @@ runs:
     - id: commit
       shell: bash
       run: |
-        echo "hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        echo "githash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
     - id: action-context
       shell: bash
@@ -94,17 +96,20 @@ runs:
         suffix=${{ env.suffix }}
         suffix=$([[ -z $suffix ]] && echo '' || echo "-$suffix")
 
-        shortversion=${{ env.major }}.${{ env.minor }}.${{ env.patch }}.${{ env.build }}
-        echo "short-version=$(echo $shortversion )" >> $GITHUB_OUTPUT
-        echo "short-hash-version=$(echo $shortversion+${{ env.hash }} )" >> $GITHUB_OUTPUT
+        buildversion=${{ env.major }}.${{ env.minor }}.${{ env.patch }}.${{ env.build }}
+        echo "build-version=$(echo $buildversion )" >> $GITHUB_OUTPUT
+        echo "build-githash-version=$(echo $buildversion+${{ env.githash }} )" >> $GITHUB_OUTPUT
 
         suffixversion=${{ env.major }}.${{ env.minor }}.${{ env.patch }}.${{ env.build }}$suffix
         echo "suffix-version=$(echo $suffixversion )" >> $GITHUB_OUTPUT
-        echo "suffix-hash-version=$(echo $suffixversion+${{ env.hash }} )" >> $GITHUB_OUTPUT
+        echo "suffix-githash-version=$(echo $suffixversion+${{ env.githash }} )" >> $GITHUB_OUTPUT
 
-        semanticversion=${{ env.major }}.${{ env.minor }}.${{ env.patch }}$suffix+${{ env.build }}.${{ env.attempt }}
-        echo "semantic-version=$(echo $semanticversion )" >> $GITHUB_OUTPUT
-        echo "semantic-hash-version=$(echo $semanticversion.${{ env.hash }} )" >> $GITHUB_OUTPUT
+        semanticversion1=${{ env.major }}.${{ env.minor }}.${{ env.patch }}$suffix
+        echo "semantic-version-1=$(echo $semanticversion1 )" >> $GITHUB_OUTPUT
+
+        semanticversion2=${{ env.major }}.${{ env.minor }}.${{ env.patch }}$suffix+${{ env.build }}.${{ env.attempt }}
+        echo "semantic-version-2=$(echo $semanticversion2 )" >> $GITHUB_OUTPUT
+        echo "semantic-githash-version-2=$(echo $semanticversion2.${{ env.githash }} )" >> $GITHUB_OUTPUT
 
       env:
         major: ${{ steps.tag-version.outputs.major }}
@@ -113,5 +118,5 @@ runs:
         build: ${{ steps.action-context.outputs.build }}
         today: ${{ steps.action-context.outputs.today }}
         attempt: ${{ steps.action-context.outputs.attempt }}
-        hash: ${{ steps.commit.outputs.hash }}
+        githash: ${{ steps.commit.outputs.githash }}
         suffix: ${{ steps.tag-version.outputs.suffix }}
