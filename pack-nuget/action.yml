@@ -1,0 +1,212 @@
+################################################################################
+#                                                                              #
+#   Copyright 2023 Finebits (https://finebits.com)                             #
+#                                                                              #
+#   Licensed under the Apache License, Version 2.0 (the "License");            #
+#   you may not use this file except in compliance with the License.           #
+#   You may obtain a copy of the License at                                    #
+#                                                                              #
+#       http://www.apache.org/licenses/LICENSE-2.0                             #
+#                                                                              #
+#   Unless required by applicable law or agreed to in writing, software        #
+#   distributed under the License is distributed on an "AS IS" BASIS,          #
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+#   See the License for the specific language governing permissions and        #
+#   limitations under the License.                                             #
+#                                                                              #
+################################################################################
+
+name: Pack Nuget
+
+description:
+
+inputs:
+  project:
+    description: 'The project file to build'
+    type: string
+    required: true
+  
+  configuration:
+    description: 'Defines the build configuration'
+    type: string
+    required: true
+
+  upload-artifact:
+    description: 'Allows you to save the nuget artifact'
+    type: boolean
+    required: false
+    default: false
+
+  artifact-name:
+    type: string
+    required: false
+    default: 'nuget'
+
+  push-to-nuget:
+    description: 'Allows you to push the nuget to nuget.org'
+    type: boolean
+    required: false
+    default: false
+
+  nuget-apikey:
+    description: 'The API key for nuget.org'
+    type: string
+    required: false
+    default: ''
+
+  push-to-github:
+    description: 'Allows you to push the nuget to nuget.pkg.github.com'
+    type: boolean
+    required: false
+    default: false
+
+  github-token:
+    description: 'Github token (required write:packages scopes)'
+    type: string
+    required: false
+    default: ''
+
+  github-owner:
+    description: 'Github package owner'
+    type: string
+    required: false
+    default: ''
+
+  certificate:
+    description: 'Base64 encoded certificate'
+    type: string
+    required: false
+    default: ''
+
+  certificate-password:
+    type: string
+    required: false
+    default: ''
+
+  file-version:
+    description: 'Redefines assembly version'
+    type: string
+    required: false
+    default: ''
+
+  package-version:
+    description: 'Redefines the nuget package version'
+    type: string
+    required: false
+    default: ''
+
+outputs: 
+  artifact-full-name:
+    value: ${{ steps.nuget.outputs.artifact-full-name }}
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Set env
+      shell: bash
+      run: |
+        workspace="${{ github.workspace }}"
+        echo "package-root=$workspace/nupkgs" >> $GITHUB_ENV
+        echo "certificate-root=$workspace/certificates" >> $GITHUB_ENV
+        echo "owner=${{ github.repository_owner }}" >> $GITHUB_ENV
+
+        echo "upload-artifact: ${{ inputs.upload-artifact }}"
+        echo "push-to-nuget: ${{ inputs.push-to-nuget }}"
+        echo "push-to-github: ${{ inputs.push-to-github }}"
+
+    - name: Get version number
+      id: version
+      uses: finebits/github-actions/version-number@v1.1.2
+
+    - name: Save nuget parameters
+      id: nuget 
+      shell: bash
+      run: |
+        file_version="${{ inputs.file-version }}"
+        package_version="${{ inputs.package-version }}"
+        artifact_name="${{ inputs.artifact-name }}"
+
+        if [ -z $file_version ]; then
+          file_version=${{ env.auto-file-version }}
+        fi
+
+        if [ -z $package_version ]; then
+          package_version=${{ env.auto-package-version }}
+        fi
+
+        echo "file-version=$file_version" >> $GITHUB_OUTPUT
+        echo "package-version=$package_version" >> $GITHUB_OUTPUT
+        echo "artifact-full-name=$artifact_name-v$package_version" >> $GITHUB_OUTPUT
+      env:
+        auto-file-version: ${{ steps.version.outputs.suffix-version }}
+        auto-package-version: ${{ steps.version.outputs.semantic-githash-version-2 }}
+
+    - name: Build nuget
+      shell: bash
+      run: | 
+        dotnet clean ${{ inputs.project }} --configuration ${{ inputs.configuration }}
+        dotnet build ${{ inputs.project }} --configuration ${{ inputs.configuration }} --property:Version=${{ env.file-version }} --property:ContinuousIntegrationBuild=true
+      env:
+        file-version: ${{ steps.nuget.outputs.file-version }}
+
+    - name: Pack nuget
+      shell: bash
+      run: dotnet pack "${{ inputs.project }}" --output="${{ env.package-root }}" --configuration ${{ inputs.configuration }} --p:PackageVersion="${{ env.package-version }}" --no-build
+      env:
+        package-version: ${{ steps.nuget.outputs.package-version }}
+
+    - name: Sign nuget
+      if: ${{ inputs.certificate != '' }}
+      shell: bash
+      run: |
+        mkdir -p ${{ env.certificate-root }}
+        echo "${{ inputs.certificate }}" | base64 --decode > "${{ env.certificate-file }}"
+        dotnet nuget sign "${{ env.package-root }}/*.nupkg" --certificate-path="${{ env.certificate-file }}" --certificate-password="${{ inputs.certificate-password }}" --timestamper "http://timestamp.digicert.com"
+      env:
+        certificate-file: "${{ env.certificate-root }}/certificate.pfx"
+
+    - name: Verify nuget
+      if: ${{ inputs.certificate != '' }}
+      shell: bash
+      run: dotnet nuget verify "${{ env.package-root }}/*.nupkg"
+
+    - name: Upload artifact
+      if: ${{ inputs.upload-artifact == 'true' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.artifact-name }}
+        path: |
+          ${{ env.package-root }}
+      env:
+        artifact-name: ${{ steps.nuget.outputs.artifact-full-name }}
+
+    - name: Push package to nuget.org
+      if: ${{ inputs.push-to-nuget == 'true' }}
+      shell: bash
+      run: |
+        apikey=${{ inputs.nuget-apikey }}
+        if [ -z $apikey ]; then
+          echo -e "\n'nuget-apikey' input is required!\n"
+          exit 1
+        fi
+
+        dotnet nuget push "${{ env.package-root }}/*.nupkg" --api-key "$apikey" --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+    - name: Push package to nuget.pkg.github.com
+      if: ${{ inputs.push-to-github == 'true' }}
+      shell: bash
+      run: |
+        token=${{ inputs.github-token }}
+        if [ -z $token ]; then
+          echo -e "\n'github-token' input is required!\n"
+          exit 1
+        fi
+
+        owner=${{ inputs.github-owner }}
+        if [ -z $owner ]; then
+          echo -e "\n'github-owner' input is required!\n"
+          exit 1
+        fi
+
+        dotnet nuget push "${{ env.package-root }}/*.nupkg" --api-key "$token" --source https://nuget.pkg.github.com/${owner}/index.json --skip-duplicate
