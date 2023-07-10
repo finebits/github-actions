@@ -22,6 +22,11 @@
     - [Using](#using-2)
     - [Action inputs](#action-inputs-2)
     - [Action outputs](#action-outputs-2)
+ 4. [Action 'pack-nuget'](#action-pack-nuget)
+    - [Summary](#summary-3)
+    - [Using](#using-3)
+    - [Action inputs](#action-inputs-3)
+    - [Action outputs](#action-outputs-3)
 
 ## Action 'version-number'
 
@@ -42,7 +47,7 @@ Gets a version number using a git tag, a git commit, a github workflow context.
 
 ### Action inputs
 
-Action has no input.
+Action has no inputs.
 
 ### Action outputs
 
@@ -190,3 +195,52 @@ It creates test coverage [badges](https://shields.io/badges/endpoint-badge) from
 ### Action outputs
 
 - `badges-links` - contains a json array of markdown badges links. Test coverage badges by packages and total.
+
+## Action pack-nuget
+
+### Summary
+
+It packs the project into a NuGet package. Also **pack-nuget** action can:
+
+- sign the NuGet package;
+- push to **nuget.org** and/or **nuget.pkg.github.com**;
+- save the NuGet artifact.
+
+### Using
+
+```yaml
+  - name: Pack
+    uses: finebits/github-actions/pack-nuget@v1.2   
+    with:
+        project: ./source/Hello.Nuget.csproj
+        configuration: Release
+        upload-artifact: true
+        artifact-name: Hello.Nuget
+        push-to-nuget: true
+        nuget-apikey: ${{ secrets.NUGET_APIKEY }}
+        push-to-github: true
+        github-token: ${{ secrets.TOKEN_GITHUB_PACKAGE }}
+        github-owner: ${{ github.repository_owner }}
+        certificate: ${{ secrets.NUGET_BASE64_CERT }}
+        certificate-password: ${{ secrets.NUGET_CERT_PASSWORD }}
+```
+
+### Action inputs
+
+- `project` - (required) Project file for NuGet packaging;
+- `configuration` - (required) Defines the build configuration;
+- `upload-artifact` - The **true** value allows you to save the NuGet artifact, default: false;
+- `artifact-name` - Defines the artifact file name, default: nuget;
+- `push-to-nuget` - The **true** value allows you to push the nuget to **nuget.org**, default: false;
+- `nuget-apikey` - The API key for nuget.org;
+- `push-to-github` - The **true** value allows you to push the nuget to **nuget.pkg.github.com**, default: false;
+- `github-token` - Github token (required **write:packages** scopes);
+- `github-owner` - Github package owner;
+- `certificate` - **Base64** encoded certificate;
+- `certificate-password` - A password string;
+- `file-version` - Redefines assembly version, default version calculated from git tag;
+- `package-version` - Redefines the NuGet package version, default version calculated from git tag;
+
+### Action outputs
+
+- `artifact-full-name` - final nuget artifact name.

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Finebits.Nuget</AssemblyName>
+    <RootNamespace>Finebits.Nuget</RootNamespace>
+    <AnalysisLevel>6.0-all</AnalysisLevel>
+
+    <PackageId>Finebits.Nuget</PackageId>
+    <Title>Finebits.Nuget</Title>
+
+    <Authors>Finebits</Authors>
+    <Company>Finebits</Company>
+
+    <Product>Nuget (netstandard2.0)</Product>
+    <Description>Nuget project example.</Description>
+    <Copyright>© 2023 Finibits. All rights reserved.</Copyright>
+
+    <PackageTags>nuget;</PackageTags>
+
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+  </PropertyGroup>
+
+</Project>
