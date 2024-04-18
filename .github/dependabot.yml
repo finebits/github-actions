@@ -1,0 +1,50 @@
+# Please see the documentation for all configuration options:
+# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+
+    # github workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "al-kau"
+      - "ValeraFinebits"
+
+    # finebits/pack-nuget action
+  - package-ecosystem: "github-actions"
+    directory: "/pack-nuget/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "al-kau"
+      - "ValeraFinebits"
+
+  # finebits/version-number action
+  - package-ecosystem: "github-actions"
+    directory: "/version-number/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "al-kau"
+      - "ValeraFinebits"
+
+  # finebits/badges/shields-io-badge action
+  - package-ecosystem: "github-actions"
+    directory: "/badges/shields-io-badge/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "al-kau"
+      - "ValeraFinebits"
+
+  # finebits/badges/coverlet-coverage-badge action
+  - package-ecosystem: "github-actions"
+    directory: "/badges/coverlet-coverage-badge/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "al-kau"
+      - "ValeraFinebits"
