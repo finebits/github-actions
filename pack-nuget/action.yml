@@ -117,7 +117,7 @@ runs:
 
     - name: Get version number
       id: version
-      uses: finebits/github-actions/version-number@v1.1.2
+      uses: finebits/github-actions/version-number@v1
 
     - name: Save nuget parameters
       id: nuget 
@@ -173,7 +173,7 @@ runs:
 
     - name: Upload artifact
       if: ${{ inputs.upload-artifact == 'true' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@1746f4ab65b179e0ea60a494b83293b640dd5bba # v4.3.2
       with:
         name: ${{ env.artifact-name }}
         path: |
