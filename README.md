@@ -38,7 +38,7 @@ Gets a version number using a git tag, a git commit, a github workflow context.
 
 ```yaml
     - id: version-number
-      uses: finebits/github-actions/version-number@v1.1.2
+      uses: finebits/github-actions/version-number@v1
 
     - name: 
       run: |
@@ -92,7 +92,7 @@ It generates [Shields.io endpoint badge](https://shields.io/badges/endpoint-badg
 
 ```yaml
 - id: shields-io-badge
-  uses: finebits/github-actions/badges/shields-io-badge@v1.1.1
+  uses: finebits/github-actions/badges/shields-io-badge@v1
   with:
     label: shields.io
     label-color: lightblue
@@ -158,7 +158,7 @@ It creates test coverage [badges](https://shields.io/badges/endpoint-badge) from
     dotnet test ./source/test.csproj --collect:"XPlat Code Coverage" --results-directory="./source/TestResults"
 
 - id: coverlet-coverage-badge
-  uses: finebits/github-actions/badges/coverlet-coverage-badge@v1.1.1
+  uses: finebits/github-actions/badges/coverlet-coverage-badge@v1
   with:
     report-root: ./source/TestResults/**/
     report-filename: coverage.cobertura.xml
@@ -210,7 +210,7 @@ It packs the project into a NuGet package. Also **pack-nuget** action can:
 
 ```yaml
   - name: Pack
-    uses: finebits/github-actions/pack-nuget@v1.2   
+    uses: finebits/github-actions/pack-nuget@v1
     with:
         project: ./source/Hello.Nuget.csproj
         configuration: Release
