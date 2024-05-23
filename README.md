@@ -27,8 +27,13 @@
     - [Using](#using-3)
     - [Action inputs](#action-inputs-3)
     - [Action outputs](#action-outputs-3)
+ 5. [Action 'upload-release-asset'](#action-upload-release-asset)
+    - [Summary](#summary-4)
+    - [Using](#using-4)
+    - [Action inputs](#action-inputs-4)
+    - [Action outputs](#action-outputs-4)
 
-## Action 'version-number'
+## Action `version-number`
 
 ### Summary
 
@@ -67,17 +72,17 @@ Preset version formats:
 
 - `build-version` - version format: `{major}.{minor}.{patch}.{build}`
 - `suffix-version` - version format: `{major}.{minor}.{patch}.{build}[-{suffix}]`
-- `semantic-version-1` - version format: `{major}.{minor}{patch}[-{suffix}]`
-- `semantic-version-2` - version format: `{major}.{minor}{patch}[-{suffix}]+{build}.{attempt}`
+- `semantic-version-1` - version format: `{major}.{minor}.{patch}[-{suffix}]`
+- `semantic-version-2` - version format: `{major}.{minor}.{patch}[-{suffix}]+{build}.{attempt}`
 - `build-githash-version` - version format: `{major}.{minor}.{patch}.{build}+{githash}`
 - `suffix-githash-version` - version format: `{major}.{minor}.{patch}.{build}[-{suffix}]+{githash}`
 - `semantic-githash-version-2` - version format: `{major}.{minor}.{patch}[-{suffix}]+{build}.{attempt}.{githash}`
 
-## Action badges/shields-io-badge
+## Action `badges/shields-io-badge`
 
 ### Summary
 
-It generates [Shields.io endpoint badge](https://shields.io/badges/endpoint-badge). Sample badge: <sub><sub>![Shields.io badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/finebits-github/74f6d448f4f568a286d4622e92afbc75/raw/github-actions-shields-io-badge.json)</sub></sub>
+It generates [Shields.io endpoint badge](https://shields.io/badges/endpoint-badge). Example badge: <sub><sub>![Shields.io badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/finebits-github/74f6d448f4f568a286d4622e92afbc75/raw/github-actions-shields-io-badge.json)</sub></sub>
 
 ### Using
 
@@ -133,11 +138,11 @@ It generates [Shields.io endpoint badge](https://shields.io/badges/endpoint-badg
 
 - `badge-link` - markdown badge link.
 
-## Action badges/coverlet-coverage-badge
+## Action `badges/coverlet-coverage-badge`
 
 ### Summary
 
-It creates test coverage [badges](https://shields.io/badges/endpoint-badge) from the `coverlet.collector` test report. Sample badge: <sub><sub>![Shields.io badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/finebits-github/74f6d448f4f568a286d4622e92afbc75/raw/github-actions-total-test-coverage.json)</sub></sub>
+It creates test coverage [badges](https://shields.io/badges/endpoint-badge) from the `coverlet.collector` test report. Example badge: <sub><sub>![Shields.io badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/finebits-github/74f6d448f4f568a286d4622e92afbc75/raw/github-actions-total-test-coverage.json)</sub></sub>
 
 ### Using
 
@@ -196,7 +201,7 @@ It creates test coverage [badges](https://shields.io/badges/endpoint-badge) from
 
 - `badges-links` - contains a json array of markdown badges links. Test coverage badges by packages and total.
 
-## Action pack-nuget
+## Action `pack-nuget`
 
 ### Summary
 
@@ -244,3 +249,32 @@ It packs the project into a NuGet package. Also **pack-nuget** action can:
 ### Action outputs
 
 - `artifact-full-name` - final nuget artifact name.
+
+## Action `upload-release-asset`
+
+### Summary
+
+It uploads an asset to the existing release. Also **upload-release-asset** action can upload several assets if the path contains a pattern.
+
+### Using
+
+```yaml
+  - name: Pack
+    uses: finebits/github-actions/upload-release-asset@v1
+    with:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+      tag: ${{ github.event.release.tag_name }}
+      path: "assets/*"
+```
+
+### Action inputs
+
+- `github-token` - (required) The github token must have **contents:write** permission;
+- `path` - (required) Path to asset directory. This can be a pattern;
+- `tag` - The name of the tag. To use the latest release, leave the value unset. default: unset;
+- `github-api-version` - To specify a version of the Github REST API, default: 2022-11-28;
+- `github-repository` - The name of the repository (ex: _finebits/github-actions_). The name is not case sensitive. default: ${GITHUB_REPOSITORY}
+
+### Action outputs
+
+ Action has no outputs.
