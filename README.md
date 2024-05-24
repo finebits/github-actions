@@ -259,7 +259,7 @@ It uploads an asset to the existing release. Also **upload-release-asset** actio
 ### Using
 
 ```yaml
-  - name: Pack
+  - name: Upload assets
     uses: finebits/github-actions/upload-release-asset@v1
     with:
       github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -270,7 +270,7 @@ It uploads an asset to the existing release. Also **upload-release-asset** actio
 ### Action inputs
 
 - `github-token` - (required) The github token must have **contents:write** permission;
-- `path` - (required) Path to asset directory. This can be a pattern;
+- `path` - (required) Path to asset file. This can be a pattern-path to several files;
 - `tag` - The name of the tag. To use the latest release, leave the value unset. default: unset;
 - `github-api-version` - To specify a version of the Github REST API, default: 2022-11-28;
 - `github-repository` - The name of the repository (ex: _finebits/github-actions_). The name is not case sensitive. default: ${GITHUB_REPOSITORY}

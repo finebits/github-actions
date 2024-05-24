@@ -18,7 +18,7 @@
 
 name: Upload Release Asset
 
-description: To upload the asset from directory.
+description: To upload the asset into release.
 
 inputs:
   github-token:
@@ -27,7 +27,7 @@ inputs:
     required: true
 
   path:
-    description: 'Path to asset directory'
+    description: 'Path to asset file'
     type: string
     required: true
 
@@ -61,7 +61,7 @@ runs:
       url="${GITHUB_API_URL}/repos/${{ inputs.github-repository }}/releases/latest"
       tag="${{ inputs.tag }}"
 
-      if [[ ! -z ${tag} ]]; then
+      if [ ! -z "${tag}" ]; then
         url="${GITHUB_API_URL}/repos/${{ inputs.github-repository }}/releases/tags/${tag}"
       fi
 
@@ -73,21 +73,18 @@ runs:
                       --header "X-GitHub-Api-Version: ${{ inputs.github-api-version }}" \
                       "${url}")
 
+      echo "::debug::get-release response: $response"
       upload_url=$(echo "$response" | jq -r ".upload_url")
 
       pattern=${{ inputs.path }}
 
       for asset in ${pattern}; do
-        if [ -d "$asset" ]; then
+        if [ -f "$asset" ]; then
           echo "Found asset: $asset"
           asset_name="${asset##*/}"
-          zip_file="${asset_name}.zip"
 
-          encoded_name=$(echo "${zip_file}" | jq -R -r @uri)
-          encoded_label=$(echo "${asset_name}" | jq -R -r @uri)
-          upload_file_url="${upload_url%%[?{]*}?name=${encoded_name}&label=${encoded_label}"
-
-          zip -r -j "$zip_file" "$asset" && echo "Archiving of '$asset_name' asset completed successfully." || echo "Failed to archive '$asset_name' asset"
+          encoded_name=$(echo "${asset_name}" | jq -R -r @uri)
+          upload_file_url="${upload_url%%[?{]*}?name=${encoded_name}&label=${encoded_name}"
 
           response=$(curl --request POST \
                           --silent \
@@ -95,21 +92,21 @@ runs:
                           --header "Accept: application/vnd.github+json" \
                           --header "Authorization: Bearer ${{ inputs.github-token }}" \
                           --header "X-GitHub-Api-Version: ${{ inputs.github-api-version }}" \
-                          --header "Content-Type: application/zip" \
+                          --header "Content-Type: application/octet-stream" \
                           "${upload_file_url}" \
-                          --data-binary "@${zip_file}")
+                          --data-binary "@${asset}")
 
-          echo "upload response: $response"
+          echo "::debug::upload-asset response: $response"
 
           upload_name=$(echo "$response" | jq -r ".name")
           upload_state=$(echo "$response" | jq -r ".state")
 
-          if [[ ${upload_name} != null ]]; then
+          if [ "${upload_name}" != "null" ]; then
             echo "::notice::${upload_name}: ${upload_state}"
           else
             message=$(echo "$response" | jq -r ".message")
 
-            if [[ ${message} != null ]]; then
+            if [ "${message}" != "null" ]; then
               echo "::warning::${message}"
             fi
           fi
