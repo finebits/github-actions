@@ -74,7 +74,6 @@ runs:
                       "${url}")
 
       echo "::debug::get-release response: $response"
-
       upload_url=$(echo "$response" | jq -r ".upload_url")
 
       pattern=${{ inputs.path }}
