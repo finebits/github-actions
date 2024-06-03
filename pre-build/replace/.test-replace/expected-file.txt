@@ -1,0 +1,56 @@
+-----------------test-text--------------
+
+This text should be replaced "new value"
+This text shouldn't be replaced "<place-holder>"
+This text should be replaced "new value new value new value"
+This text shouldn't be replaced "<place
+holder>"
+
+-----------------symbols----------------
+
+!@#$%^&*()_+[]{}:;"'`~<>/?\
+
+------------------keywords--------------
+
+    string
+    int
+    double
+    single
+    float
+	class
+	struct
+	record
+	interface
+    function
+
+-----------------code--------------------
+
+printf("%s %n", "text-param", 23);
+$"text"
+${variable}
+arr[16]
+var v = 0;
+v:=4;
+echo "foobar"
+if ( true ) {}
+https://url.com/?q=foo&p=bar#fragment
+<xml/>
+{
+    "json":"value"
+}
+
+-----------------spaces-----------------
+
+
+    
+	
+                                        
+										
+    	    	    	    	    	
+	    	    	    	    	    
+
+-----------------numbers----------------
+
+1234567890
+
+----------------no-newline--------------

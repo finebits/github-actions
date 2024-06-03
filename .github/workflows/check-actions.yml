@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-#   Copyright 2023 Finebits (https://finebits.com)                             #
+#   Copyright 2024 Finebits (https://finebits.com)                             #
 #                                                                              #
 #   Licensed under the Apache License, Version 2.0 (the "License");            #
 #   you may not use this file except in compliance with the License.           #
@@ -38,7 +38,12 @@ env:
 jobs:
 
   check:
-    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
 
     steps:
     - name: Checkout
@@ -49,6 +54,7 @@ jobs:
 
     - name: Check Repository Secrets and Variables
       if: ${{ github.event_name != 'pull_request' }}
+      shell: bash
       run: |
         exit=false
         if [ -z '${{ env.gist-id }}' ]; then
@@ -75,6 +81,7 @@ jobs:
       uses: ./version-number
 
     - name: Check version-number action
+      shell: bash
       run: |
         echo "Build version: ${{ steps.version-number.outputs.build-version }}"
         echo "Suffix version: ${{ steps.version-number.outputs.suffix-version }}"
@@ -112,6 +119,7 @@ jobs:
 
     - name: Check badges/shields-io-badge action
       if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}
+      shell: bash
       run: |
         link='${{ steps.badges-shields-io-badge.outputs.badge-link }}'
         echo -e 'Badge link: '$link'\n'
@@ -131,6 +139,7 @@ jobs:
 
     - name: Check badges/coverlet-coverage-badge action
       if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}
+      shell: bash
       run: |
         json='${{ steps.badges-coverlet-coverage-badge.outputs.badges-links }}'
 
@@ -147,3 +156,24 @@ jobs:
         push-to-nuget: false
         push-to-github: false
         upload-artifact: false
+
+    - name: Run pre-build/replace action
+      uses: ./pre-build/replace
+      with:
+        file: ./pre-build/replace/.test-replace/test-file.txt
+        placeholder: "<placeholder>"
+        value: "new value"
+
+    - name: Check pre-build/replace action
+      shell: bash
+      run: | 
+        actual_file="./pre-build/replace/.test-replace/test-file.txt"
+        expected_file="./pre-build/replace/.test-replace/expected-file.txt"
+        if (cmp -s "$actual_file" "$expected_file"); then
+          echo "The 'pre-build/replace' action is passed the tests"
+        else
+          echo "::error::The 'pre-build/replace' action is failed the tests"
+          echo "Differences:"
+          diff "$actual_file" "$expected_file"
+          exit 1
+        fi
