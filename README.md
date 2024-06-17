@@ -2,8 +2,7 @@
 
 [![GitHub release](https://img.shields.io/github/release/finebits/github-actions.svg)](https://GitHub.com/finebits/github-actions/tags/)
 [![License](https://img.shields.io/github/license/finebits/github-actions.svg)](https://github.com/finebits/github-actions/blob/main/LICENSE)
-[![Main branch: check](https://img.shields.io/github/actions/workflow/status/finebits/github-actions/check-actions.yml?branch=main&logo=github&label=main:%20check)](https://github.com/finebits/github-actions/actions/workflows/check-actions.yml?query=branch%3Amain)
-[![Develop branch: check](https://img.shields.io/github/actions/workflow/status/finebits/github-actions/check-actions.yml?branch=develop&logo=github&label=develop:%20check)](https://github.com/finebits/github-actions/actions/workflows/check-actions.yml?query=branch%3Adevelop)
+[![Check action](https://img.shields.io/github/actions/workflow/status/finebits/github-actions/check-actions.yml?branch=main&event=push&logo=github&label=check)](https://github.com/finebits/github-actions/actions/workflows/check-actions.yml?query=branch%3Amain+event%3Apush)
 
 ## Overview
 
