@@ -63,3 +63,36 @@ jobs:
         else
           echo "::notice::'package/appimage/setup-appimagetool' test passed."
         fi
+
+    - name: Prepare-Run 'package/appimage/pack' action  
+      shell: bash
+      run: |
+        bash "./package/appimage/.test/prepare-Test.AppDir.sh"
+
+    - name: Run './package/appimage/pack' action with 'aarch64'
+      uses: ./package/appimage/pack
+      with:
+        package-runtime: 'aarch64'
+        package-output-dir: './.output'
+        package-app-dir: './package/appimage/.test/Test.AppDir'
+
+    - name: Run './package/appimage/pack' action with 'x86_64'
+      id: pack-appimage
+      uses: ./package/appimage/pack
+      with:
+        package-runtime: 'x86_64'
+        package-output-dir: './.output'
+        package-app-dir: './package/appimage/.test/Test.AppDir'
+
+    - name: Test './package/appimage/pack' action with 'x86_64'
+      shell: bash
+      run: |
+        package=${{ steps.pack-appimage.outputs.package }}
+
+        result=$("$package")
+        if [ "$result" != "Hello AppImage" ]; then
+          echo "::error::'package/appimage/pack' test failed. The package '$package' is packed incorrect"
+          exit 3
+        else
+          echo "::notice::'package/appimage/pack' test passed."
+        fi        

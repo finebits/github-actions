@@ -1,0 +1,140 @@
+################################################################################
+#                                                                              #
+#   Copyright 2024 Finebits (https://finebits.com)                             #
+#                                                                              #
+#   Licensed under the Apache License, Version 2.0 (the "License");            #
+#   you may not use this file except in compliance with the License.           #
+#   You may obtain a copy of the License at                                    #
+#                                                                              #
+#       http://www.apache.org/licenses/LICENSE-2.0                             #
+#                                                                              #
+#   Unless required by applicable law or agreed to in writing, software        #
+#   distributed under the License is distributed on an "AS IS" BASIS,          #
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+#   See the License for the specific language governing permissions and        #
+#   limitations under the License.                                             #
+#                                                                              #
+################################################################################
+
+name: Pack AppImage Package
+
+description: |
+  You can package desktop application as AppImage that run on common Linux-based operating systems, 
+  such as RHEL, CentOS, Ubuntu, Fedora, Debian and derivatives.
+
+inputs:
+  package-runtime:
+    description: 'To select the package runtime'
+    type: choice
+    options:
+    - aarch64
+    - armhf
+    - i686
+    - x86_64
+    required: false
+    default: x86_64
+
+  package-app-dir:
+    description: 'Path to Package AppDir directory'
+    type: string
+    required: true
+
+  package-output-dir:
+    description: 'Path to output directory'
+    type: string
+    required: false
+    default: './.output/'
+
+outputs:
+  package:
+    description: 'Path to file <Package>.AppImage'
+    value: ${{ steps.pack.outputs.appimage-package }}
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Check conditions
+      shell: bash
+      run: |
+        if [ "$RUNNER_OS" != "Linux" ]; then
+          echo "::error::This action only supports Linux (Now it runs on $RUNNER_OS)."
+          exit 1
+        fi
+
+        if ( ! command -v "${{ env.GITHUB_ACTION_APPIMAGETOOL_FILE }}" ); then
+          echo "::error::'${{ env.GITHUB_ACTION_APPIMAGETOOL_FILE }}' command not found"
+          exit 2
+        fi
+
+        if [ ! -d "${{ env.GITHUB_ACTION_APPIMAGETOOL_DIR }}" ]; then
+          echo "::error::'${{ env.GITHUB_ACTION_APPIMAGETOOL_DIR }}' directory does not exist"
+          exit 3
+        fi
+
+    - name: Pack
+      id: pack
+      shell: bash
+      run: |
+
+        appimagetool="${{ env.GITHUB_ACTION_APPIMAGETOOL_FILE }}"
+        appimagetool_dir="${{ env.GITHUB_ACTION_APPIMAGETOOL_DIR }}"
+        output_dir="${{ inputs.package-output-dir }}"
+        package_app_dir="${{ inputs.package-app-dir }}"
+
+        here="$(pwd)"
+        tmp_dir="$output_dir/$(uuidgen)"
+
+        echo "Create '$tmp_dir' directory"
+
+        mkdir -p "$tmp_dir"
+
+        function clean() {
+            echo "Cleaning..."
+            cd "$here"
+            rm -drf "$tmp_dir"
+        }
+
+        trap clean EXIT
+
+        package_runtime=${{ inputs.package-runtime }}
+
+        case "${package_runtime}" in
+            "x86_64")
+                export ARCH=x86_64
+                runtime="${appimagetool_dir}/runtime-x86_64"
+                ;;
+            "aarch64")
+                export ARCH=arm_aarch64
+                runtime="${appimagetool_dir}/runtime-aarch64"
+                ;;
+            "armhf")
+                export ARCH=arm
+                runtime="${appimagetool_dir}/runtime-armhf"
+                ;;
+            "i686")
+                export ARCH=i686
+                runtime="${appimagetool_dir}/runtime-i686"
+                ;;
+        esac
+     
+        appimagetool_realpath=$(readlink -e "${appimagetool}")
+        runtime_realpath=$(readlink -e "${runtime}")
+        package_app_dir_realpath=$(readlink -e "${package_app_dir}")
+        output_dir_realpath=$(readlink -e "${output_dir}")
+
+        cd "$tmp_dir"
+
+        echo "Packing..."
+
+        ("${appimagetool_realpath}" --runtime-file="${runtime_realpath}" "${package_app_dir_realpath}")
+
+        cd "$here"
+
+        package=$(find . -path "$tmp_dir/*.AppImage" -print | head -n 1)
+        package_name=$(basename -- "$package")
+
+        cp "$package" "$output_dir"
+
+        echo "AppImage package is '$output_dir/$package_name'"
+        echo "appimage-package=$output_dir/$package_name" >> $GITHUB_OUTPUT
