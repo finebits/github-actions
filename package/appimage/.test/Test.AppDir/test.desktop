@@ -1,0 +1,8 @@
+# Desktop Entry Specification: https://standards.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html
+[Desktop Entry]
+Type=Application
+Name=Test
+Icon=icon
+Exec=test
+Terminal=true
+Categories=Development;
