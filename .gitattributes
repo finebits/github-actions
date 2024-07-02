@@ -5,49 +5,52 @@
 
 # Set file behavior to: treat as text
 
-.gitattributes          text
-**/.gitattributes       text
-.gitignore              text
-**/.gitignore           text
-*.config                text
-*.htm                   text diff=html
-*.html                  text diff=html
-*.js                    text
-*.json                  text
-*.md                    text
-*.svg                   text
-*.xml                   text
-*.yaml                  text
-*.yml                   text
+.gitattributes                                              text
+**/.gitattributes                                           text
+.gitignore                                                  text
+**/.gitignore                                               text
+*.config                                                    text
+*.htm                                                       text diff=html
+*.html                                                      text diff=html
+*.js                                                        text
+*.json                                                      text
+*.md                                                        text
+*.svg                                                       text
+*.xml                                                       text
+*.yaml                                                      text
+*.yml                                                       text
 
 
 # Win artifacts
 
-*.bat                   text eol=crlf
-*.cmd                   text eol=crlf
-*.ps1                   text eol=crlf
+*.bat                                                       text eol=crlf
+*.cmd                                                       text eol=crlf
+*.ps1                                                       text eol=crlf
 
 
 # Unix artifacts
 
-*.bash                  text eol=lf
-*.sh                    text eol=lf
+*.bash                                                      text eol=lf
+*.sh                                                        text eol=lf
+package/appimage/.test/Test.AppDir/AppRun                   text eol=lf
+package/appimage/.test/Test.AppDir/test.desktop             text eol=lf
+
 
 
 # Set file behavior to: treat as binary
 
-*.7z                    binary
-*.gz                    binary
-*.tar                   binary
-*.tar.gz                binary
-*.tgz                   binary
-*.xz                    binary
-*.zip                   binary
+*.7z                                                        binary
+*.gz                                                        binary
+*.tar                                                       binary
+*.tar.gz                                                    binary
+*.tgz                                                       binary
+*.xz                                                        binary
+*.zip                                                       binary
 
-*.gif                   binary
-*.ico                   binary
-*.jpg                   binary
-*.jpeg                  binary
-*.png                   binary
+*.gif                                                       binary
+*.ico                                                       binary
+*.jpg                                                       binary
+*.jpeg                                                      binary
+*.png                                                       binary
 
-*.ttf                   binary
+*.ttf                                                       binary
