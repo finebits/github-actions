@@ -134,6 +134,7 @@ runs:
         package=$(find . -path "$tmp_dir/*.AppImage" -print | head -n 1)
         package_name=$(basename -- "$package")
 
+        mkdir -p "$output_dir"
         cp "$package" "$output_dir"
 
         echo "AppImage package is '$output_dir/$package_name'"
