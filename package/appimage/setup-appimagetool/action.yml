@@ -69,7 +69,7 @@ runs:
         echo "FINEBITS_GITHUB_ACTION_APPIMAGETOOL_FILE=$appimagetool_file" >> $GITHUB_ENV
         
 
-    - name: Setup the Runtimes
+    - name: Setup Runtimes
       shell: bash
       run: |
         urls=("https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-x86_64"
@@ -78,14 +78,16 @@ runs:
               "https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-i686")
         appimagetool_dir="${{ steps.prepare-appimagetool.outputs.directory }}"
 
+        echo "Downloading runtimes..."
+
         for url in "${urls[@]}"
         do
-          name=${url##*/}
+          name="${url##*/}"
           file="$appimagetool_dir/$name"
           wget --quiet --output-document="$file" "$url"
         done
 
-    - name: Setup the Static Tools
+    - name: Setup Static Tools
       shell: bash
       run: |
         urls=("https://github.com/probonopd/static-tools/releases/download/continuous/appstreamcli-x86_64"
@@ -99,10 +101,12 @@ runs:
               "https://github.com/probonopd/static-tools/releases/download/continuous/zsyncmake-x86_64")
         appimagetool_dir="${{ steps.prepare-appimagetool.outputs.directory }}"
 
+        echo "Downloading static toos..."
+
         for url in "${urls[@]}"
         do
-          name=${url##*/}
-          name=${name%%-*}"
+          name="${url##*/}"
+          name="${name%-*}"
           file="$appimagetool_dir/$name"
           wget --quiet --output-document="$file" "$url"
           chmod a+x "$file"
