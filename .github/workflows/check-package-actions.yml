@@ -47,17 +47,15 @@ jobs:
     - name: Run 'package/appimage/setup-appimagetool' action
       id: setup-appimagetool
       uses: ./package/appimage/setup-appimagetool
-      with:
-        appimagetool-runtime: 'all'
 
     - name: Test 'package/appimage/setup-appimagetool' action
       shell: bash
       run: |
 
-        if ( ! command -v "${{ env.GITHUB_ACTION_APPIMAGETOOL_FILE }}" ); then
+        if ( ! command -v "${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_FILE }}" ); then
           echo "::error::'package/appimage/setup-appimagetool' test failed. env.GITHUB_ACTION_APPIMAGETOOL_FILE is '${{ env.GITHUB_ACTION_APPIMAGETOOL_FILE }}'. The command not found"
           exit 1
-        elif [ ! -d "${{ env.GITHUB_ACTION_APPIMAGETOOL_DIR }}" ]; then
+        elif [ ! -d "${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR }}" ]; then
           echo "::error::'package/appimage/setup-appimagetool' test failed. env.GITHUB_ACTION_APPIMAGETOOL_DIR is '${{ env.GITHUB_ACTION_APPIMAGETOOL_DIR }}'. The directory does not exist"
           exit 2
         else
