@@ -101,7 +101,7 @@ runs:
               "https://github.com/probonopd/static-tools/releases/download/continuous/zsyncmake-x86_64")
         appimagetool_dir="${{ steps.prepare-appimagetool.outputs.directory }}"
 
-        echo "Downloading static toos..."
+        echo "Downloading static tools..."
 
         for url in "${urls[@]}"
         do
