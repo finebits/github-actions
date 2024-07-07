@@ -19,23 +19,13 @@
 name: Setup appimagetool
 
 description: | 
-  To setup appimagetool and its runtimes. Look at - https://github.com/AppImage/AppImageKit#appimagetool-usage
-  As a result, the 'GITHUB_ACTION_APPIMAGETOOL_FILE' environment variable contains the full name of the appimagetool-x86_64.AppImage file
-  and the 'GITHUB_ACTION_APPIMAGETOOL_DIR' environment variable contains the full path of the appimagetool-x86_64.AppImage directory
-
-inputs:
-  appimagetool-runtime:
-    description: 'To setup additional runtimes'
-    type: choice
-    options:
-    - all
-    - aarch64
-    - armhf
-    - i686
-    - x86_64
-    - none
-    required: false
-    default: all
+  To setup appimagetool, its runtimes and static tools.
+  As a result, the 'FINEBITS_GITHUB_ACTION_APPIMAGETOOL_FILE' environment variable contains the full name of the appimagetool-x86_64.AppImage file,
+  the 'PATH' and 'FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR' environment variable contains the full path of the appimagetool-x86_64.AppImage directory.
+  Look at - https://github.com/AppImage/appimagetool;
+            https://github.com/AppImage/type2-runtime;
+            https://github.com/probonopd/static-tools; 
+            https://github.com/AppImage/AppImageKit#appimagetool-usage;
 
 runs:
   using: "composite"
@@ -56,64 +46,66 @@ runs:
         appimagetool_dir="./.appimagetool/$(uuidgen)"
         mkdir -p "$appimagetool_dir"
 
+        appimagetool_dir=$(readlink -f "$(pwd)/$dir")
+        echo "$appimagetool_dir" >> $GITHUB_PATH
         echo "directory=$appimagetool_dir" >> $GITHUB_OUTPUT
 
     - name: Setup appimagetool
       id: setup-appimagetool
       shell: bash
       run: |
-        echo "Install libfuse2"
-        sudo add-apt-repository universe && sudo apt install libfuse2
+        url="https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
+        appimagetool_dir="${{ steps.prepare-appimagetool.outputs.directory }}"
+        appimagetool_file="$appimagetool_dir/appimagetool-x86_64.AppImage"
 
-        url="https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
-        dir="${{ steps.prepare-appimagetool.outputs.directory }}"
+        echo "Download appimagetool to '$appimagetool_dir'"
+        wget --quiet --output-document="$appimagetool_file" "$url"
 
-        echo "Download appimagetool to '$(pwd)/$dir'"
-        wget --quiet --directory-prefix="$dir" "$url"
-
-        appimagetool=$(find . -path "$dir/appimagetool-*.AppImage" -print | head -n 1)
-
-        appimagetool_file=$(readlink -f "$appimagetool")
         echo "Setup appimagetool: $appimagetool_file"
         chmod a+x "$appimagetool_file"
 
-        appimagetool_dir=$(readlink -f "$(pwd)/$dir")
+        echo "FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR=$appimagetool_dir" >> $GITHUB_ENV
+        echo "FINEBITS_GITHUB_ACTION_APPIMAGETOOL_FILE=$appimagetool_file" >> $GITHUB_ENV
 
-        echo "GITHUB_ACTION_APPIMAGETOOL_DIR=$appimagetool_dir" >> $GITHUB_ENV
-        echo "GITHUB_ACTION_APPIMAGETOOL_FILE=$appimagetool_file" >> $GITHUB_ENV
-
-    - name: Setup x86_64 Runtime
-      if: inputs.appimagetool-runtime == 'x86_64' || inputs.appimagetool-runtime == 'all' 
+    - name: Setup Runtimes
       shell: bash
       run: |
-        url="https://github.com/AppImage/AppImageKit/releases/download/continuous/runtime-x86_64"
-        dir="${{ steps.prepare-appimagetool.outputs.directory }}"
+        urls=("https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-x86_64"
+              "https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-aarch64"
+              "https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-armhf"
+              "https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-i686")
+        appimagetool_dir="${{ steps.prepare-appimagetool.outputs.directory }}"
 
-        wget --quiet --directory-prefix="$dir" "$url"
+        echo "Downloading runtimes..."
 
-    - name: Setup aarch64 Runtime
-      if: inputs.appimagetool-runtime == 'aarch64' || inputs.appimagetool-runtime == 'all' 
+        for url in "${urls[@]}"
+        do
+          name="${url##*/}"
+          file="$appimagetool_dir/$name"
+          wget --quiet --output-document="$file" "$url"
+        done
+
+    - name: Setup Static Tools
       shell: bash
       run: |
-        url="https://github.com/AppImage/AppImageKit/releases/download/continuous/runtime-aarch64"
-        dir="${{ steps.prepare-appimagetool.outputs.directory }}"
+        urls=("https://github.com/probonopd/static-tools/releases/download/continuous/appstreamcli-x86_64"
+              "https://github.com/probonopd/static-tools/releases/download/continuous/bsdtar-x86_64"
+              "https://github.com/probonopd/static-tools/releases/download/continuous/desktop-file-install-x86_64"
+              "https://github.com/probonopd/static-tools/releases/download/continuous/desktop-file-validate-x86_64"
+              "https://github.com/probonopd/static-tools/releases/download/continuous/mksquashfs-x86_64"
+              "https://github.com/probonopd/static-tools/releases/download/continuous/patchelf-x86_64"
+              "https://github.com/probonopd/static-tools/releases/download/continuous/unsquashfs-x86_64"
+              "https://github.com/probonopd/static-tools/releases/download/continuous/update-desktop-database-x86_64"
+              "https://github.com/probonopd/static-tools/releases/download/continuous/zsyncmake-x86_64")
+        appimagetool_dir="${{ steps.prepare-appimagetool.outputs.directory }}"
 
-        wget --quiet --directory-prefix="$dir" "$url"
+        echo "Downloading static tools..."
 
-    - name: Setup i686 (i383) Runtime
-      if: inputs.appimagetool-runtime == 'i686' || inputs.appimagetool-runtime == 'all' 
-      shell: bash
-      run: |
-        url="https://github.com/AppImage/AppImageKit/releases/download/continuous/runtime-i686"
-        dir="${{ steps.prepare-appimagetool.outputs.directory }}"
-
-        wget --quiet --directory-prefix="$dir" "$url"
-
-    - name: Setup armhf Runtime
-      if: inputs.appimagetool-runtime == 'armhf' || inputs.appimagetool-runtime == 'all' 
-      shell: bash
-      run: |
-        url="https://github.com/AppImage/AppImageKit/releases/download/continuous/runtime-armhf"
-        dir="${{ steps.prepare-appimagetool.outputs.directory }}"
-
-        wget --quiet --directory-prefix="$dir" "$url"
+        for url in "${urls[@]}"
+        do
+          name="${url##*/}"
+          name="${name%-*}"
+          file="$appimagetool_dir/$name"
+          wget --quiet --output-document="$file" "$url"
+          chmod a+x "$file"
+        done

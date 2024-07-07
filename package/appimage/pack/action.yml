@@ -62,13 +62,13 @@ runs:
           exit 1
         fi
 
-        if ( ! command -v "${{ env.GITHUB_ACTION_APPIMAGETOOL_FILE }}" ); then
-          echo "::error::'${{ env.GITHUB_ACTION_APPIMAGETOOL_FILE }}' command not found"
+        if ( ! command -v "${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_FILE }}" ); then
+          echo "::error::'${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_FILE }}' command not found"
           exit 2
         fi
 
-        if [ ! -d "${{ env.GITHUB_ACTION_APPIMAGETOOL_DIR }}" ]; then
-          echo "::error::'${{ env.GITHUB_ACTION_APPIMAGETOOL_DIR }}' directory does not exist"
+        if [ ! -d "${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR }}" ]; then
+          echo "::error::'${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR }}' directory does not exist"
           exit 3
         fi
 
@@ -77,8 +77,8 @@ runs:
       shell: bash
       run: |
 
-        appimagetool="${{ env.GITHUB_ACTION_APPIMAGETOOL_FILE }}"
-        appimagetool_dir="${{ env.GITHUB_ACTION_APPIMAGETOOL_DIR }}"
+        appimagetool="${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_FILE }}"
+        appimagetool_dir="${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR }}"
         output_dir="${{ inputs.package-output-dir }}"
         package_app_dir="${{ inputs.package-app-dir }}"
 
@@ -127,15 +127,17 @@ runs:
 
         echo "Packing..."
 
-        ("${appimagetool_realpath}" --runtime-file="${runtime_realpath}" "${package_app_dir_realpath}")
+        echo "$("${appimagetool_realpath}" --runtime-file="${runtime_realpath}" "${package_app_dir_realpath}")"
 
         cd "$here"
 
         package=$(find . -path "$tmp_dir/*.AppImage" -print | head -n 1)
         package_name=$(basename -- "$package")
 
+        chmod a+x "$package"
+
         mkdir -p "$output_dir"
-        cp "$package" "$output_dir"
+        mv "$package" "$output_dir"
 
         echo "AppImage package is '$output_dir/$package_name'"
         echo "appimage-package=$output_dir/$package_name" >> $GITHUB_OUTPUT
