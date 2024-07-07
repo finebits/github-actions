@@ -49,7 +49,6 @@ runs:
         appimagetool_dir=$(readlink -f "$(pwd)/$dir")
         echo "$appimagetool_dir" >> $GITHUB_PATH
         echo "directory=$appimagetool_dir" >> $GITHUB_OUTPUT
-        
 
     - name: Setup appimagetool
       id: setup-appimagetool
@@ -67,7 +66,6 @@ runs:
 
         echo "FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR=$appimagetool_dir" >> $GITHUB_ENV
         echo "FINEBITS_GITHUB_ACTION_APPIMAGETOOL_FILE=$appimagetool_file" >> $GITHUB_ENV
-        
 
     - name: Setup Runtimes
       shell: bash
@@ -111,4 +109,3 @@ runs:
           wget --quiet --output-document="$file" "$url"
           chmod a+x "$file"
         done
-   
