@@ -57,11 +57,12 @@ jobs:
       with:
         project: ./package/nuget/.test/Nuget/Nuget.csproj
         configuration: Release
+        package-version: '1.0.0'
         push-to-nuget: false
         push-to-github: false
         upload-artifact: false
 
-    - name: Check the result of the 'package/nuget/pack' actions
+    - name: Check the result of the 'package/nuget/pack' action
       shell: bash
       run: |
         nupkg="${{ env.package-root }}/Finebits.Nuget.1.0.0.nupkg"
