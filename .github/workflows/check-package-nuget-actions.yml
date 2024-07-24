@@ -1,0 +1,79 @@
+################################################################################
+#                                                                              #
+#   Copyright 2024 Finebits (https://finebits.com)                             #
+#                                                                              #
+#   Licensed under the Apache License, Version 2.0 (the "License");            #
+#   you may not use this file except in compliance with the License.           #
+#   You may obtain a copy of the License at                                    #
+#                                                                              #
+#       http://www.apache.org/licenses/LICENSE-2.0                             #
+#                                                                              #
+#   Unless required by applicable law or agreed to in writing, software        #
+#   distributed under the License is distributed on an "AS IS" BASIS,          #
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+#   See the License for the specific language governing permissions and        #
+#   limitations under the License.                                             #
+#                                                                              #
+################################################################################
+
+name: Check the 'package/nuget' Actions
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - develop
+      - release/**
+  pull_request:
+    branches:
+      - main
+      - develop
+      - release/**
+
+jobs:
+
+  checks:
+
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      with:
+        fetch-depth: 0
+
+    - name: Install dotnet
+      uses: actions/setup-dotnet@6bd8b7f7774af54e05809fcc5431931b3eb1ddee # v4.0.1
+      with:
+        dotnet-version: 8.x
+
+    - name: Run 'package/nuget/pack' action
+      uses: ./package/nuget/pack
+      with:
+        project: ./package/nuget/.test/Nuget/Nuget.csproj
+        configuration: Release
+        package-version: '1.0.0'
+        push-to-nuget: false
+        push-to-github: false
+        upload-artifact: false
+
+    - name: Check the result of the 'package/nuget/pack' action
+      shell: bash
+      run: |
+        nupkg="${{ env.package-root }}/Finebits.Nuget.1.0.0.nupkg"
+        if [ ! -f "$nupkg" ]; then
+          echo "::error::'package/nuget/pack' test failed. File 'Finebits.Nuget.1.0.0.nupkg' not found"
+          exit 1
+        fi
+
+        snupkg="${{ env.package-root }}/Finebits.Nuget.1.0.0.snupkg"
+        if [ ! -f "$snupkg" ]; then
+          echo "::error::'package/nuget/pack' test failed. File 'Finebits.Nuget.1.0.0.snupkg' not found"
+          exit 2
+        fi
+

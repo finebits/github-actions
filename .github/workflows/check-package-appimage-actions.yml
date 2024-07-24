@@ -16,7 +16,7 @@
 #                                                                              #
 ################################################################################
 
-name: Check the Package Actions
+name: Check the 'package/appimage' Actions
 
 on:
   workflow_dispatch:
@@ -30,7 +30,7 @@ on:
       - main
       - develop
       - release/**
-      
+
 jobs:
 
   check-linux-actions:
@@ -93,4 +93,4 @@ jobs:
           exit 3
         else
           echo "::notice::'package/appimage/pack' test passed."
-        fi        
+        fi

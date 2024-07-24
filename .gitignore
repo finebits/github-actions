@@ -1,2 +1,2 @@
-pack-nuget/.test-project/Nuget/bin/
-pack-nuget/.test-project/Nuget/obj/
+package/nuget/.test/Nuget/bin/
+package/nuget/.test/Nuget/obj/

@@ -16,9 +16,10 @@
 #                                                                              #
 ################################################################################
 
-name: Pack Nuget
+name: Pack NuGet Package
 
-description:
+description: |
+   This packs the .NET project into NuGet Package and then push it to nuget.org or github.com
 
 inputs:
   project:
