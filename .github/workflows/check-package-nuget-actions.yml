@@ -75,4 +75,4 @@ jobs:
           echo "::error::'package/nuget/pack' test failed. File 'Finebits.Nuget.1.0.0.snupkg' not found"
           exit 2
         fi
-        
+
