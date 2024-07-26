@@ -16,40 +16,58 @@
 #                                                                              #
 ################################################################################
 
-name: Pre-Build Replace
+name: Check the 'toolset' Actions
 
-description: To replace the placeholder in the target file with the text.
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - develop
+      - release/**
+  pull_request:
+    branches:
+      - main
+      - develop
+      - release/**
 
-inputs:
-  file:
-    description: 'Path to source file'
-    type: string
-    required: true
-    
-  placeholder:
-    description: 'Placeholder string'
-    type: string
-    required: true
+jobs:
 
-  value:
-    description: 'Required value'
-    type: string
-    required: true
+  checks:
 
-runs:
-  using: "composite"
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
 
-  steps:
+    runs-on: ${{ matrix.os }}
 
-  - name: Replace
-    shell: bash
-    run: | 
+    env:
+      test-data-dir: './tests/toolset/'
 
-      source=$(cat "${{ inputs.file }}")
-      placeholder="${{ inputs.placeholder }}"
-      value="${{ inputs.value }}"
+    steps:
+    - name: Checkout
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      with:
+        fetch-depth: 0
 
-      result=${source//$placeholder/$value}
+    - name: Run 'toolset/replace' action
+      uses: ./toolset/replace
+      with:
+        file: '${{ env.test-data-dir }}/replace/test-file.txt'
+        find-what: "<placeholder>"
+        replace-with: "new value"
 
-      echo -n "$result" > "${{ inputs.file }}"
+    - name: Check 'toolset/replace' action
+      shell: bash
+      run: | 
+        actual_file="${{ env.test-data-dir }}/replace/test-file.txt"
+        expected_file="${{ env.test-data-dir }}/replace/expected-file.txt"
+        if (cmp -s "$actual_file" "$expected_file"); then
+          echo "The 'toolset/replace' action is passed the tests"
+        else
+          echo "::error::The 'toolset/replace' action is failed the tests"
+          echo "Differences:"
+          diff "$actual_file" "$expected_file"
+          exit 1
+        fi
 
