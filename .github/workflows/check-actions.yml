@@ -76,29 +76,6 @@ jobs:
           exit 1
         fi
 
-    - name: Run version-number action
-      id: version-number
-      uses: ./version-number
-
-    - name: Check version-number action
-      shell: bash
-      run: |
-        echo "Build version: ${{ steps.version-number.outputs.build-version }}"
-        echo "Suffix version: ${{ steps.version-number.outputs.suffix-version }}"
-        echo "Semantic version 1.0: ${{ steps.version-number.outputs.semantic-version-1 }}"
-        echo "Semantic version 2.0: ${{ steps.version-number.outputs.semantic-version-2 }}"
-        echo "Build version with githash: ${{ steps.version-number.outputs.build-githash-version }}"
-        echo "Suffix version with githash: ${{ steps.version-number.outputs.suffix-githash-version }}"
-        echo "Semantic version 2.0 with githash: ${{ steps.version-number.outputs.semantic-githash-version-2 }}"
-        echo "Major: ${{ steps.version-number.outputs.major }}"
-        echo "Minor: ${{ steps.version-number.outputs.minor }}"
-        echo "Patch: ${{ steps.version-number.outputs.patch }}"
-        echo "Build: ${{ steps.version-number.outputs.build }}"
-        echo "Attempt: ${{ steps.version-number.outputs.attempt }}"
-        echo "Today: ${{ steps.version-number.outputs.today }}"
-        echo "Git hash: ${{ steps.version-number.outputs.githash }}"
-        echo "Suffix: ${{ steps.version-number.outputs.suffix }}"
-
     - name: Run badges/shields-io-badge action
       if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}
       id: badges-shields-io-badge
