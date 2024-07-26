@@ -130,7 +130,13 @@ jobs:
           exit 2
         fi
 
-        echo "Suffix: ${{ steps.version-number.outputs.suffix }}"
+        regex_suffix="^[a-zA-Z0-9\.-]?$"
+        suffix="${{ steps.version-number.outputs.suffix }}"
+        echo "Suffix: $suffix"
+        if [[ ! $suffix =~  $regex_suffix ]]; then
+          echo "::error::The 'toolset/find-out-version' action is failed the tests. The 'suffix' output is incorrect."
+          exit 2
+        fi
 
         preset_build_regex="^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$"
         preset_build="${{ steps.version-number.outputs.preset-build }}"
