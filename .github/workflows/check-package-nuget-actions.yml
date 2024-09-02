@@ -67,13 +67,13 @@ jobs:
       run: |
         nupkg="${{ env.package-root }}/Finebits.Nuget.1.0.0.nupkg"
         if [ ! -f "$nupkg" ]; then
-          echo "::error::'package/nuget/pack' test failed. File 'Finebits.Nuget.1.0.0.nupkg' not found"
+          echo "::error::The 'package/nuget/pack' action failed the tests. File 'Finebits.Nuget.1.0.0.nupkg' not found"
           exit 1
         fi
 
         snupkg="${{ env.package-root }}/Finebits.Nuget.1.0.0.snupkg"
         if [ ! -f "$snupkg" ]; then
-          echo "::error::'package/nuget/pack' test failed. File 'Finebits.Nuget.1.0.0.snupkg' not found"
+          echo "::error::The 'package/nuget/pack' action failed the tests. File 'Finebits.Nuget.1.0.0.snupkg' not found"
           exit 2
         fi
 
