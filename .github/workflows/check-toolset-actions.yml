@@ -42,7 +42,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     env:
-      test-data-dir: './tests/toolset/'
+      test-data-dir: './toolset/.tests/'
 
     steps:
     - name: Checkout
@@ -63,9 +63,9 @@ jobs:
         actual_file="${{ env.test-data-dir }}/replace/test-file.txt"
         expected_file="${{ env.test-data-dir }}/replace/expected-file.txt"
         if (cmp -s "$actual_file" "$expected_file"); then
-          echo "The 'toolset/replace' action is passed the tests"
+          echo "The 'toolset/replace' action passed the tests"
         else
-          echo "::error::The 'toolset/replace' action is failed the tests"
+          echo "::error::The 'toolset/replace' action failed the tests"
           echo "Differences:"
           diff "$actual_file" "$expected_file"
           exit 1
@@ -83,42 +83,42 @@ jobs:
         major="${{ steps.version-number.outputs.major }}"
         echo "Major: $major"
         if [[ ! $major =~  $regex_number ]]; then
-          echo "::error::The 'toolset/find-out-version' action is failed the tests. The 'major' output is incorrect."
+          echo "::error::The 'toolset/find-out-version' action failed the tests. The 'major' output is incorrect."
           exit 2
         fi
 
         minor="${{ steps.version-number.outputs.minor }}"
         echo "Minor: $minor"
         if [[ ! $minor =~  $regex_number ]]; then
-          echo "::error::The 'toolset/find-out-version' action is failed the tests. The 'minor' output is incorrect."
+          echo "::error::The 'toolset/find-out-version' action failed the tests. The 'minor' output is incorrect."
           exit 2
         fi
 
         patch="${{ steps.version-number.outputs.patch }}"
         echo "Patch: $patch"
         if [[ ! $patch =~  $regex_number ]]; then
-          echo "::error::The 'toolset/find-out-version' action is failed the tests. The 'patch' output is incorrect."
+          echo "::error::The 'toolset/find-out-version' action failed the tests. The 'patch' output is incorrect."
           exit 2
         fi
 
         build="${{ steps.version-number.outputs.build }}"
         echo "Build: $build"
         if [[ ! $build =~  $regex_number ]]; then
-          echo "::error::The 'toolset/find-out-version' action is failed the tests. The 'build' output is incorrect."
+          echo "::error::The 'toolset/find-out-version' action failed the tests. The 'build' output is incorrect."
           exit 2
         fi
 
         attempt="${{ steps.version-number.outputs.attempt }}"
         echo "Attempt: $attempt"
         if [[ ! $attempt =~  $regex_number ]]; then
-          echo "::error::The 'toolset/find-out-version' action is failed the tests. The 'attempt' output is incorrect."
+          echo "::error::The 'toolset/find-out-version' action failed the tests. The 'attempt' output is incorrect."
           exit 2
         fi
 
         today="${{ steps.version-number.outputs.today }}"
         echo "Today: $today"
         if [[ ! $today =~  $regex_number ]]; then
-          echo "::error::The 'toolset/find-out-version' action is failed the tests. The 'today' output is incorrect."
+          echo "::error::The 'toolset/find-out-version' action failed the tests. The 'today' output is incorrect."
           exit 2
         fi
 
@@ -126,7 +126,7 @@ jobs:
         githash="${{ steps.version-number.outputs.githash }}"
         echo "Git hash: $githash"
         if [[ ! $githash =~  $regex_hex_number ]]; then
-          echo "::error::The 'toolset/find-out-version' action is failed the tests. The 'githash' output is incorrect."
+          echo "::error::The 'toolset/find-out-version' action failed the tests. The 'githash' output is incorrect."
           exit 2
         fi
 
@@ -134,7 +134,7 @@ jobs:
         suffix="${{ steps.version-number.outputs.suffix }}"
         echo "Suffix: $suffix"
         if [[ ! $suffix =~  $regex_suffix ]]; then
-          echo "::error::The 'toolset/find-out-version' action is failed the tests. The 'suffix' output is incorrect."
+          echo "::error::The 'toolset/find-out-version' action failed the tests. The 'suffix' output is incorrect."
           exit 2
         fi
 
@@ -142,7 +142,7 @@ jobs:
         preset_build="${{ steps.version-number.outputs.preset-build }}"
         echo "Preset Build version: $preset_build"
         if [[ ! $preset_build =~ $preset_build_regex ]]; then
-          echo "::error::The 'toolset/find-out-version' action is failed the tests. The 'preset-build' output is incorrect."
+          echo "::error::The 'toolset/find-out-version' action failed the tests. The 'preset-build' output is incorrect."
           exit 2
         fi
 
@@ -150,7 +150,7 @@ jobs:
         preset_suffix="${{ steps.version-number.outputs.preset-suffix }}"
         echo "Preset Suffix version: $preset_suffix"
         if [[ ! $preset_suffix =~ $preset_suffix_regex ]]; then
-          echo "::error::The 'toolset/find-out-version' action is failed the tests. The 'preset-suffix' output is incorrect."
+          echo "::error::The 'toolset/find-out-version' action failed the tests. The 'preset-suffix' output is incorrect."
           exit 2
         fi
 
@@ -158,7 +158,7 @@ jobs:
         preset_semantic_1="${{ steps.version-number.outputs.preset-semantic-1 }}"
         echo "Preset Semantic version 1.0: $preset_semantic_1"
         if [[ ! $preset_semantic_1 =~ $preset_semantic_1_regex ]]; then
-          echo "::error::The 'toolset/find-out-version' action is failed the tests. The 'preset-semantic-1' output is incorrect."
+          echo "::error::The 'toolset/find-out-version' action failed the tests. The 'preset-semantic-1' output is incorrect."
           exit 2
         fi
 
@@ -166,7 +166,7 @@ jobs:
         preset_semantic_2="${{ steps.version-number.outputs.preset-semantic-2 }}"
         echo "Preset Semantic version 2.0: $preset_semantic_2"
         if [[ ! $preset_semantic_2 =~ $preset_semantic_2_regex ]]; then
-          echo "::error::The 'toolset/find-out-version' action is failed the tests. The 'preset-semantic-2' output is incorrect."
+          echo "::error::The 'toolset/find-out-version' action failed the tests. The 'preset-semantic-2' output is incorrect."
           exit 2
         fi
 
@@ -174,7 +174,7 @@ jobs:
         preset_build_githash="${{ steps.version-number.outputs.preset-build-githash }}"
         echo "Preset Build version with githash: $preset_build_githash"
         if [[ ! $preset_build_githash =~ $preset_build_githash_regex ]]; then
-          echo "::error::The 'toolset/find-out-version' action is failed the tests. The 'preset-build-githash' output is incorrect."
+          echo "::error::The 'toolset/find-out-version' action failed the tests. The 'preset-build-githash' output is incorrect."
           exit 2
         fi
 
@@ -182,7 +182,7 @@ jobs:
         preset_suffix_githash="${{ steps.version-number.outputs.preset-suffix-githash }}"
         echo "Preset Suffix version with githash: $preset_suffix_githash"
         if [[ ! $preset_suffix_githash =~ $preset_suffix_githash_regex ]]; then
-          echo "::error::The 'toolset/find-out-version' action is failed the tests. The 'preset-suffix-githash' output is incorrect."
+          echo "::error::The 'toolset/find-out-version' action failed the tests. The 'preset-suffix-githash' output is incorrect."
           exit 2
         fi
 
@@ -190,7 +190,7 @@ jobs:
         preset_semantic_2_githash="${{ steps.version-number.outputs.preset-semantic-2-githash }}"
         echo "Preset Semantic version 2.0 with githash: $preset_semantic_2_githash"
         if [[ ! $preset_semantic_2_githash =~ $preset_semantic_2_githash_regex ]]; then
-          echo "::error::The 'toolset/find-out-version' action is failed the tests. The 'preset-semantic-2-githash' output is incorrect."
+          echo "::error::The 'toolset/find-out-version' action failed the tests. The 'preset-semantic-2-githash' output is incorrect."
           exit 2
         fi
 

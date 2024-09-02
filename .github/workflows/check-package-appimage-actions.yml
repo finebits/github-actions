@@ -53,13 +53,13 @@ jobs:
       run: |
 
         if ( ! command -v "${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_FILE }}" ); then
-          echo "::error::'package/appimage/setup-appimagetool' test failed. env.GITHUB_ACTION_APPIMAGETOOL_FILE is '${{ env.GITHUB_ACTION_APPIMAGETOOL_FILE }}'. The command not found"
+          echo "::error::The 'package/appimage/setup-appimagetool' action failed the tests. env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_FILE is '${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_FILE }}'. The command not found."
           exit 1
         elif [ ! -d "${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR }}" ]; then
-          echo "::error::'package/appimage/setup-appimagetool' test failed. env.GITHUB_ACTION_APPIMAGETOOL_DIR is '${{ env.GITHUB_ACTION_APPIMAGETOOL_DIR }}'. The directory does not exist"
+          echo "::error::The 'package/appimage/setup-appimagetool' action failed the tests. env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR is '${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR }}'. The directory does not exist."
           exit 2
         else
-          echo "::notice::'package/appimage/setup-appimagetool' test passed."
+          echo "::notice::The 'package/appimage/setup-appimagetool' action passed the tests."
         fi
 
     - name: Prepare-Run 'package/appimage/pack' action  
@@ -89,8 +89,8 @@ jobs:
 
         result=$("$package")
         if [ "$result" != "Hello AppImage" ]; then
-          echo "::error::'package/appimage/pack' test failed. The package '$package' is packed incorrect"
+          echo "::error::The 'package/appimage/pack' action failed the tests. The package '$package' is incorrect."
           exit 3
         else
-          echo "::notice::'package/appimage/pack' test passed."
+          echo "::notice::The 'package/appimage/pack' action passed the tests."
         fi
