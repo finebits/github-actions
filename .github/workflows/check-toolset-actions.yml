@@ -93,7 +93,7 @@ jobs:
       shell: bash
       run: | 
         actual_lf_data="${{ steps.read-text-lf-file.outputs.data }}"
-        expected_lf_data=$(echo -en "This is a test file.\nThis is a new line.\nThese are several numbers: 0, 1, 2, 3.\n")
+        expected_lf_data=$(echo -en "This is a test file.\nThis is a new line.\nThese are several numbers: 0, 1, 2, 3.")
 
         if [ "$actual_lf_data" != "$expected_lf_data" ]; then
           echo "::error::The 'toolset/file/read' action failed the tests"
@@ -103,7 +103,7 @@ jobs:
         fi
 
         actual_crlf_data="${{ steps.read-text-crlf-file.outputs.data }}"
-        expected_crlf_data=$(echo -en "This is a test file.\r\nThis is a new line.\r\nThese are several numbers: 0, 1, 2, 3.\r\n")
+        expected_crlf_data=$(echo -en "This is a test file.\r\nThis is a new line.\r\nThese are several numbers: 0, 1, 2, 3.")
 
         if [ "$actual_crlf_data" != "$expected_crlf_data" ]; then
           echo "::error::The 'toolset/file/read' action failed the tests"
