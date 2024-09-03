@@ -39,9 +39,8 @@ runs:
     shell: bash
     run: | 
       file="${{ inputs.file }}"
+      file_data=$(cat "$file")
 
-      {
-        echo 'data<<EOF'
-        cat $file
-        echo EOF
-      } >> $GITHUB_OUTPUT
+      echo "data<<EOF" >> $GITHUB_OUTPUT
+      echo "$file_data" >> $GITHUB_OUTPUT
+      echo "EOF" >> $GITHUB_OUTPUT
