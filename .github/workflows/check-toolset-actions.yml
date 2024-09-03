@@ -83,6 +83,12 @@ jobs:
       with:
         file: '${{ env.test-data-dir }}/file/read/test-crlf.txt'
 
+    - name: Run 'toolset/file/read' action [.txt]
+      id: read-text-file
+      uses: ./toolset/file/read
+      with:
+        file: '${{ env.test-data-dir }}/file/read/test.txt'
+
     - name: Run 'toolset/file/read' action [.json]
       id: read-json-file
       uses: ./toolset/file/read
@@ -92,6 +98,18 @@ jobs:
     - name: Check 'toolset/file/read' action
       shell: bash
       run: | 
+        actual_txt_data="${{ steps.read-text-lf-file.outputs.data }}"
+        expected_txt_data="This is a test file.
+        This is a new line.
+        These are several numbers: 0, 1, 2, 3."
+
+        if [ "$actual_txt_data" != "$expected_txt_data" ]; then
+          echo "::error::The 'toolset/file/read' action failed the tests. The file 'test.txt' is read incorrectly."
+          echo "Differences:"
+          diff <(echo "$actual_txt_data") <(echo "$expected_txt_data")
+          exit 2
+        fi
+
         actual_lf_data="${{ steps.read-text-lf-file.outputs.data }}"
         expected_lf_data=$(echo -en "This is a test file.\nThis is a new line.\nThese are several numbers: 0, 1, 2, 3.\n")
 
