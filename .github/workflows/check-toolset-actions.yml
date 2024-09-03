@@ -50,22 +50,22 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Run 'toolset/replace' action
-      uses: ./toolset/replace
+    - name: Run 'toolset/file/replace-text' action
+      uses: ./toolset/file/replace-text
       with:
-        file: '${{ env.test-data-dir }}/replace/test-file.txt'
+        file: '${{ env.test-data-dir }}/file/replace-text/test-file.txt'
         find-what: "<placeholder>"
         replace-with: "new value"
 
-    - name: Check 'toolset/replace' action
+    - name: Check 'toolset/file/replace-text' action
       shell: bash
       run: | 
-        actual_file="${{ env.test-data-dir }}/replace/test-file.txt"
-        expected_file="${{ env.test-data-dir }}/replace/expected-file.txt"
+        actual_file="${{ env.test-data-dir }}/file/replace-text/test-file.txt"
+        expected_file="${{ env.test-data-dir }}/file/replace-text/expected-file.txt"
         if (cmp -s "$actual_file" "$expected_file"); then
-          echo "The 'toolset/replace' action passed the tests"
+          echo "The 'toolset/file/replace-text' action passed the tests"
         else
-          echo "::error::The 'toolset/replace' action failed the tests"
+          echo "::error::The 'toolset/file/replace-text' action failed the tests"
           echo "Differences:"
           diff "$actual_file" "$expected_file"
           exit 1
