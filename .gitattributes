@@ -39,7 +39,7 @@
 package/appimage/.test/Test.AppDir/AppRun                   text eol=lf
 package/appimage/.test/Test.AppDir/test.desktop             text eol=lf
 toolset/.tests/file/read/test-lf.txt                        text eol=lf
-toolset/.tests/file/read/test-crlf.txt                      text eol=lf
+toolset/.tests/file/read/test-crlf.txt                      text eol=crlf
 
 
 # Set file behavior to: treat as binary
