@@ -1,0 +1,32 @@
+{
+    "item-A-0": "value-A-0",
+    "item-A-1": "value-A-1",
+    "item-A-2": 2,
+
+    "section-B":
+    {
+        "item-B-0": "value-B-0",
+        "item-B-1": "value-B-1",
+        "item-B-2": 12
+    },
+
+    "array-C" : 
+    [
+        {
+            "item-C-0": "value-C-00",
+            "item-C-1": "value-C-01",
+            "item-C-2": 202
+        },
+        {
+            "item-C-0": "value-C-10",
+            "item-C-1": "value-C-11",
+            "item-C-2": 212
+        }
+    ],
+
+    "array-D":
+    [
+        "value-D-0",
+        "value-D-1"
+    ]
+}
