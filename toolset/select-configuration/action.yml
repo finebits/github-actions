@@ -84,7 +84,7 @@ runs:
 
       query="(\"$keywords\"/\",\") as \$keys | [ $configs_path[] | ($keyset_path) as \$keyset | select(all(\$keys[]; IN(\$keyset[]))) $("$exclude_keys" && echo "| del($keyset_path)") ]"
 
-      echo "::debug::query: $query"
+      echo "query: $query"
 
       config=""
       if [[ "$json" ]]; then
@@ -93,7 +93,7 @@ runs:
         config=$( jq -r $("$compact_output" && echo "-c") "$query" "$json_file" )
       fi
 
-      echo "::debug::config: $config"
+      echo "config: $config"
 
       echo "config=$config" >> $GITHUB_OUTPUT
       echo "matrix={\"include\":$config}" >> $GITHUB_OUTPUT

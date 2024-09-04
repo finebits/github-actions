@@ -16,7 +16,7 @@
 #                                                                              #
 ################################################################################
 
-name: Check the 'toolset' Actions
+name: Check the 'toolset/select-configuration' Action
 
 on:
   workflow_dispatch:
