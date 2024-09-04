@@ -43,7 +43,6 @@ jobs:
 
     outputs:
       matrix: ${{ steps.select-config-from-json-one-output.outputs.matrix }}
-      os: ${{ matrix.os }}
 
     env:
       test-data-dir: './toolset/.tests/select-configuration'
@@ -182,7 +181,7 @@ jobs:
 
     needs: checks
 
-    runs-on: ${{ needs.checks.outputs.os }}
+    runs-on: 'ubuntu-latest'
     strategy:
       matrix: ${{ fromJson(needs.checks.outputs.matrix) }}
 
