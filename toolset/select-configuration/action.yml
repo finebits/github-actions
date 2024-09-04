@@ -84,6 +84,8 @@ runs:
 
       query="(\"$keywords\"/\",\") as \$keys | [ $configs_path[] | ($keyset_path) as \$keyset | select(all(\$keys[]; IN(\$keyset[]))) $("$exclude_keys" && echo "| del($keyset_path)") ]"
 
+      echo "jq version: $(jq --version)"
+      echo "json: $json"
       echo "query: $query"
 
       config=""
