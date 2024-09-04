@@ -138,7 +138,7 @@ jobs:
           exit 1
         fi
 
-        actual_option="${{ fromJson(steps.select-config-from-json-several-output.outputs.config-json)[0].option }}"
+        actual_option="${{ fromJson(steps.select-config-from-json-double-key.outputs.config-json)[0].option }}"
         expected_option="value-a"
 
         if [ "$actual_option" != "$expected_option" ]; then
