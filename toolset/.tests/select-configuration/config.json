@@ -1,0 +1,34 @@
+{
+    "option": "value",
+    "section": {
+        "config-set": [
+            {
+                "sub-section": {
+                    "tags": [
+                        "all",
+                        "a"
+                    ]
+                },
+                "option": "value-a"
+            },
+            {
+                "sub-section": {
+                    "tags": [
+                        "all",
+                        "b"
+                    ]
+                },
+                "option": "value-b"
+            },
+            {
+                "sub-section": {
+                    "tags": [
+                        "all",
+                        "c"
+                    ]
+                },
+                "option": "value-c"
+            }
+        ]
+    }
+}
