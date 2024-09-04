@@ -86,7 +86,6 @@ jobs:
         json: '${{ env.json }}'
         keywords: "B,C"
         exclude-keywords: false
-        compact-output: true
 
     - name: Check 'toolset/select-configuration [json]' action
       shell: bash

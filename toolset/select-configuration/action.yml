@@ -49,11 +49,6 @@ inputs:
     type: boolean
     default: true
 
-  compact-output:
-    description: 'It outputs JSON configurations compactly'
-    type: boolean
-    default: false
-
 outputs:
   config-json:
     value: ${{ steps.select-config.outputs.config }}
@@ -83,17 +78,13 @@ runs:
       compact_output='${{ inputs.compact-output }}'
 
       query="(\"$keywords\"/\",\") as \$keys | [ $configs_path[] | ($keyset_path) as \$keyset | select(all(\$keys[]; IN(\$keyset[]))) $("$exclude_keys" && echo "| del($keyset_path)") ]"
-
-      echo "jq version: $(jq --version)"
-      echo "json is:"
-      echo "$json"
       echo "query: $query"
 
       config=""
       if [[ "$json" ]]; then
-        config=$( echo "$json" | jq -r $("$compact_output" && echo "-c") "$query")
+        config=$( echo "$json" | jq -r -c "$query")
       else
-        config=$( jq -r $("$compact_output" && echo "-c") "$query" "$json_file" )
+        config=$( jq -r -c "$query" "$json_file" )
       fi
 
       echo "config: $config"
