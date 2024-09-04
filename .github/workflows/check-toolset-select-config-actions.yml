@@ -1,0 +1,168 @@
+################################################################################
+#                                                                              #
+#   Copyright 2024 Finebits (https://finebits.com)                             #
+#                                                                              #
+#   Licensed under the Apache License, Version 2.0 (the "License");            #
+#   you may not use this file except in compliance with the License.           #
+#   You may obtain a copy of the License at                                    #
+#                                                                              #
+#       http://www.apache.org/licenses/LICENSE-2.0                             #
+#                                                                              #
+#   Unless required by applicable law or agreed to in writing, software        #
+#   distributed under the License is distributed on an "AS IS" BASIS,          #
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+#   See the License for the specific language governing permissions and        #
+#   limitations under the License.                                             #
+#                                                                              #
+################################################################################
+
+name: Check the 'toolset' Actions
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - develop
+      - release/**
+  pull_request:
+    branches:
+      - main
+      - develop
+      - release/**
+
+jobs:
+
+  checks:
+
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      test-data-dir: './toolset/.tests/select-configuration'
+      json: '[{"keywords":["A","B"],"option":"value-a"},{"keywords":["A","C"],"option":"value-b"},{"keywords":["C","B"],"option":"value-c"}]'
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      with:
+        fetch-depth: 0
+
+    - name: Run 'toolset/select-configuration [json]' action
+      id: select-config-from-json-one-output
+      uses: ./toolset/select-configuration
+      with:
+        json: ${{ env.json }}
+        keywords: "A,B"
+
+    - name: Run 'toolset/select-configuration [json]' action
+      id: select-config-from-json-several-output
+      uses: ./toolset/select-configuration
+      with:
+        json: ${{ env.json }}
+        keywords: "C"
+
+    - name: Run 'toolset/select-configuration [json]' action
+      id: select-config-from-json-none-output
+      uses: ./toolset/select-configuration
+      with:
+        json: ${{ env.json }}
+        keywords: "D"
+
+    - name: Run 'toolset/select-configuration [json]' action
+      id: select-config-from-json-double-key
+      uses: ./toolset/select-configuration
+      with:
+        json: ${{ env.json }}
+        keywords: "A,A"
+
+    - name: Run 'toolset/select-configuration [json]' action
+      id: select-config-from-json-with-keywords
+      uses: ./toolset/select-configuration
+      with:
+        json: ${{ env.json }}
+        keywords: "B,C"
+        exclude-keywords: false
+        compact-output: true
+
+    - name: Check 'toolset/select-configuration [json]' action
+      shell: bash
+      run: | 
+        actual_option="${{ fromJson(steps.select-config-from-json-one-output.outputs.config-json).option }}"
+        expected_option="value-a"
+
+        if [ "$actual_option" != "$expected_option" ]; then
+          echo "::error::The 'toolset/select-configuration' action failed the tests. Configuration option is '$actual_option' but expected '$expected_option'."
+          exit 1
+        fi
+
+        actual_length="${{ fromJson(steps.select-config-from-json-several-output.outputs.config-json).length }}"
+        expected_length=2
+
+        if [ "$actual_length" != "$expected_length" ]; then
+          echo "::error::The 'toolset/select-configuration' action failed the tests. Number of configurations is '$actual_length' but expected '$expected_length'."
+          exit 1
+        fi
+
+        actual_option="${{ fromJson(steps.select-config-from-json-several-output.outputs.config-json)[1].option }}"
+        expected_option="value-c"
+
+        if [ "$actual_option" != "$expected_option" ]; then
+          echo "::error::The 'toolset/select-configuration' action failed the tests. Configuration option is '$actual_option' but expected '$expected_option'."
+          exit 1
+        fi
+
+        actual_length="${{ fromJson(steps.select-config-from-json-none-output.outputs.config-json).length }}"
+        expected_length=0
+
+        if [ "$actual_length" != "$expected_length" ]; then
+          echo "::error::The 'toolset/select-configuration' action failed the tests. Number of configurations is '$actual_length' but expected '$expected_length'."
+          exit 1
+        fi
+
+        actual_length="${{ fromJson(steps.select-config-from-json-double-key.outputs.config-json).length }}"
+        expected_length=2
+
+        if [ "$actual_length" != "$expected_length" ]; then
+          echo "::error::The 'toolset/select-configuration' action failed the tests. Number of configurations is '$actual_length' but expected '$expected_length'."
+          exit 1
+        fi
+
+        actual_option="${{ fromJson(steps.select-config-from-json-several-output.outputs.config-json)[0].option }}"
+        expected_option="value-a"
+
+        if [ "$actual_option" != "$expected_option" ]; then
+          echo "::error::The 'toolset/select-configuration' action failed the tests. Configuration option is '$actual_option' but expected '$expected_option'."
+          exit 1
+        fi
+
+        actual_keyword="${{ fromJson(steps.select-config-from-json-with-keywords.outputs.config-json).keywords[0] }}"
+        expected_keyword="C"
+
+        if [ "$actual_keyword" != "$expected_keyword" ]; then
+          echo "::error::The 'toolset/select-configuration' action failed the tests. Configuration keyword is '$actual_keyword' but expected '$expected_keyword'."
+          exit 1
+        fi
+
+    - name: Run 'toolset/select-configuration [json-file]' action 
+      id: select-config-from-file
+      uses: ./toolset/select-configuration
+      with:
+        json-file: "${{ env.test-data-dir }}/config.json"
+        keywords: "c,all"
+        configs-set-jsonpath: '.section["config-set"]'
+        keywords-set-jsonpath: '.["sub-section"].tags'
+
+    - name: Check 'toolset/select-configuration [json-file]' action
+      shell: bash
+      run: | 
+        actual_option="${{ fromJson(steps.select-config-from-file.outputs.config-json).option }}"
+        expected_option="value-c"
+
+        if [ "$actual_option" != "$expected_option" ]; then
+          echo "::error::The 'toolset/select-configuration' action failed the tests. Configuration option is '$actual_option' but expected '$expected_option'."
+          exit 1
+        fi
