@@ -75,9 +75,8 @@ runs:
       configs_path='${{ inputs.configs-set-jsonpath }}'
       keyset_path='${{ inputs.keywords-set-jsonpath }}'
       exclude_keys='${{ inputs.exclude-keywords }}'
-      compact_output='${{ inputs.compact-output }}'
 
-      query="(\"$keywords\"/\",\") as \$keys | [ $configs_path[] | ($keyset_path) as \$keyset | select(all(\$keys[]; IN(\$keyset[]))) $("$exclude_keys" && echo "| del($keyset_path)") ]"
+      query="(\"$keywords\"/\",\") as \$keys | [ $configs_path[] | ($keyset_path) as \$keyset | select(all(\$keys[]; IN(\$keyset[]))) $("$exclude_keys" && echo "| del($keyset_path)" || echo "") ]"
       echo "query: $query"
 
       config=""
