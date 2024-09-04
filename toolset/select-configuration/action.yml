@@ -68,19 +68,19 @@ runs:
   - name: verify
     shell: bash
     run: |
-      [[ "${{ inputs.json }}" || "${{ inputs.json-file }}" ]] || { echo "::error::Input parameters "json" and "json-file" are empty." ; exit 1; }
-      [[ "${{ inputs.keywords }}" ]] || { echo "::error::Input parameter "keywords" is empty." ; exit 1; }
+      [[ '${{ inputs.json }}' || '${{ inputs.json-file }}' ]] || { echo "::error::Input parameters "json" and "json-file" are empty." ; exit 1; }
+      [[ '${{ inputs.keywords }}' ]] || { echo "::error::Input parameter "keywords" is empty." ; exit 1; }
 
   - id: select-config
     shell: bash
     run: | 
-      json="${{ inputs.json }}"
-      json_file="${{ inputs.json-file }}"
-      keywords="${{ inputs.keywords }}"
-      configs_path="${{ inputs.configs-set-jsonpath }}"
-      keyset_path="${{ inputs.keywords-set-jsonpath }}"
-      exclude_keys="${{ inputs.exclude-keywords }}"
-      compact_output="${{ inputs.compact-output }}"
+      json='${{ inputs.json }}'
+      json_file='${{ inputs.json-file }}'
+      keywords='${{ inputs.keywords }}'
+      configs_path='${{ inputs.configs-set-jsonpath }}'
+      keyset_path='${{ inputs.keywords-set-jsonpath }}'
+      exclude_keys='${{ inputs.exclude-keywords }}'
+      compact_output='${{ inputs.compact-output }}'
 
       query="(\"$keywords\"/\",\") as \$keys | [ $configs_path[] | ($keyset_path) as \$keyset | select(all(\$keys[]; IN(\$keyset[]))) $("$exclude_keys" && echo "| del($keyset_path)") ]"
 
