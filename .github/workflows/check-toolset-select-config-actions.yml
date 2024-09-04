@@ -55,35 +55,35 @@ jobs:
       id: select-config-from-json-one-output
       uses: ./toolset/select-configuration
       with:
-        json: ${{ env.json }}
+        json: "${{ env.json }}"
         keywords: "A,B"
 
     - name: Run 'toolset/select-configuration [json]' action
       id: select-config-from-json-several-output
       uses: ./toolset/select-configuration
       with:
-        json: ${{ env.json }}
+        json: "${{ env.json }}"
         keywords: "C"
 
     - name: Run 'toolset/select-configuration [json]' action
       id: select-config-from-json-none-output
       uses: ./toolset/select-configuration
       with:
-        json: ${{ env.json }}
+        json: "${{ env.json }}"
         keywords: "D"
 
     - name: Run 'toolset/select-configuration [json]' action
       id: select-config-from-json-double-key
       uses: ./toolset/select-configuration
       with:
-        json: ${{ env.json }}
+        json: "${{ env.json }}"
         keywords: "A,A"
 
     - name: Run 'toolset/select-configuration [json]' action
       id: select-config-from-json-with-keywords
       uses: ./toolset/select-configuration
       with:
-        json: ${{ env.json }}
+        json: "${{ env.json }}"
         keywords: "B,C"
         exclude-keywords: false
         compact-output: true
