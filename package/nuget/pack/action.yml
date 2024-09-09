@@ -140,8 +140,8 @@ runs:
         echo "package-version=$package_version" >> $GITHUB_OUTPUT
         echo "artifact-full-name=$artifact_name-v$package_version" >> $GITHUB_OUTPUT
       env:
-        auto-file-version: ${{ steps.version.outputs.suffix-version }}
-        auto-package-version: ${{ steps.version.outputs.semantic-githash-version-2 }}
+        auto-file-version: ${{ steps.version.outputs.preset-suffix }}
+        auto-package-version: ${{ steps.version.outputs.preset-semantic-2-githash }}
 
     - name: Build nuget
       shell: bash
