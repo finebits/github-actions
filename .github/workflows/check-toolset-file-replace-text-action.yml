@@ -1,0 +1,60 @@
+################################################################################
+#                                                                              #
+#   Copyright 2024 Finebits (https://finebits.com)                             #
+#                                                                              #
+#   Licensed under the Apache License, Version 2.0 (the "License");            #
+#   you may not use this file except in compliance with the License.           #
+#   You may obtain a copy of the License at                                    #
+#                                                                              #
+#       http://www.apache.org/licenses/LICENSE-2.0                             #
+#                                                                              #
+#   Unless required by applicable law or agreed to in writing, software        #
+#   distributed under the License is distributed on an "AS IS" BASIS,          #
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+#   See the License for the specific language governing permissions and        #
+#   limitations under the License.                                             #
+#                                                                              #
+################################################################################
+
+name: Check the 'toolset/file/replace-text' Action
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+
+  checks:
+    env:
+      test-data-dir: './toolset/.tests/file/replace-text'
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      with:
+        fetch-depth: 0
+
+    - name: Run 'toolset/file/replace-text' action
+      uses: ./toolset/file/replace-text
+      with:
+        file: '${{ env.test-data-dir }}/test-file.txt'
+        find-what: "<placeholder>"
+        replace-with: "new value"
+
+    - name: Check 'toolset/file/replace-text' action
+      shell: bash
+      run: | 
+        actual_file="${{ env.test-data-dir }}/test-file.txt"
+        expected_file="${{ env.test-data-dir }}/expected-file.txt"
+        if (cmp -s "$actual_file" "$expected_file"); then
+          echo "The 'toolset/file/replace-text' action passed the tests"
+        else
+          echo "::error::The 'toolset/file/replace-text' action failed the tests"
+          echo "Differences:"
+          diff "$actual_file" "$expected_file"
+          exit 1
+        fi
