@@ -34,13 +34,14 @@ on:
 jobs:
 
   verify-secrets-variables:
+    name: Verify Secrets and Variables
     runs-on: ubuntu-latest
     outputs:
-      data-available: ${{ steps.verify-secrets-vars.outputs.available }}
+      data-available: ${{ steps.verify.outputs.available }}
 
     steps:
-    - name: Verify Secrets and Variables
-      id: verify-secrets-vars
+    - name: Verify
+      id: verify
       shell: bash
       run: |
         available=true
