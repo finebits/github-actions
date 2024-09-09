@@ -31,97 +31,80 @@ on:
       - develop
       - release/**
 
-env:
-  gist-id: ${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}
-  gist-owner: ${{ vars.GIST_OWNER }}
-  gist-auth-token: ${{ secrets.TOKEN_GITHUB_GIST }}
 jobs:
 
-  check:
-
-    strategy:
-      matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
-
-    runs-on: ${{ matrix.os }}
+  verify-secrets-variables:
+    runs-on: ubuntu-latest
+    outputs:
+      data-available: ${{ steps.verify-secrets-vars.outputs.available }}
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-      with:
-        fetch-depth: 0
-        submodules: recursive
-
-    - name: Check Repository Secrets and Variables
-      if: ${{ github.event_name != 'pull_request' }}
+    - name: Verify Secrets and Variables
+      id: verify-secrets-vars
       shell: bash
       run: |
-        exit=false
-        if [ -z '${{ env.gist-id }}' ]; then
-          echo -e "\n'BADGE_COVERLET_COVERAGE_GIST_ID' variable is missing!\n"
-          exit=true
+        available=true
+
+        if [ -z '${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}' ]; then
+          echo "::warnings::'BADGE_COVERLET_COVERAGE_GIST_ID' variable is missing!"
+          available=false
         fi
 
-        if [ -z '${{ env.gist-auth-token }}' ]; then
-          echo -e "\n'TOKEN_GITHUB_GIST' secret is missing!\n"
-          exit=true
+        if [ -z '${{ secrets.TOKEN_GITHUB_GIST }}' ]; then
+          echo "::warnings::'TOKEN_GITHUB_GIST' secret is missing!"
+          available=false
         fi
 
-        if [ -z '${{ env.gist-owner }}' ]; then
-          echo -e "\n'GIST_OWNER' variable is missing!\n"
-          exit=true
+        if [ -z '${{ vars.GIST_OWNER }}' ]; then
+          echo "::warnings::'GIST_OWNER' variable is missing!"
+          available=false
         fi
 
-        if [ "$exit" = true ]; then
-          exit 1
-        fi
+        echo "available=$available" >> $GITHUB_OUTPUT
 
-    - name: Run badges/shields-io-badge action
-      if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}
-      id: badges-shields-io-badge
-      uses: ./badges/shields-io-badge
-      with:
-        label: shields.io
-        label-color: lightblue
-        message: badge
-        message-color: gold
-        logo: github
-        logo-color: blue
-        style: flat
+  coverlet-coverage-badge-check:
+    name: Check the 'badges/coverlet-coverage-badge' Action
+    needs: verify-secrets-variables
+    if: ${{ needs.verify-secrets-variables.outputs.data-available == true }}
+    uses: ./.github/workflows/check-badges-coverlet-coverage-badge-action.yml
+    with:
+      gist-owner: ${{ vars.GIST_OWNER }}
+    secrets:
+      gist-id: ${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}
+      gist-auth-token: ${{ secrets.TOKEN_GITHUB_GIST }}
 
-        gist-filename: "${{ github.event.repository.name }}-shields-io-badge.json"
-        gist-id: ${{ env.gist-id }}
-        gist-auth-token: ${{ env.gist-auth-token }}
-        gist-owner: ${{ env.gist-owner }}
+  shields-io-badge-action-check:
+    name: Check the 'badges/shields-io-badge' Action
+    needs: verify-secrets-variables
+    if: ${{ needs.verify-secrets-variables.outputs.data-available == true }}
+    uses: ./.github/workflows/check-badges-shields-io-badge-action.yml
+    with:
+      gist-owner: ${{ vars.GIST_OWNER }}
+    secrets:
+      gist-id: ${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}
+      gist-auth-token: ${{ secrets.TOKEN_GITHUB_GIST }}
 
-    - name: Check badges/shields-io-badge action
-      if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}
-      shell: bash
-      run: |
-        link='${{ steps.badges-shields-io-badge.outputs.badge-link }}'
-        echo -e 'Badge link: '$link'\n'
+  file-read-action-check:
+    name: Check the 'toolset/file/read' Action
+    uses: ./.github/workflows/check-toolset-file-read-action.yml
 
-    - name: Run badges/coverlet-coverage-badge action
-      if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}
-      id: badges-coverlet-coverage-badge
-      uses: ./badges/coverlet-coverage-badge
-      with:
-        report-root: ./badges/coverlet-coverage-badge/.test-reports
-        report-filename: coverage.cobertura.xml
+  file-replace-text-action-check:
+    name: Check the 'toolset/file/replace-text' Action
+    uses: ./.github/workflows/check-toolset-file-replace-text-action.yml
 
-        gist-filename-format: "${{ github.event.repository.name }}-{0}-test-coverage.json"
-        gist-id: ${{ env.gist-id }}
-        gist-auth-token: ${{ env.gist-auth-token }}
-        gist-owner: ${{ env.gist-owner }}
+  select-config-action-check:
+    name: Check the 'toolset/select-configuration' Action
+    uses: ./.github/workflows/check-toolset-select-config-action.yml
 
-    - name: Check badges/coverlet-coverage-badge action
-      if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}
-      shell: bash
-      run: |
-        json='${{ steps.badges-coverlet-coverage-badge.outputs.badges-links }}'
+  find-out-version-action-check:
+    name: Check the 'toolset/find-out-version' Action
+    uses: ./.github/workflows/check-toolset-version-action.yml
 
-        len=$(echo $json | jq '. | length')
-        for ((i=0; i<$len; i++)); do
-          echo -e "Badge link #"$i" $(echo $json | jq -r '.['$i']')\n"
-        done
+  appimage-action-check:
+    name: Check the 'package/appimage' Action
+    uses: ./.github/workflows/check-package-appimage-action.yml
+
+  nuget-action-action-check:
+    name: Check the 'package/nuget' Action
+    uses: ./.github/workflows/check-package-nuget-action.yml
 

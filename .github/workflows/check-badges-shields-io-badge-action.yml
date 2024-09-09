@@ -20,16 +20,19 @@ name: Check the 'badges/shields-io-badge' Action
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-      - develop
-      - release/**
-  pull_request:
-    branches:
-      - main
-      - develop
-      - release/**
+  workflow_call:
+    inputs:
+      gist-owner:
+        type: string
+        required: true
+        description: "'Github Gist' owner"
+    secrets:
+      gist-id:
+        description: "The unique identifier of the 'Github Gist' where badge metadata is stored"
+        required: true
+      gist-auth-token:
+        description: "Authentication token to update the the 'Github Gist'"
+        required: true
 
 jobs:
 
@@ -46,31 +49,7 @@ jobs:
         fetch-depth: 0
         submodules: recursive
 
-    - name: Verify Secrets and Variables
-      id: verify-secrets-vars
-      shell: bash
-      run: |
-        terminate=false
-
-        if [ -z '${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}' ]; then
-          echo "::warnings::'BADGE_COVERLET_COVERAGE_GIST_ID' variable is missing!"
-          terminate=true
-        fi
-
-        if [ -z '${{ secrets.TOKEN_GITHUB_GIST }}' ]; then
-          echo "::warnings::'TOKEN_GITHUB_GIST' secret is missing!"
-          terminate=true
-        fi
-
-        if [ -z '${{ vars.GIST_OWNER }}' ]; then
-          echo "::warnings::'GIST_OWNER' variable is missing!"
-          terminate=true
-        fi
-
-        echo "terminate=$terminate" >> $GITHUB_OUTPUT
-
     - name: Run 'badges/shields-io-badge' action
-      if: ${{ steps.verify-secrets-vars.outputs.terminate == false }}
       id: badges-shields-io-badge
       uses: ./badges/shields-io-badge
       with:
@@ -83,12 +62,11 @@ jobs:
         style: flat
 
         gist-filename: "${{ github.event.repository.name }}-shields-io-badge.json"
-        gist-id: ${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID}}
-        gist-auth-token: ${{ secrets.TOKEN_GITHUB_GIST }}
-        gist-owner: ${{ vars.GIST_OWNER  }}
+        gist-id: ${{ secrets.gist-id }}
+        gist-auth-token: ${{ secrets.gist-auth-token  }}
+        gist-owner: ${{ inputs.gist-owner}}
 
     - name: Check 'badges/shields-io-badge' action
-      if: ${{ steps.verify-secrets-vars.outputs.terminate == false }}
       shell: bash
       run: |
         link='${{ steps.badges-shields-io-badge.outputs.badge-link }}'

@@ -20,16 +20,7 @@ name: Check the 'toolset/file/replace-text' Action
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-      - develop
-      - release/**
-  pull_request:
-    branches:
-      - main
-      - develop
-      - release/**
+  workflow_call:
 
 jobs:
 
