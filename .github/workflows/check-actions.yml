@@ -46,17 +46,17 @@ jobs:
         available=true
 
         if [ -z '${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}' ]; then
-          echo "::warnings::'BADGE_COVERLET_COVERAGE_GIST_ID' variable is missing!"
+          echo "::warning::'BADGE_COVERLET_COVERAGE_GIST_ID' variable is missing!"
           available=false
         fi
 
         if [ -z '${{ secrets.TOKEN_GITHUB_GIST }}' ]; then
-          echo "::warnings::'TOKEN_GITHUB_GIST' secret is missing!"
+          echo "::warning::'TOKEN_GITHUB_GIST' secret is missing!"
           available=false
         fi
 
         if [ -z '${{ vars.GIST_OWNER }}' ]; then
-          echo "::warnings::'GIST_OWNER' variable is missing!"
+          echo "::warning::'GIST_OWNER' variable is missing!"
           available=false
         fi
 
