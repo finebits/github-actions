@@ -24,7 +24,7 @@ on:
 
 jobs:
 
-  check-linux-actions:
+  checks:
     runs-on: ubuntu-latest
 
     steps:
