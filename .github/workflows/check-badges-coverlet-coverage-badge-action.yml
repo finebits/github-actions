@@ -1,0 +1,93 @@
+################################################################################
+#                                                                              #
+#   Copyright 2024 Finebits (https://finebits.com)                             #
+#                                                                              #
+#   Licensed under the Apache License, Version 2.0 (the "License");            #
+#   you may not use this file except in compliance with the License.           #
+#   You may obtain a copy of the License at                                    #
+#                                                                              #
+#       http://www.apache.org/licenses/LICENSE-2.0                             #
+#                                                                              #
+#   Unless required by applicable law or agreed to in writing, software        #
+#   distributed under the License is distributed on an "AS IS" BASIS,          #
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+#   See the License for the specific language governing permissions and        #
+#   limitations under the License.                                             #
+#                                                                              #
+################################################################################
+
+name: Check the 'badges/coverlet-coverage-badge' Action
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - develop
+      - release/**
+  pull_request:
+    branches:
+      - main
+      - develop
+      - release/**
+
+jobs:
+
+  check:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      with:
+        fetch-depth: 0
+        submodules: recursive
+
+    - name: Verify Secrets and Variables
+      id: verify-secrets-vars
+      shell: bash
+      run: |
+        terminate=false
+
+        if [ -z '${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}' ]; then
+          echo "::warnings::'BADGE_COVERLET_COVERAGE_GIST_ID' variable is missing!"
+          terminate=true
+        fi
+
+        if [ -z '${{ secrets.TOKEN_GITHUB_GIST }}' ]; then
+          echo "::warnings::'TOKEN_GITHUB_GIST' secret is missing!"
+          terminate=true
+        fi
+
+        if [ -z '${{ vars.GIST_OWNER }}' ]; then
+          echo "::warnings::'GIST_OWNER' variable is missing!"
+          terminate=true
+        fi
+
+        echo "terminate=$terminate" >> $GITHUB_OUTPUT
+
+    - name: Run 'badges/coverlet-coverage-badge' action
+      if: ${{ steps.verify-secrets-vars.outputs.terminate == false }}
+      id: badges-coverlet-coverage-badge
+      uses: ./badges/coverlet-coverage-badge
+      with:
+        report-root: ./badges/coverlet-coverage-badge/.test-reports
+        report-filename: coverage.cobertura.xml
+
+        gist-filename-format: "${{ github.event.repository.name }}-{0}-test-coverage.json"
+        gist-id: ${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}
+        gist-auth-token: ${{ secrets.TOKEN_GITHUB_GIST  }}
+        gist-owner: ${{ vars.GIST_OWNER }}
+
+    - name: Check 'badges/coverlet-coverage-badge' action
+      if: ${{ steps.verify-secrets-vars.outputs.terminate == false }}
+      shell: bash
+      run: |
+        length=$(echo '${{ steps.badges-coverlet-coverage-badge.outputs.badges-links }}' | jq '. | length')
+        for ((i=0; i<$length; i++)); do
+          echo "FINEBITS_GITHUB_ACTION_VAR_LOOP_INDEX=$i" >> $GITHUB_ENV
+          echo "::debug::Badge link #$i ${{ fromJson(steps.badges-coverlet-coverage-badge.outputs.badges-links)[env.FINEBITS_GITHUB_ACTION_VAR_LOOP_INDEX] }}"
+        done

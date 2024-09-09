@@ -16,7 +16,7 @@
 #                                                                              #
 ################################################################################
 
-name: Check the 'package/nuget' Actions
+name: Check the 'package/nuget' Action
 
 on:
   workflow_dispatch:
@@ -34,11 +34,9 @@ on:
 jobs:
 
   checks:
-
     strategy:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
-
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -74,6 +72,6 @@ jobs:
         snupkg="${{ env.package-root }}/Finebits.Nuget.1.0.0.snupkg"
         if [ ! -f "$snupkg" ]; then
           echo "::error::The 'package/nuget/pack' action failed the tests. File 'Finebits.Nuget.1.0.0.snupkg' not found"
-          exit 2
+          exit 1
         fi
 

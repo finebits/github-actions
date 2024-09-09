@@ -16,7 +16,7 @@
 #                                                                              #
 ################################################################################
 
-name: Check the 'package/appimage' Actions
+name: Check the 'package/appimage' Action
 
 on:
   workflow_dispatch:
@@ -34,7 +34,6 @@ on:
 jobs:
 
   check-linux-actions:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -57,9 +56,7 @@ jobs:
           exit 1
         elif [ ! -d "${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR }}" ]; then
           echo "::error::The 'package/appimage/setup-appimagetool' action failed the tests. env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR is '${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR }}'. The directory does not exist."
-          exit 2
-        else
-          echo "::notice::The 'package/appimage/setup-appimagetool' action passed the tests."
+          exit 1
         fi
 
     - name: Prepare-Run 'package/appimage/pack' action  
@@ -90,7 +87,5 @@ jobs:
         result=$("$package")
         if [ "$result" != "Hello AppImage" ]; then
           echo "::error::The 'package/appimage/pack' action failed the tests. The package '$package' is incorrect."
-          exit 3
-        else
-          echo "::notice::The 'package/appimage/pack' action passed the tests."
+          exit 1
         fi

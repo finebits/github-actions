@@ -34,19 +34,16 @@ on:
 jobs:
 
   checks:
-
+    env:
+      test-data-dir: './toolset/.tests/select-configuration'
+      json: '[{"keywords":["A","B"],"option":"value-a"},{"keywords":["A","C"],"option":"value-b"},{"keywords":["C","B"],"option":"value-c"}]'
     strategy:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
-
     runs-on: ${{ matrix.os }}
 
     outputs:
       matrix: ${{ steps.select-config-from-json-one-output.outputs.matrix }}
-
-    env:
-      test-data-dir: './toolset/.tests/select-configuration'
-      json: '[{"keywords":["A","B"],"option":"value-a"},{"keywords":["A","C"],"option":"value-b"},{"keywords":["C","B"],"option":"value-c"}]'
 
     steps:
     - name: Checkout
@@ -93,7 +90,7 @@ jobs:
     - name: Check 'toolset/select-configuration [json]' action
       shell: bash
       run: | 
-        actual_length=$(echo '${{ steps.select-config-from-json-one-output.outputs.config-json }}' | jq '. | length')  
+        actual_length=$(echo '${{ steps.select-config-from-json-one-output.outputs.config-json }}' | jq '. | length')
         expected_length=1
 
         if [ "$actual_length" != "$expected_length" ]; then
@@ -109,7 +106,7 @@ jobs:
           exit 1
         fi
 
-        actual_length=$(echo '${{ steps.select-config-from-json-several-output.outputs.config-json }}' | jq '. | length')  
+        actual_length=$(echo '${{ steps.select-config-from-json-several-output.outputs.config-json }}' | jq '. | length')
         expected_length=2
 
         if [ "$actual_length" != "$expected_length" ]; then
@@ -125,7 +122,7 @@ jobs:
           exit 1
         fi
 
-        actual_length=$(echo '${{ steps.select-config-from-json-none-output.outputs.config-json }}' | jq '. | length')  
+        actual_length=$(echo '${{ steps.select-config-from-json-none-output.outputs.config-json }}' | jq '. | length')
         expected_length=0
 
         if [ "$actual_length" != "$expected_length" ]; then
@@ -133,7 +130,7 @@ jobs:
           exit 1
         fi
 
-        actual_length=$(echo '${{ steps.select-config-from-json-double-key.outputs.config-json }}' | jq '. | length')  
+        actual_length=$(echo '${{ steps.select-config-from-json-double-key.outputs.config-json }}' | jq '. | length')
         expected_length=2
 
         if [ "$actual_length" != "$expected_length" ]; then
@@ -178,12 +175,10 @@ jobs:
         fi
 
   check-matrix:
-
     needs: checks
-
-    runs-on: 'ubuntu-latest'
     strategy:
       matrix: ${{ fromJson(needs.checks.outputs.matrix) }}
+    runs-on: 'ubuntu-latest'
 
     steps:
     - name: Check 'toolset/select-configuration [matrix]' action
