@@ -16,6 +16,8 @@
 #                                                                              #
 ################################################################################
 
+---
+
 name: Select Configuration
 
 description: To select a configuration by keywords.
@@ -38,7 +40,7 @@ inputs:
     description: 'JSON path to the configuration set, where "." is the JSON root'
     type: string
     default: '.'
-   
+
   keywords-set-jsonpath:
     description: 'JSON path to a set of keys, where "." is the configuration root'
     type: string
@@ -60,33 +62,33 @@ runs:
 
   steps:
 
-  - name: verify
-    shell: bash
-    run: |
-      [[ '${{ inputs.json }}' || '${{ inputs.json-file }}' ]] || { echo "::error::Input parameters "json" and "json-file" are empty." ; exit 1; }
-      [[ '${{ inputs.keywords }}' ]] || { echo "::error::Input parameter "keywords" is empty." ; exit 1; }
+    - name: verify
+      shell: bash
+      run: |
+        [[ '${{ inputs.json }}' || '${{ inputs.json-file }}' ]] || { echo "::error::Input parameters "json" and "json-file" are empty." ; exit 1; }
+        [[ '${{ inputs.keywords }}' ]] || { echo "::error::Input parameter "keywords" is empty." ; exit 1; }
 
-  - id: select-config
-    shell: bash
-    run: | 
-      json='${{ inputs.json }}'
-      json_file='${{ inputs.json-file }}'
-      keywords='${{ inputs.keywords }}'
-      configs_path='${{ inputs.configs-set-jsonpath }}'
-      keyset_path='${{ inputs.keywords-set-jsonpath }}'
-      exclude_keys='${{ inputs.exclude-keywords }}'
+    - id: select-config
+      shell: bash
+      run: |
+        json='${{ inputs.json }}'
+        json_file='${{ inputs.json-file }}'
+        keywords='${{ inputs.keywords }}'
+        configs_path='${{ inputs.configs-set-jsonpath }}'
+        keyset_path='${{ inputs.keywords-set-jsonpath }}'
+        exclude_keys='${{ inputs.exclude-keywords }}'
 
-      query="(\"$keywords\"/\",\") as \$keys | [ $configs_path[] | ($keyset_path) as \$keyset | select(all(\$keys[]; IN(\$keyset[]))) $("$exclude_keys" && echo "| del($keyset_path)" || echo "") ]"
-      echo "::debug::query: $query"
+        query="(\"$keywords\"/\",\") as \$keys | [ $configs_path[] | ($keyset_path) as \$keyset | select(all(\$keys[]; IN(\$keyset[]))) $("$exclude_keys" && echo "| del($keyset_path)" || echo "") ]"
+        echo "::debug::query: $query"
 
-      config=""
-      if [[ "$json" ]]; then
-        config=$( echo "$json" | jq -r -c "$query")
-      else
-        config=$( jq -r -c "$query" "$json_file" )
-      fi
+        config=""
+        if [[ "$json" ]]; then
+          config=$( echo "$json" | jq -r -c "$query")
+        else
+          config=$( jq -r -c "$query" "$json_file" )
+        fi
 
-      echo "::debug::config: $config"
+        echo "::debug::config: $config"
 
-      echo "config=$config" >> $GITHUB_OUTPUT
-      echo "matrix={\"include\":$config}" >> $GITHUB_OUTPUT
+        echo "config=$config" >> $GITHUB_OUTPUT
+        echo "matrix={\"include\":$config}" >> $GITHUB_OUTPUT

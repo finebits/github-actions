@@ -16,15 +16,17 @@
 #                                                                              #
 ################################################################################
 
+---
+
 name: Setup appimagetool
 
-description: | 
+description: |
   To setup appimagetool, its runtimes and static tools.
   As a result, the 'FINEBITS_GITHUB_ACTION_APPIMAGETOOL_FILE' environment variable contains the full name of the appimagetool-x86_64.AppImage file,
   the 'PATH' and 'FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR' environment variable contains the full path of the appimagetool-x86_64.AppImage directory.
   Look at - https://github.com/AppImage/appimagetool;
             https://github.com/AppImage/type2-runtime;
-            https://github.com/probonopd/static-tools; 
+            https://github.com/probonopd/static-tools;
             https://github.com/AppImage/AppImageKit#appimagetool-usage;
 
 runs:

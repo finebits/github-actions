@@ -16,6 +16,8 @@
 #                                                                              #
 ################################################################################
 
+---
+
 name: Read File
 
 description: To read a file.
@@ -25,7 +27,7 @@ inputs:
     description: 'Path to file'
     type: string
     required: true
-   
+
 outputs:
   data:
     value: ${{ steps.read.outputs.data }}
@@ -35,12 +37,12 @@ runs:
 
   steps:
 
-  - id: read
-    shell: bash
-    run: | 
-      file="${{ inputs.file }}"
-      file_data=$(cat "$file")
+    - id: read
+      shell: bash
+      run: |
+        file="${{ inputs.file }}"
+        file_data=$(cat "$file")
 
-      echo "data<<EOF" >> $GITHUB_OUTPUT
-      echo "$file_data" >> $GITHUB_OUTPUT
-      echo "EOF" >> $GITHUB_OUTPUT
+        echo "data<<EOF" >> $GITHUB_OUTPUT
+        echo "$file_data" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT

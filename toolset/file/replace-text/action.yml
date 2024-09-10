@@ -16,6 +16,8 @@
 #                                                                              #
 ################################################################################
 
+---
+
 name: Replace Text
 
 description: To replace the placeholder in the target file with the text.
@@ -25,7 +27,7 @@ inputs:
     description: 'Path to source file'
     type: string
     required: true
-    
+
   find-what:
     description: 'Replacement text'
     type: string
@@ -41,15 +43,14 @@ runs:
 
   steps:
 
-  - name: Replace
-    shell: bash
-    run: | 
+    - name: Replace
+      shell: bash
+      run: |
 
-      source=$(cat "${{ inputs.file }}")
-      find="${{ inputs.find-what }}"
-      value="${{ inputs.replace-with }}"
+        source=$(cat "${{ inputs.file }}")
+        find="${{ inputs.find-what }}"
+        value="${{ inputs.replace-with }}"
 
-      result=${source//$find/$value}
+        result=${source//$find/$value}
 
-      echo -n "$result" > "${{ inputs.file }}"
-
+        echo -n "$result" > "${{ inputs.file }}"
