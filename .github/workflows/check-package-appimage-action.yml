@@ -16,9 +16,11 @@
 #                                                                              #
 ################################################################################
 
+---
+
 name: Check the 'package/appimage' Action
 
-on:
+on: # yamllint disable-line rule:truthy
   workflow_dispatch:
   workflow_call:
 
@@ -28,55 +30,55 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-      with:
-        fetch-depth: 0
-        submodules: recursive
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          fetch-depth: 0
+          submodules: recursive
 
-    - name: Run 'package/appimage/setup-appimagetool' action
-      id: setup-appimagetool
-      uses: ./package/appimage/setup-appimagetool
+      - name: Run 'package/appimage/setup-appimagetool' action
+        id: setup-appimagetool
+        uses: ./package/appimage/setup-appimagetool
 
-    - name: Test 'package/appimage/setup-appimagetool' action
-      shell: bash
-      run: |
+      - name: Test 'package/appimage/setup-appimagetool' action
+        shell: bash
+        run: |
 
-        if ( ! command -v "${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_FILE }}" ); then
-          echo "::error::The 'package/appimage/setup-appimagetool' action failed the tests. env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_FILE is '${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_FILE }}'. The command not found."
-          exit 1
-        elif [ ! -d "${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR }}" ]; then
-          echo "::error::The 'package/appimage/setup-appimagetool' action failed the tests. env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR is '${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR }}'. The directory does not exist."
-          exit 1
-        fi
+          if ( ! command -v "${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_FILE }}" ); then
+            echo "::error::The 'package/appimage/setup-appimagetool' action failed the tests. env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_FILE is '${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_FILE }}'. The command not found."
+            exit 1
+          elif [ ! -d "${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR }}" ]; then
+            echo "::error::The 'package/appimage/setup-appimagetool' action failed the tests. env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR is '${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR }}'. The directory does not exist."
+            exit 1
+          fi
 
-    - name: Prepare-Run 'package/appimage/pack' action  
-      shell: bash
-      run: |
-        bash "./package/appimage/.test/prepare-Test.AppDir.sh"
+      - name: Prepare-Run 'package/appimage/pack' action
+        shell: bash
+        run: |
+          bash "./package/appimage/.test/prepare-Test.AppDir.sh"
 
-    - name: Run './package/appimage/pack' action with 'aarch64'
-      uses: ./package/appimage/pack
-      with:
-        package-runtime: 'aarch64'
-        package-output-dir: './.output'
-        package-app-dir: './package/appimage/.test/Test.AppDir'
+      - name: Run './package/appimage/pack' action with 'aarch64'
+        uses: ./package/appimage/pack
+        with:
+          package-runtime: 'aarch64'
+          package-output-dir: './.output'
+          package-app-dir: './package/appimage/.test/Test.AppDir'
 
-    - name: Run './package/appimage/pack' action with 'x86_64'
-      id: pack-appimage
-      uses: ./package/appimage/pack
-      with:
-        package-runtime: 'x86_64'
-        package-output-dir: './.output'
-        package-app-dir: './package/appimage/.test/Test.AppDir'
+      - name: Run './package/appimage/pack' action with 'x86_64'
+        id: pack-appimage
+        uses: ./package/appimage/pack
+        with:
+          package-runtime: 'x86_64'
+          package-output-dir: './.output'
+          package-app-dir: './package/appimage/.test/Test.AppDir'
 
-    - name: Test './package/appimage/pack' action with 'x86_64'
-      shell: bash
-      run: |
-        package=${{ steps.pack-appimage.outputs.package }}
+      - name: Test './package/appimage/pack' action with 'x86_64'
+        shell: bash
+        run: |
+          package=${{ steps.pack-appimage.outputs.package }}
 
-        result=$("$package")
-        if [ "$result" != "Hello AppImage" ]; then
-          echo "::error::The 'package/appimage/pack' action failed the tests. The package '$package' is incorrect."
-          exit 1
-        fi
+          result=$("$package")
+          if [ "$result" != "Hello AppImage" ]; then
+            echo "::error::The 'package/appimage/pack' action failed the tests. The package '$package' is incorrect."
+            exit 1
+          fi
