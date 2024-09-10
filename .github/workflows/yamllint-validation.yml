@@ -18,31 +18,31 @@
 
 ---
 
-name: Read File
+name: YAML Validation
 
-description: To read a file.
+on: # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - main
+      - develop
+      - release/**
+  pull_request:
+    branches:
+      - main
+      - develop
+      - release/**
+  workflow_dispatch:
 
-inputs:
-  file:
-    description: 'Path to file'
-    type: string
-    required: true
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          fetch-depth: 0
 
-outputs:
-  data:
-    value: ${{ steps.read.outputs.data }}
+      - name: Install yamllint
+        run: pip install yamllint
 
-runs:
-  using: "composite"
-
-  steps:
-
-    - id: read
-      shell: bash
-      run: |
-        file="${{ inputs.file }}"
-        file_data=$(cat "$file")
-
-        echo "data<<EOF" >> $GITHUB_OUTPUT
-        echo "$file_data" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
+      - name: Lint YAML files
+        run: yamllint .

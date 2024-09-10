@@ -16,6 +16,8 @@
 #                                                                              #
 ################################################################################
 
+---
+
 name: "Shields.io badge generator"
 
 description: "Creates a 'Shields.io' Endpoint Badge [look at https://shields.io/badges/endpoint-badge]"
@@ -33,7 +35,7 @@ inputs:
     description: "The right color"
     type: string
     default: lightgrey
-  label-color: 
+  label-color:
     description: "The left color"
     type: string
     default: grey
@@ -80,7 +82,7 @@ inputs:
     required: false
     default: ${{ github.repository_owner }}
 
-outputs: 
+outputs:
   badge-link:
     value: ${{ steps.create-link.outputs.badge }}
 
@@ -116,7 +118,7 @@ runs:
           --files "$files" \
           --gist-id '${{ inputs.gist-id }}' \
           --gist-auth-token '${{ inputs.gist-auth-token }}' \
-          --gist-description '${{ inputs.badge-description }}'      
+          --gist-description '${{ inputs.badge-description }}'
 
     - id: create-link
       shell: bash

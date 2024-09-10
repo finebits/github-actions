@@ -16,9 +16,11 @@
 #                                                                              #
 ################################################################################
 
+---
+
 name: Check the 'badges/shields-io-badge' Action
 
-on:
+on: # yamllint disable-line rule:truthy
   workflow_dispatch:
   workflow_call:
     inputs:
@@ -43,31 +45,31 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-      with:
-        fetch-depth: 0
-        submodules: recursive
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          fetch-depth: 0
+          submodules: recursive
 
-    - name: Run 'badges/shields-io-badge' action
-      id: badges-shields-io-badge
-      uses: ./badges/shields-io-badge
-      with:
-        label: shields.io
-        label-color: lightblue
-        message: badge
-        message-color: gold
-        logo: github
-        logo-color: blue
-        style: flat
+      - name: Run 'badges/shields-io-badge' action
+        id: badges-shields-io-badge
+        uses: ./badges/shields-io-badge
+        with:
+          label: shields.io
+          label-color: lightblue
+          message: badge
+          message-color: gold
+          logo: github
+          logo-color: blue
+          style: flat
 
-        gist-filename: "${{ github.event.repository.name }}-shields-io-badge.json"
-        gist-id: ${{ secrets.gist-id }}
-        gist-auth-token: ${{ secrets.gist-auth-token  }}
-        gist-owner: ${{ inputs.gist-owner}}
+          gist-filename: "${{ github.event.repository.name }}-shields-io-badge.json"
+          gist-id: ${{ secrets.gist-id }}
+          gist-auth-token: ${{ secrets.gist-auth-token  }}
+          gist-owner: ${{ inputs.gist-owner}}
 
-    - name: Check 'badges/shields-io-badge' action
-      shell: bash
-      run: |
-        link='${{ steps.badges-shields-io-badge.outputs.badge-link }}'
-        echo "::debug::Badge link: '$link'"
+      - name: Check 'badges/shields-io-badge' action
+        shell: bash
+        run: |
+          link='${{ steps.badges-shields-io-badge.outputs.badge-link }}'
+          echo "::debug::Badge link: '$link'"

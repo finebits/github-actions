@@ -16,21 +16,24 @@
 #                                                                              #
 ################################################################################
 
+---
+
 name: Pack AppImage Package
 
 description: |
-  You can package desktop application as AppImage that run on common Linux-based operating systems, 
-  such as RHEL, CentOS, Ubuntu, Fedora, Debian and derivatives.
+  You can package desktop application as AppImage that run on common
+  Linux-based operating systems, such as RHEL, CentOS, Ubuntu, Fedora,
+  Debian and derivatives.
 
 inputs:
   package-runtime:
     description: 'To select the package runtime'
     type: choice
     options:
-    - aarch64
-    - armhf
-    - i686
-    - x86_64
+      - aarch64
+      - armhf
+      - i686
+      - x86_64
     required: false
     default: x86_64
 
@@ -117,7 +120,7 @@ runs:
                 runtime="${appimagetool_dir}/runtime-i686"
                 ;;
         esac
-     
+
         appimagetool_realpath=$(readlink -e "${appimagetool}")
         runtime_realpath=$(readlink -e "${runtime}")
         package_app_dir_realpath=$(readlink -e "${package_app_dir}")

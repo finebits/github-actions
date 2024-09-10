@@ -16,9 +16,11 @@
 #                                                                              #
 ################################################################################
 
+---
+
 name: Check Actions
 
-on:
+on: # yamllint disable-line rule:truthy
   workflow_dispatch:
   push:
     branches:
@@ -40,28 +42,28 @@ jobs:
       data-available: ${{ steps.verify.outputs.available }}
 
     steps:
-    - name: Verify
-      id: verify
-      shell: bash
-      run: |
-        available=true
+      - name: Verify
+        id: verify
+        shell: bash
+        run: |
+          available=true
 
-        if [ -z '${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}' ]; then
-          echo "::warning::'BADGE_COVERLET_COVERAGE_GIST_ID' variable is missing!"
-          available=false
-        fi
+          if [ -z '${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}' ]; then
+            echo "::warning::'BADGE_COVERLET_COVERAGE_GIST_ID' variable is missing!"
+            available=false
+          fi
 
-        if [ -z '${{ secrets.TOKEN_GITHUB_GIST }}' ]; then
-          echo "::warning::'TOKEN_GITHUB_GIST' secret is missing!"
-          available=false
-        fi
+          if [ -z '${{ secrets.TOKEN_GITHUB_GIST }}' ]; then
+            echo "::warning::'TOKEN_GITHUB_GIST' secret is missing!"
+            available=false
+          fi
 
-        if [ -z '${{ vars.GIST_OWNER }}' ]; then
-          echo "::warning::'GIST_OWNER' variable is missing!"
-          available=false
-        fi
+          if [ -z '${{ vars.GIST_OWNER }}' ]; then
+            echo "::warning::'GIST_OWNER' variable is missing!"
+            available=false
+          fi
 
-        echo "available=$available" >> $GITHUB_OUTPUT
+          echo "available=$available" >> $GITHUB_OUTPUT
 
   coverlet-coverage-badge-check:
     name: Check the 'badges/coverlet-coverage-badge' Action
