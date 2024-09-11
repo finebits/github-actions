@@ -9,16 +9,12 @@
 
 - [Action 'badges/coverlet-coverage-badge'](#action-badgescoverlet-coverage-badge)
 - [Action 'badges/shields-io-badge'](#action-badgesshields-io-badge)
-
 - [Action 'package/appimage/pack'](#action-packageappimagepack)
 - [Action 'package/appimage/setup-appimagetool'](#action-packageappimagesetup-appimagetool)
 - [Action 'package/nuget/pack'](#action-packagenugetpack)
-
 - [Action 'toolset/file/read'](#action-toolsetfileread)
 - [Action 'toolset/file/replace-text'](#action-toolsetfilereplace-text)
-
 - [Action 'toolset/find-out-version'](#action-toolsetfind-out-version)
-
 - [Action 'toolset/github/upload-release-asset'](#action-toolsetgithubupload-release-asset)
 - [Action 'toolset/select-configuration'](#action-toolsetselect-configuration)
 
