@@ -63,7 +63,7 @@ jobs:
         uses: ./toolset/file/read
         with:
           file: ${{ matrix.json-file }}
-          url: ${{ matrix.text-url }}
+          url: ${{ matrix.json-url }}
 
       - name: Check 'toolset/file/read' action
         shell: bash
