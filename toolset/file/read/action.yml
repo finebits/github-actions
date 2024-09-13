@@ -68,7 +68,7 @@ runs:
       shell: bash
       run: |
 
-        if [ -f "${{ steps.download.outputs.file }}" ] && [[ "${{ steps.download.outputs.code }}"  == "200" ]]; then
+        if [ -f "${{ steps.download.outputs.file }}" ] && [[ "${{ steps.download.outputs.code }}" == "200" ]]; then
           file="${{ steps.download.outputs.file }}"
         elif [ -f "${{ inputs.file }}" ]; then
           file="${{ inputs.file }}"

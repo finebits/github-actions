@@ -271,11 +271,12 @@ Action `toolset/file/read` can read file in the Github workflow:
 - id: read-config
   uses: finebits/github-actions/toolset/file/read@v1
   with:
+    url: http://site.com/config.json
     file: config.json
 
 - shell: bash
   run: |
-    option="${{ fromJSON(steps.read-config.outputs.data).option }}"
+    option="${{ fromJSON(steps.read-config.outputs.content).option }}"
 ```
 
 where **config.json**:
@@ -288,11 +289,12 @@ where **config.json**:
 
 ### Action inputs
 
-- `file` - **(required)** Path to file
+- `url` - Link to file.
+- `file` - Path to local file. This is used if the input `url` is empty or the http status is not OK(200).
 
 ### Action outputs
 
-- `data` - file contents
+- `content` - file contents
 
 ## Action `toolset/file/replace-text`
 
@@ -374,7 +376,7 @@ It uploads an asset to the existing release. Also **upload-release-asset** actio
 ### Using
 
 ```yaml
-- uses: finebits/github-actions/upload-release-asset@v1
+- uses: finebits/github-actions/toolset/github/upload-release-asset@v1
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
     tag: ${{ github.event.release.tag_name }}
