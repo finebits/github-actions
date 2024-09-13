@@ -53,6 +53,8 @@ runs:
       run: |
         url="${{ inputs.url }}"
 
+        echo "url is '$url'"
+
         download_dir="${{ env.download-dir }}"
         mkdir -p "$download_dir"
 
@@ -69,13 +71,16 @@ runs:
       run: |
 
         if [ -f "${{ steps.download.outputs.file }}" ]; then
-          echo "file=${{ steps.download.outputs.file }}" >> $GITHUB_OUTPUT
+          file="${{ steps.download.outputs.file }}"
         elif [ -f "${{ inputs.file }}" ]; then
-          echo "file=${{ inputs.file }}" >> $GITHUB_OUTPUT
+          file="${{ inputs.file }}"
         else
           echo "::error::Input parameters "file" and "url" are empty."
           exit 1
         fi
+
+        echo "file is '$file'"
+        echo "file=$file" >> $GITHUB_OUTPUT
 
     - id: read
       shell: bash
