@@ -27,11 +27,22 @@ on: # yamllint disable-line rule:truthy
 jobs:
 
   checks:
-    env:
-      test-data-dir: './toolset/.tests/file/read'
     strategy:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
+        type: [file, url]
+        include:
+          - type: file
+            text-file: './toolset/.tests/file/read/test.txt'
+            json-file: './toolset/.tests/file/read/test.json'
+            text-url: ''
+            json-url: ''
+          - type: url
+            text-file: ''
+            json-file: ''
+            text-url: 'https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_SHA}/toolset/.tests/file/read/test.txt'
+            json-url: 'https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_SHA}/toolset/.tests/file/read/test.json'
+
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -44,30 +55,32 @@ jobs:
         id: read-text-file
         uses: ./toolset/file/read
         with:
-          file: '${{ env.test-data-dir }}/test.txt'
+          file: ${{ matrix.text-file }}
+          url: ${{ matrix.text-url }}
 
       - name: Run 'toolset/file/read' action [.json]
         id: read-json-file
         uses: ./toolset/file/read
         with:
-          file: '${{ env.test-data-dir }}/test.json'
+          file: ${{ matrix.json-file }}
+          url: ${{ matrix.text-url }}
 
       - name: Check 'toolset/file/read' action
         shell: bash
         run: |
-          actual_txt_data="${{ steps.read-text-file.outputs.data }}"
-          expected_txt_data="This is a test file.
+          actual_txt_content="${{ steps.read-text-file.outputs.content }}"
+          expected_txt_content="This is a test file.
           This is a new line.
           These are several numbers: 0, 1, 2, 3."
 
-          if [ "$actual_txt_data" != "$expected_txt_data" ]; then
+          if [ "$actual_txt_content" != "$expected_txt_content" ]; then
             echo "::error::The 'toolset/file/read' action failed the tests. The file 'test.txt' is read incorrectly."
             echo "Differences:"
-            diff <(echo "$actual_txt_data") <(echo "$expected_txt_data")
+            diff <(echo "$actual_txt_content") <(echo "$expected_txt_content")
             exit 1
           fi
 
-          actual_itemA0="${{ fromJSON(steps.read-json-file.outputs.data).item-A-0 }}"
+          actual_itemA0="${{ fromJSON(steps.read-json-file.outputs.content).item-A-0 }}"
           expected_itemA0="value-A-0"
           if [ "$actual_itemA0" != "$expected_itemA0" ]; then
             echo "::error::The 'toolset/file/read' action failed the tests. The 'item-A-0' item is incorrect."
@@ -76,14 +89,14 @@ jobs:
             exit 1
           fi
 
-          actual_itemA2="${{ fromJSON(steps.read-json-file.outputs.data).item-A-2 }}"
+          actual_itemA2="${{ fromJSON(steps.read-json-file.outputs.content).item-A-2 }}"
           expected_itemA2=2
           if [ "$actual_itemA0" != "$expected_itemA0" ]; then
             echo "::error::The 'toolset/file/read' action failed the tests. The 'item-A-2' item is incorrect."
             exit 1
           fi
 
-          actual_sectionB_itemB0="${{ fromJSON(steps.read-json-file.outputs.data).section-B.item-B-0 }}"
+          actual_sectionB_itemB0="${{ fromJSON(steps.read-json-file.outputs.content).section-B.item-B-0 }}"
           expected_sectionB_itemB0="value-B-0"
           if [ "$actual_sectionB_itemB0" != "$expected_sectionB_itemB0" ]; then
             echo "::error::The 'toolset/file/read' action failed the tests. The 'section-B.item-B-0' item is incorrect."
@@ -92,14 +105,14 @@ jobs:
             exit 1
           fi
 
-          actual_sectionB_itemB2="${{ fromJSON(steps.read-json-file.outputs.data).section-B.item-B-2 }}"
+          actual_sectionB_itemB2="${{ fromJSON(steps.read-json-file.outputs.content).section-B.item-B-2 }}"
           expected_sectionB_itemB2=12
           if [ "$actual_sectionB_itemB2" != "$expected_sectionB_itemB2" ]; then
             echo "::error::The 'toolset/file/read' action failed the tests. The 'section-B.item-B-2' item is incorrect."
             exit 1
           fi
 
-          actual_arrayC_itemC0="${{ fromJSON(steps.read-json-file.outputs.data).array-C[0].item-C-0 }}"
+          actual_arrayC_itemC0="${{ fromJSON(steps.read-json-file.outputs.content).array-C[0].item-C-0 }}"
           expected_arrayC_itemC0="value-C-00"
           if [ "$actual_arrayC_itemC0" != "$expected_arrayC_itemC0" ]; then
             echo "::error::The 'toolset/file/read' action failed the tests. The 'array-C[0].item-C-0' item is incorrect."
@@ -108,14 +121,14 @@ jobs:
             exit 1
           fi
 
-          actual_arrayC_itemC2="${{ fromJSON(steps.read-json-file.outputs.data).array-C[1].item-C-2 }}"
+          actual_arrayC_itemC2="${{ fromJSON(steps.read-json-file.outputs.content).array-C[1].item-C-2 }}"
           expected_arrayC_itemC2=212
           if [ "$actual_arrayC_itemC2" != "$expected_arrayC_itemC2" ]; then
             echo "::error::The 'toolset/file/read' action failed the tests. The 'array-C[1].item-C-2' item is incorrect."
             exit 1
           fi
 
-          actual_arrayD="${{ fromJSON(steps.read-json-file.outputs.data).array-D[0] }}"
+          actual_arrayD="${{ fromJSON(steps.read-json-file.outputs.content).array-D[0] }}"
           expected_arrayD="value-D-0"
           if [ "$actual_arrayD" != "$expected_arrayD" ]; then
             echo "::error::The 'toolset/file/read' action failed the tests. The 'array-D[0]' item is incorrect."
