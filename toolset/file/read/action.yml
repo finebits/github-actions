@@ -69,7 +69,7 @@ runs:
       run: |
 
         if [ -f "${{ steps.download.outputs.file }}" ]; then
-          echo "file="${{ steps.download.outputs.file }}" >> $GITHUB_OUTPUT
+          echo "file=${{ steps.download.outputs.file }}" >> $GITHUB_OUTPUT
         elif [ -f "${{ inputs.file }}" ]; then
           echo "file=${{ inputs.file }}" >> $GITHUB_OUTPUT
         else
