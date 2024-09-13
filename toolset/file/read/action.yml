@@ -53,7 +53,7 @@ runs:
       run: |
         url="${{ inputs.url }}"
 
-        echo "url is '$url'"
+        echo "::debug::url is '$url'"
 
         download_dir="${{ env.download-dir }}"
         mkdir -p "$download_dir"
@@ -79,7 +79,7 @@ runs:
           exit 1
         fi
 
-        echo "file is '$file'"
+        echo "::debug::file is '$file'"
         echo "file=$file" >> $GITHUB_OUTPUT
 
     - id: read
