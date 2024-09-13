@@ -30,7 +30,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
-        type: [file, url]
+        type: [file, url, mix]
         include:
           - type: file
             text-file: './toolset/.tests/file/read/test.txt'
@@ -42,6 +42,11 @@ jobs:
             json-file: ''
             text-url: 'https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_SHA}/toolset/.tests/file/read/test.txt'
             json-url: 'https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_SHA}/toolset/.tests/file/read/test.json'
+          - type: mix
+            text-file: './toolset/.tests/file/read/test.txt'
+            json-file: './toolset/.tests/file/read/test.json'
+            text-url: 'https://httpbin.org/status/400'
+            json-url: 'https://httpbin.org/status/404'
 
     runs-on: ${{ matrix.os }}
 

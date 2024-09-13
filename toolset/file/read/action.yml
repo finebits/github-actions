@@ -55,22 +55,20 @@ runs:
 
         echo "::debug::url is '$url'"
 
-        download_dir="${{ env.download-dir }}"
-        mkdir -p "$download_dir"
+        download_dir="$(mktemp -d)"
 
         name="$(date +%Y%m%d%H%M%S)-$RANDOM"
         file="$download_dir/$name"
-        curl --location --silent --request GET --output "$file" "$url"
+        code=$(curl --location --silent --request GET --output "$file" --write-out '%{http_code}' "$url")
 
         echo "file=$file" >> $GITHUB_OUTPUT
-      env:
-        download-dir: './.github-actions/.download'
+        echo "code=$code" >> $GITHUB_OUTPUT
 
     - id: file-path
       shell: bash
       run: |
 
-        if [ -f "${{ steps.download.outputs.file }}" ]; then
+        if [ -f "${{ steps.download.outputs.file }}" ] && [[ "${{ steps.download.outputs.code }}"  == "200" ]]; then
           file="${{ steps.download.outputs.file }}"
         elif [ -f "${{ inputs.file }}" ]; then
           file="${{ inputs.file }}"
