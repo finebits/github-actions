@@ -23,26 +23,65 @@ name: Read File
 description: To read a file.
 
 inputs:
-  file:
-    description: 'Path to file'
+  url:
+    description: 'Link to file'
     type: string
-    required: true
+
+  file:
+    description: 'Path to local file'
+    type: string
 
 outputs:
-  data:
-    value: ${{ steps.read.outputs.data }}
+  content:
+    value: ${{ steps.read.outputs.content }}
 
 runs:
   using: "composite"
 
   steps:
 
+    - name: verify
+      if: ${{ inputs.url == '' && inputs.url == '' }}
+      shell: bash
+      run: |
+        echo "::error::Input parameters "file" and "url" are empty."
+        exit 1
+
+    - id: download
+      if: ${{ inputs.url != ''}}
+      shell: bash
+      run: |
+        url="${{ inputs.url }}"
+
+        download_dir="${{ env.download-dir }}"
+        mkdir -p "$download_dir"
+
+        file="$download_dir/$(uuidgen)"
+        curl --location --silent --request GET --output "$file" "$url"
+        
+        echo "file="$file" >> $GITHUB_OUTPUT
+      env:
+        download-dir: './.github-actions/.download'
+
+    - id: file-path
+      shell: bash
+      run: |
+        
+        if [ -f "${{ steps.download.outputs.file }}" ]; then
+          echo "file="${{ steps.download.outputs.file }}" >> $GITHUB_OUTPUT
+        elif [ -f "${{ inputs.file }}" ]; then
+          echo "file=${{ inputs.file }}" >> $GITHUB_OUTPUT
+        else
+          echo "::error::Input parameters "file" and "url" are empty."
+          exit 1
+        fi
+
     - id: read
       shell: bash
       run: |
-        file="${{ inputs.file }}"
-        file_data=$(cat "$file")
+        file="${{ steps.file-path.outputs.file }}"
+        file_content=$(cat "$file")
 
-        echo "data<<EOF" >> $GITHUB_OUTPUT
-        echo "$file_data" >> $GITHUB_OUTPUT
+        echo "content<<EOF" >> $GITHUB_OUTPUT
+        echo "$file_content" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
