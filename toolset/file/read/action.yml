@@ -41,7 +41,7 @@ runs:
   steps:
 
     - name: verify
-      if: ${{ inputs.url == '' && inputs.url == '' }}
+      if: ${{ inputs.file == '' && inputs.url == '' }}
       shell: bash
       run: |
         echo "::error::Input parameters "file" and "url" are empty."
@@ -56,17 +56,18 @@ runs:
         download_dir="${{ env.download-dir }}"
         mkdir -p "$download_dir"
 
-        file="$download_dir/$(uuidgen)"
+        name="$(date +%Y%m%d%H%M%S)-$RANDOM"
+        file="$download_dir/$name"
         curl --location --silent --request GET --output "$file" "$url"
-        
-        echo "file="$file" >> $GITHUB_OUTPUT
+
+        echo "file=$file" >> $GITHUB_OUTPUT
       env:
         download-dir: './.github-actions/.download'
 
     - id: file-path
       shell: bash
       run: |
-        
+
         if [ -f "${{ steps.download.outputs.file }}" ]; then
           echo "file="${{ steps.download.outputs.file }}" >> $GITHUB_OUTPUT
         elif [ -f "${{ inputs.file }}" ]; then
