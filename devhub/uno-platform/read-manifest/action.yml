@@ -57,8 +57,8 @@ runs:
       if: inputs.uno-check-manifest == ''
       shell: bash
       run: |
-        output=$(uno-check list)
-        pattern=${{ env.regex-pattern }}
+        output="$(uno-check list)"
+        pattern="${{ env.regex-pattern }}"
         skip_options=""
 
         while [[ $output =~ $pattern ]]; do
@@ -74,11 +74,11 @@ runs:
       if: inputs.uno-check-manifest == ''
       shell: bash
       run: |
-        log=$(mktemp)
+        log="$(mktemp)"
         uno-check --verbose --non-interactive --ci --logfile=$log ${{ steps.skip-all.outputs.options }}
 
         content="$(cat "$log")"
-        pattern=${{ env.regex-pattern }}
+        pattern="${{ env.regex-pattern }}"
 
         if [[ "$content" =~ $pattern ]]; then
           echo "url=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
@@ -91,8 +91,8 @@ runs:
     - id: manifest-url
       shell: bash
       run: |
-        input_url=${{ inputs.uno-check-manifest }}
-        deafult_url=${{ steps.uno-check-manifest.outputs.url }}
+        input_url="${{ inputs.uno-check-manifest }}"
+        deafult_url="${{ steps.uno-check-manifest.outputs.url }}"
 
         url="${input_url:-$deafult_url}"
         echo "url=$url" >> $GITHUB_OUTPUT
