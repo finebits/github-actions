@@ -20,7 +20,9 @@
 
 name: Read the Uno Platform setup manifest
 
-description: Read the Uno Platform setup manifest from the 'uno-check' tool
+description: |
+  Read the Uno Platform setup manifest from the 'uno-check' tool
+  Prerequisites: .NET SDK
 
 inputs:
   uno-check-manifest:
@@ -46,12 +48,16 @@ runs:
     - id: uno-check-version
       if: inputs.uno-check-version != '' && inputs.uno-check-manifest == ''
       shell: bash
-      run: echo 'option=--version ${{ inputs.uno-check-version }}' >> $GITHUB_OUTPUT
+      run: |
+        cli_option="--version ${{ inputs.uno-check-version }}"
+        echo "option=$cli_option" >> $GITHUB_OUTPUT
 
     - name: install uno.check tool
       if: inputs.uno-check-manifest == ''
       shell: bash
-      run: dotnet tool install --global uno.check ${{ steps.uno-check-version.outputs.option }}
+      run: |
+        dotnet tool install uno.check \
+               --global ${{ steps.uno-check-version.outputs.option }}
 
     - id: skip-all
       if: inputs.uno-check-manifest == ''
@@ -75,7 +81,8 @@ runs:
       shell: bash
       run: |
         log="$(mktemp)"
-        uno-check --verbose --non-interactive --ci --logfile=$log ${{ steps.skip-all.outputs.options }}
+        uno-check --verbose --non-interactive --ci \
+                  --logfile=$log ${{ steps.skip-all.outputs.options }}
 
         content="$(cat "$log")"
         pattern="${{ env.regex-pattern }}"
