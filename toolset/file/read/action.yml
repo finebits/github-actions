@@ -23,26 +23,69 @@ name: Read File
 description: To read a file.
 
 inputs:
-  file:
-    description: 'Path to file'
+  url:
+    description: 'Link to file'
     type: string
-    required: true
+
+  file:
+    description: 'Path to local file'
+    type: string
 
 outputs:
-  data:
-    value: ${{ steps.read.outputs.data }}
+  content:
+    value: ${{ steps.read.outputs.content }}
 
 runs:
   using: "composite"
 
   steps:
 
+    - name: verify
+      if: ${{ inputs.file == '' && inputs.url == '' }}
+      shell: bash
+      run: |
+        echo "::error::Input parameters "file" and "url" are empty."
+        exit 1
+
+    - id: download
+      if: ${{ inputs.url != ''}}
+      shell: bash
+      run: |
+        url="${{ inputs.url }}"
+
+        echo "::debug::url is '$url'"
+
+        download_dir="$(mktemp -d)"
+
+        name="$(date +%Y%m%d%H%M%S)-$RANDOM"
+        file="$download_dir/$name"
+        code=$(curl --location --silent --request GET --output "$file" --write-out '%{http_code}' "$url")
+
+        echo "file=$file" >> $GITHUB_OUTPUT
+        echo "code=$code" >> $GITHUB_OUTPUT
+
+    - id: file-path
+      shell: bash
+      run: |
+
+        if [ -f "${{ steps.download.outputs.file }}" ] && [[ "${{ steps.download.outputs.code }}" == "200" ]]; then
+          file="${{ steps.download.outputs.file }}"
+        elif [ -f "${{ inputs.file }}" ]; then
+          file="${{ inputs.file }}"
+        else
+          echo "::error::Input parameters "file" and "url" are empty."
+          exit 1
+        fi
+
+        echo "::debug::file is '$file'"
+        echo "file=$file" >> $GITHUB_OUTPUT
+
     - id: read
       shell: bash
       run: |
-        file="${{ inputs.file }}"
-        file_data=$(cat "$file")
+        file="${{ steps.file-path.outputs.file }}"
+        file_content=$(cat "$file")
 
-        echo "data<<EOF" >> $GITHUB_OUTPUT
-        echo "$file_data" >> $GITHUB_OUTPUT
+        echo "content<<EOF" >> $GITHUB_OUTPUT
+        echo "$file_content" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
