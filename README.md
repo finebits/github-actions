@@ -9,6 +9,8 @@
 
 - [Action 'badges/coverlet-coverage-badge'](#action-badgescoverlet-coverage-badge)
 - [Action 'badges/shields-io-badge'](#action-badgesshields-io-badge)
+- [Action 'devhub/uno-platform/read-manifest'](#action-packageappimagepack)
+- [Action 'devhub/uno-platform/setup'](#action-packageappimagesetup-appimagetool)
 - [Action 'package/appimage/pack'](#action-packageappimagepack)
 - [Action 'package/appimage/setup-appimagetool'](#action-packageappimagesetup-appimagetool)
 - [Action 'package/nuget/pack'](#action-packagenugetpack)
@@ -141,6 +143,59 @@ This generates [Shields.io endpoint badge](https://shields.io/badges/endpoint-ba
 
 - `badge-link` - markdown badge link
 
+## Action `devhub/uno-platform/read-manifest`
+
+### Summary
+
+Read the Uno Platform setup manifest from the `uno-check` tool.
+
+### Using
+
+> [!IMPORTANT]
+> **Prerequisites:** .NET SDK (i.e., _uses: actions/setup-dotnet_)
+
+```yaml
+- id: uno-check-manifest
+  uses: finebits/github-actions/devhub/uno-platform/read-manifest@v1
+
+- shell: bash
+  run: |
+    dotnet_version="${{ fromJSON(steps.uno-check-manifest.outputs.content).check.variables.DOTNET_SDK_VERSION }}"
+```
+
+### Action inputs
+
+- `uno-check-manifest` - Specific manifest URL of the **uno-check** tool
+- `uno-check-version` - Specific version of the **uno-check** tool
+
+### Action outputs
+
+- `content` - Contents of the Uno Platform manifest file
+
+## Action `devhub/uno-platform/setup`
+
+### Summary
+
+Sets up the Uno Platform and its dependencies.
+
+### Using
+
+> [!IMPORTANT]
+> **Prerequisites:** .NET SDK (i.e., _uses: actions/setup-dotnet_)
+
+```yaml
+- uses: finebits/github-actions/devhub/uno-platform/setup@v1
+```
+
+### Action inputs
+
+- `uno-check-manifest` - Specific manifest URL of the **uno-check** tool
+- `uno-check-version` - Specific version of the **uno-check** tool
+
+### Action outputs
+
+_Action has no outputs._
+
 ## Action `package/appimage/pack`
 
 ### Summary
@@ -150,7 +205,7 @@ This packages a desktop application as an [AppImage](https://appimage.org/) that
 ### Using
 
 > [!IMPORTANT]
-> This action can only be used on Linux (i.e. _runs-on: ubuntu-latest_).
+> This action can only be used on Linux (i.e., _runs-on: ubuntu-latest_).
 
 ```yaml
 jobs:
@@ -187,7 +242,7 @@ This setups [appimagetool](https://github.com/AppImage/appimagetool), its [runti
 ### Using
 
 > [!IMPORTANT]
-> This action can only be used on Linux (i.e. _runs-on: ubuntu-latest_).
+> This action can only be used on Linux (i.e., _runs-on: ubuntu-latest_).
 
 ```yaml
 jobs:
