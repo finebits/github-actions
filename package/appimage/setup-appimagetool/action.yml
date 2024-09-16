@@ -33,22 +33,17 @@ runs:
   using: "composite"
 
   steps:
-    - name: Check conditions
+    - name: Check the operating system
+      if: ${{ runner.os != 'Linux' }}
       shell: bash
-      run: |
-        if [ "$RUNNER_OS" != "Linux" ]; then
-          echo "::error::This action only supports Linux (Now it runs on $RUNNER_OS)."
-          exit 1
-        fi
+      run: echo "::error::This action only supports Linux (Now it runs on $RUNNER_OS)."
 
     - name: Prepare to setup the appimagetool
       id: prepare-appimagetool
       shell: bash
       run: |
-        appimagetool_dir="./.appimagetool/$(uuidgen)"
-        mkdir -p "$appimagetool_dir"
+        appimagetool_dir="$(mktemp -d)"
 
-        appimagetool_dir=$(readlink -f "$(pwd)/$dir")
         echo "$appimagetool_dir" >> $GITHUB_PATH
         echo "directory=$appimagetool_dir" >> $GITHUB_OUTPUT
 
@@ -61,7 +56,7 @@ runs:
         appimagetool_file="$appimagetool_dir/appimagetool-x86_64.AppImage"
 
         echo "Download appimagetool to '$appimagetool_dir'"
-        wget --quiet --output-document="$appimagetool_file" "$url"
+        curl --location --silent --request GET --output "$appimagetool_file" "$url"
 
         echo "Setup appimagetool: $appimagetool_file"
         chmod a+x "$appimagetool_file"
@@ -84,7 +79,7 @@ runs:
         do
           name="${url##*/}"
           file="$appimagetool_dir/$name"
-          wget --quiet --output-document="$file" "$url"
+          curl --location --silent --request GET --output "$file" "$url"
         done
 
     - name: Setup Static Tools
@@ -108,6 +103,6 @@ runs:
           name="${url##*/}"
           name="${name%-*}"
           file="$appimagetool_dir/$name"
-          wget --quiet --output-document="$file" "$url"
+          curl --location --silent --request GET --output "$file" "$url"
           chmod a+x "$file"
         done
