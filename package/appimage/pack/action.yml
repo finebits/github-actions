@@ -86,17 +86,12 @@ runs:
         output_dir="${{ inputs.package-output-dir }}"
         package_app_dir="${{ inputs.package-app-dir }}"
 
-        here="$(pwd)"
-        tmp_dir="$output_dir/$(uuidgen)"
-
-        echo "Create '$tmp_dir' directory"
-
-        mkdir -p "$tmp_dir"
+        start_dir="$(pwd)"
+        tmp_dir="$(mktemp -d)"
 
         function clean() {
             echo "Cleaning..."
-            cd "$here"
-            rm -drf "$tmp_dir"
+            cd "$start_dir"
         }
 
         trap clean EXIT
@@ -133,15 +128,15 @@ runs:
 
         echo "$("${appimagetool_realpath}" --runtime-file="${runtime_realpath}" "${package_app_dir_realpath}")"
 
-        cd "$here"
+        cd "$start_dir"
 
         package=$(find . -path "$tmp_dir/*.AppImage" -print | head -n 1)
         package_name=$(basename -- "$package")
 
         chmod a+x "$package"
 
-        mkdir -p "$output_dir"
-        mv "$package" "$output_dir"
+        mkdir -p "$output_dir_realpath"
+        mv "$package" "$output_dir_realpath"
 
         echo "AppImage package is '$output_dir/$package_name'"
         echo "appimage-package=$output_dir/$package_name" >> $GITHUB_OUTPUT

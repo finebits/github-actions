@@ -42,11 +42,7 @@ runs:
       id: prepare-appimagetool
       shell: bash
       run: |
-        appimagetool_dir="./.appimagetool/$(uuidgen)"
-        mkdir -p "$appimagetool_dir"
-
-        appimagetool_dir=$(readlink -f "$(pwd)/$dir")
-        echo "$appimagetool_dir" >> $GITHUB_PATH
+        appimagetool_dir="$(mktemp -d)"
         echo "directory=$appimagetool_dir" >> $GITHUB_OUTPUT
 
     - name: Setup appimagetool
