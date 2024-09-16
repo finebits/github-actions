@@ -33,13 +33,10 @@ runs:
   using: "composite"
 
   steps:
-    - name: Check conditions
+    - name: Check the operating system
+      if: ${{ runner.os != 'Linux' }}
       shell: bash
-      run: |
-        if [ "$RUNNER_OS" != "Linux" ]; then
-          echo "::error::This action only supports Linux (Now it runs on $RUNNER_OS)."
-          exit 1
-        fi
+      run: echo "::error::This action only supports Linux (Now it runs on $RUNNER_OS)."
 
     - name: Prepare to setup the appimagetool
       id: prepare-appimagetool

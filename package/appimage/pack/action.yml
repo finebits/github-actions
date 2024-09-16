@@ -57,22 +57,23 @@ runs:
   using: "composite"
 
   steps:
+
+    - name: Check the operating system
+      if: ${{ runner.os != 'Linux' }}
+      shell: bash
+      run: echo "::error::This action only supports Linux (Now it runs on $RUNNER_OS)."
+
     - name: Check conditions
       shell: bash
       run: |
-        if [ "$RUNNER_OS" != "Linux" ]; then
-          echo "::error::This action only supports Linux (Now it runs on $RUNNER_OS)."
-          exit 1
-        fi
-
         if ( ! command -v "${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_FILE }}" ); then
           echo "::error::'${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_FILE }}' command not found"
-          exit 2
+          exit 1
         fi
 
         if [ ! -d "${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR }}" ]; then
           echo "::error::'${{ env.FINEBITS_GITHUB_ACTION_APPIMAGETOOL_DIR }}' directory does not exist"
-          exit 3
+          exit 1
         fi
 
     - name: Pack
