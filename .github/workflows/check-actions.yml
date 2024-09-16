@@ -91,6 +91,10 @@ jobs:
     name: Check the 'devhub/uno-platform/read-manifest' Action
     uses: ./.github/workflows/check-devhub-uno-platform-read-manifest-action.yml
 
+  uno-platform-setup-action-check:
+    name: Check the 'devhub/uno-platform/setup' Action
+    uses: ./.github/workflows/check-devhub-uno-platform-setup-action.yml
+
   appimage-action-check:
     name: Check the 'package/appimage' Action
     uses: ./.github/workflows/check-package-appimage-action.yml
