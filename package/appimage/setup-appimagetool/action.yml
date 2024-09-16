@@ -43,6 +43,8 @@ runs:
       shell: bash
       run: |
         appimagetool_dir="$(mktemp -d)"
+
+        echo "$appimagetool_dir" >> $GITHUB_PATH
         echo "directory=$appimagetool_dir" >> $GITHUB_OUTPUT
 
     - name: Setup appimagetool
