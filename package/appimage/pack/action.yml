@@ -87,7 +87,6 @@ runs:
         package_app_dir="${{ inputs.package-app-dir }}"
 
         start_dir="$(pwd)"
-        tmp_dir="$(mktemp -d)"
 
         function clean() {
             echo "Cleaning..."
@@ -95,6 +94,8 @@ runs:
         }
 
         trap clean EXIT
+
+        echo "Prepare environment..."
 
         package_runtime=${{ inputs.package-runtime }}
 
@@ -122,6 +123,10 @@ runs:
         package_app_dir_realpath=$(readlink -e "${package_app_dir}")
         output_dir_realpath=$(readlink -e "${output_dir}")
 
+        echo "Prepare directory..."
+
+        mkdir -p "$output_dir_realpath"
+        tmp_dir="$(mktemp -d)"
         cd "$tmp_dir"
 
         echo "Packing..."
@@ -135,7 +140,6 @@ runs:
 
         chmod a+x "$package"
 
-        mkdir -p "$output_dir_realpath"
         mv "$package" "$output_dir_realpath"
 
         echo "AppImage package is '$output_dir/$package_name'"
