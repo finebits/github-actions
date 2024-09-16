@@ -58,7 +58,7 @@ runs:
         appimagetool_file="$appimagetool_dir/appimagetool-x86_64.AppImage"
 
         echo "Download appimagetool to '$appimagetool_dir'"
-        wget --quiet --output-document="$appimagetool_file" "$url"
+        curl --location --silent --request GET --output "$appimagetool_file" "$url"
 
         echo "Setup appimagetool: $appimagetool_file"
         chmod a+x "$appimagetool_file"
@@ -81,7 +81,7 @@ runs:
         do
           name="${url##*/}"
           file="$appimagetool_dir/$name"
-          wget --quiet --output-document="$file" "$url"
+          curl --location --silent --request GET --output "$file" "$url"
         done
 
     - name: Setup Static Tools
@@ -105,6 +105,6 @@ runs:
           name="${url##*/}"
           name="${name%-*}"
           file="$appimagetool_dir/$name"
-          wget --quiet --output-document="$file" "$url"
+          curl --location --silent --request GET --output "$file" "$url"
           chmod a+x "$file"
         done
