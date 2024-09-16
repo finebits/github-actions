@@ -136,7 +136,7 @@ runs:
 
         cd "$start_dir"
 
-        package=$(find . -path "$tmp_dir/*.AppImage" -print | head -n 1)
+        package=$(find "$tmp_dir" -path "*.AppImage" -print | head -n 1)
         package_name=$(basename -- "$package")
 
         chmod a+x "$package"
