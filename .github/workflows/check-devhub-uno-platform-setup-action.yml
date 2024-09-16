@@ -56,7 +56,6 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Run 'devhub/uno-platform/setup'
-        id: uno-check-setup
         uses: ./devhub/uno-platform/setup
         with:
           uno-check-manifest: ${{ matrix.manifest }}
