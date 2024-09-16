@@ -69,7 +69,7 @@ jobs:
           if [ "$toolVersion" == "" ]; then
             echo "::error::The 'devhub/uno-platform/read-manifest' action failed the tests. The 'check.toolVersion' not found."
           fi
-          
+
           dotnetVersion="${{ fromJSON(steps.uno-check-manifest.outputs.content).check.variables.DOTNET_SDK_VERSION }}"
           if [ "$dotnetVersion" == "" ]; then
             echo "::error::The 'devhub/uno-platform/read-manifest' action failed the tests. The 'check.variables.DOTNET_SDK_VERSION' not found."

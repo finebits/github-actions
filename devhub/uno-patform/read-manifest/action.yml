@@ -36,7 +36,7 @@ inputs:
     required: false
 
 outputs:
-  content: 
+  content:
     value: ${{ steps.read-manifest.outputs.content }}
 
 runs:
@@ -99,5 +99,5 @@ runs:
 
     - id: read-manifest
       uses: ./toolset/file/read
-      with: 
+      with:
         url: ${{ steps.manifest-url.outputs.url }}
