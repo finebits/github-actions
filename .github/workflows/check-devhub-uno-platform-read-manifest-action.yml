@@ -1,0 +1,81 @@
+################################################################################
+#                                                                              #
+#   Copyright 2024 Finebits (https://finebits.com)                             #
+#                                                                              #
+#   Licensed under the Apache License, Version 2.0 (the "License");            #
+#   you may not use this file except in compliance with the License.           #
+#   You may obtain a copy of the License at                                    #
+#                                                                              #
+#       http://www.apache.org/licenses/LICENSE-2.0                             #
+#                                                                              #
+#   Unless required by applicable law or agreed to in writing, software        #
+#   distributed under the License is distributed on an "AS IS" BASIS,          #
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+#   See the License for the specific language governing permissions and        #
+#   limitations under the License.                                             #
+#                                                                              #
+################################################################################
+
+---
+
+name: Check the 'devhub/uno-platform/read-manifest' Action
+
+on: # yamllint disable-line rule:truthy
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+
+  checks:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        uno-check: [deafult, specific-version, specific-manifest]
+        include:
+          - uno-check: deafult
+            manifest: ''
+            version: ''
+          - uno-check: specific-version
+            manifest: ''
+            version: '1.24.0'
+          - uno-check: specific-manifest
+            manifest: 'https://raw.githubusercontent.com/unoplatform/uno.check/cb74c45d871e416469bac56f228f0d514e0db3c3/manifests/uno.ui.manifest.json' # v1.20.0
+            version: ''
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          fetch-depth: 0
+
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@6bd8b7f7774af54e05809fcc5431931b3eb1ddee # v4.0.1
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Run 'devhub/uno-platform/read-manifest'
+        id: uno-check-manifest
+        uses: ./devhub/uno-platform/read-manifest
+        with:
+          uno-check-manifest: ${{ matrix.manifest }}
+          uno-check-version: ${{ matrix.version }}
+
+      - name: Check 'devhub/uno-platform/read-manifest' action
+        shell: bash
+        run: |
+          toolVersion="${{ fromJSON(steps.uno-check-manifest.outputs.content).check.toolVersion }}"
+          if [ "$toolVersion" == "" ]; then
+            echo "::error::The 'devhub/uno-platform/read-manifest' action failed the tests. The 'check.toolVersion' not found."
+          fi
+
+          dotnetVersion="${{ fromJSON(steps.uno-check-manifest.outputs.content).check.variables.DOTNET_SDK_VERSION }}"
+          if [ "$dotnetVersion" == "" ]; then
+            echo "::error::The 'devhub/uno-platform/read-manifest' action failed the tests. The 'check.variables.DOTNET_SDK_VERSION' not found."
+          fi
+
+          jdkVersion="${{ fromJSON(steps.uno-check-manifest.outputs.content).check.openjdk.version }}"
+          if [ "$jdkVersion" == "" ]; then
+            echo "::error::The 'devhub/uno-platform/read-manifest' action failed the tests. The 'check.openjdk.version' not found."
+          fi

@@ -87,6 +87,18 @@ jobs:
       gist-id: ${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}
       gist-auth-token: ${{ secrets.TOKEN_GITHUB_GIST }}
 
+  uno-platform-read-manifest-action-check:
+    name: Check the 'devhub/uno-platform/read-manifest' Action
+    uses: ./.github/workflows/check-devhub-uno-platform-read-manifest-action.yml
+
+  appimage-action-check:
+    name: Check the 'package/appimage' Action
+    uses: ./.github/workflows/check-package-appimage-action.yml
+
+  nuget-action-action-check:
+    name: Check the 'package/nuget' Action
+    uses: ./.github/workflows/check-package-nuget-action.yml
+
   file-read-action-check:
     name: Check the 'toolset/file/read' Action
     uses: ./.github/workflows/check-toolset-file-read-action.yml
@@ -102,11 +114,3 @@ jobs:
   find-out-version-action-check:
     name: Check the 'toolset/find-out-version' Action
     uses: ./.github/workflows/check-toolset-version-action.yml
-
-  appimage-action-check:
-    name: Check the 'package/appimage' Action
-    uses: ./.github/workflows/check-package-appimage-action.yml
-
-  nuget-action-action-check:
-    name: Check the 'package/nuget' Action
-    uses: ./.github/workflows/check-package-nuget-action.yml
