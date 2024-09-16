@@ -9,8 +9,8 @@
 
 - [Action 'badges/coverlet-coverage-badge'](#action-badgescoverlet-coverage-badge)
 - [Action 'badges/shields-io-badge'](#action-badgesshields-io-badge)
-- [Action 'devhub/uno-platform/read-manifest'](#action-packageappimagepack)
-- [Action 'devhub/uno-platform/setup'](#action-packageappimagesetup-appimagetool)
+- [Action 'devhub/uno-platform/read-manifest'](#action-devhubuno-platformread-manifest)
+- [Action 'devhub/uno-platform/setup'](#action-devhubuno-platformsetup)
 - [Action 'package/appimage/pack'](#action-packageappimagepack)
 - [Action 'package/appimage/setup-appimagetool'](#action-packageappimagesetup-appimagetool)
 - [Action 'package/nuget/pack'](#action-packagenugetpack)
