@@ -105,9 +105,6 @@ runs:
         echo "url=$url" >> $GITHUB_OUTPUT
 
     - id: read-manifest
-      uses: ${{ env.action-file-read }}
+      uses: ${{ github.action_path }}/../../../toolset/file/read
       with:
         url: ${{ steps.manifest-url.outputs.url }}
-      env:
-        action-root: ${{ github.action_path }}/../../..
-        action-file-read: ${{ env.action-root }}/toolset/file/read

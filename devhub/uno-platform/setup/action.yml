@@ -42,13 +42,10 @@ runs:
 
   steps:
     - id: read-manifest
-      uses: ${{ env.action-read-manifest }}
+      uses: ${{ github.action_path }}/../../../devhub/uno-platform/read-manifest
       with:
         uno-check-manifest: ${{ inputs.uno-check-manifest }}
         uno-check-version: ${{ inputs.uno-check-version }}
-      env:
-        action-root: ${{ github.action_path }}/../../..
-        action-read-manifest: ${{ env.action-root }}/devhub/uno-platform/read-manifest
 
     - id: uno-check-version
       if: ${{ inputs.uno-check-version != '' }}
