@@ -15,25 +15,16 @@ updates:
       - "al-kau"
       - "ValeraFinebits"
 
-  # finebits/pack-nuget action
+  # finebits/github-actions/badges/coverlet-coverage-badge action
   - package-ecosystem: "github-actions"
-    directory: "/pack-nuget/"
+    directory: "/badges/coverlet-coverage-badge/"
     schedule:
       interval: "weekly"
     reviewers:
       - "al-kau"
       - "ValeraFinebits"
 
-  # finebits/version-number action
-  - package-ecosystem: "github-actions"
-    directory: "/version-number/"
-    schedule:
-      interval: "weekly"
-    reviewers:
-      - "al-kau"
-      - "ValeraFinebits"
-
-  # finebits/badges/shields-io-badge action
+  # finebits/github-actions/badges/shields-io-badge action
   - package-ecosystem: "github-actions"
     directory: "/badges/shields-io-badge/"
     schedule:
@@ -42,9 +33,90 @@ updates:
       - "al-kau"
       - "ValeraFinebits"
 
-  # finebits/badges/coverlet-coverage-badge action
+  # finebits/github-actions/devhub/uno-platform/read-manifest action
   - package-ecosystem: "github-actions"
-    directory: "/badges/coverlet-coverage-badge/"
+    directory: "/devhub/uno-platform/read-manifest/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "al-kau"
+      - "ValeraFinebits"
+
+  # finebits/github-actions/devhub/uno-platform/setup action
+  - package-ecosystem: "github-actions"
+    directory: "/devhub/uno-platform/setup/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "al-kau"
+      - "ValeraFinebits"
+
+  # finebits/github-actions/package/appimage/pack action
+  - package-ecosystem: "github-actions"
+    directory: "/package/appimage/pack/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "al-kau"
+      - "ValeraFinebits"
+
+  # finebits/github-actions/package/appimage/setup-appimagetool action
+  - package-ecosystem: "github-actions"
+    directory: "/package/appimage/setup-appimagetool/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "al-kau"
+      - "ValeraFinebits"
+
+  # finebits/github-actions/package/nuget/pack action
+  - package-ecosystem: "github-actions"
+    directory: "/package/nuget/pack/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "al-kau"
+      - "ValeraFinebits"
+
+  # finebits/github-actions/toolset/file/read action
+  - package-ecosystem: "github-actions"
+    directory: "/toolset/file/read/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "al-kau"
+      - "ValeraFinebits"
+
+  # finebits/github-actions/toolset/file/replace-text action
+  - package-ecosystem: "github-actions"
+    directory: "/toolset/file/replace-text/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "al-kau"
+      - "ValeraFinebits"
+
+  # finebits/github-actions/toolset/find-out-version action
+  - package-ecosystem: "github-actions"
+    directory: "/toolset/find-out-version/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "al-kau"
+      - "ValeraFinebits"
+
+  # finebits/github-actions/toolset/github/upload-release-asset action
+  - package-ecosystem: "github-actions"
+    directory: "/toolset/github/upload-release-asset/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "al-kau"
+      - "ValeraFinebits"
+
+  # finebits/github-actions/toolset/select-configuration action
+  - package-ecosystem: "github-actions"
+    directory: "/toolset/select-configuration/"
     schedule:
       interval: "weekly"
     reviewers:
