@@ -120,7 +120,7 @@ runs:
 
     - name: Get version number
       id: version
-      uses: finebits/github-actions/toolset/find-out-version@release/v1.6.0
+      uses: finebits/github-actions/toolset/find-out-version@v2
 
     - name: Save nuget parameters
       id: nuget
