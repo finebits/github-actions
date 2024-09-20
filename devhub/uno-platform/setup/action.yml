@@ -42,7 +42,7 @@ runs:
 
   steps:
     - id: read-manifest
-      uses: finebits/github-actions/devhub/uno-platform/read-manifest@release/v1.6.0
+      uses: finebits/github-actions/devhub/uno-platform/read-manifest@v2
       with:
         uno-check-manifest: ${{ inputs.uno-check-manifest }}
         uno-check-version: ${{ inputs.uno-check-version }}
