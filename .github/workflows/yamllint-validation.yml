@@ -16,40 +16,33 @@
 #                                                                              #
 ################################################################################
 
-name: Pre-Build Replace
+---
 
-description: To replace the placeholder in the target file with the text.
+name: YAML Validation
 
-inputs:
-  file:
-    description: 'Path to source file'
-    type: string
-    required: true
-    
-  placeholder:
-    description: 'Placeholder string'
-    type: string
-    required: true
+on: # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - main
+      - develop
+      - release/**
+  pull_request:
+    branches:
+      - main
+      - develop
+      - release/**
+  workflow_dispatch:
 
-  value:
-    description: 'Required value'
-    type: string
-    required: true
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          fetch-depth: 0
 
-runs:
-  using: "composite"
+      - name: Install yamllint
+        run: pip install yamllint
 
-  steps:
-
-  - name: Replace
-    shell: bash
-    run: | 
-
-      source=$(cat "${{ inputs.file }}")
-      placeholder="${{ inputs.placeholder }}"
-      value="${{ inputs.value }}"
-
-      result=${source//$placeholder/$value}
-
-      echo -n "$result" > "${{ inputs.file }}"
-
+      - name: Lint YAML files
+        run: yamllint .

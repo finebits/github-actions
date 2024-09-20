@@ -16,9 +16,11 @@
 #                                                                              #
 ################################################################################
 
+---
+
 name: Check Actions
 
-on:
+on: # yamllint disable-line rule:truthy
   workflow_dispatch:
   push:
     branches:
@@ -31,149 +33,88 @@ on:
       - develop
       - release/**
 
-env:
-  gist-id: ${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}
-  gist-owner: ${{ vars.GIST_OWNER }}
-  gist-auth-token: ${{ secrets.TOKEN_GITHUB_GIST }}
 jobs:
 
-  check:
-
-    strategy:
-      matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
-
-    runs-on: ${{ matrix.os }}
+  verify-secrets-variables:
+    name: Verify Secrets and Variables
+    runs-on: ubuntu-latest
+    outputs:
+      data-available: ${{ steps.verify.outputs.available }}
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-      with:
-        fetch-depth: 0
-        submodules: recursive
+      - name: Verify
+        id: verify
+        shell: bash
+        run: |
+          available=true
 
-    - name: Check Repository Secrets and Variables
-      if: ${{ github.event_name != 'pull_request' }}
-      shell: bash
-      run: |
-        exit=false
-        if [ -z '${{ env.gist-id }}' ]; then
-          echo -e "\n'BADGE_COVERLET_COVERAGE_GIST_ID' variable is missing!\n"
-          exit=true
-        fi
+          if [ -z '${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}' ]; then
+            echo "::warning::'BADGE_COVERLET_COVERAGE_GIST_ID' variable is missing!"
+            available=false
+          fi
 
-        if [ -z '${{ env.gist-auth-token }}' ]; then
-          echo -e "\n'TOKEN_GITHUB_GIST' secret is missing!\n"
-          exit=true
-        fi
+          if [ -z '${{ secrets.TOKEN_GITHUB_GIST }}' ]; then
+            echo "::warning::'TOKEN_GITHUB_GIST' secret is missing!"
+            available=false
+          fi
 
-        if [ -z '${{ env.gist-owner }}' ]; then
-          echo -e "\n'GIST_OWNER' variable is missing!\n"
-          exit=true
-        fi
+          if [ -z '${{ vars.GIST_OWNER }}' ]; then
+            echo "::warning::'GIST_OWNER' variable is missing!"
+            available=false
+          fi
 
-        if [ "$exit" = true ]; then
-          exit 1
-        fi
+          echo "available=$available" >> $GITHUB_OUTPUT
 
-    - name: Run version-number action
-      id: version-number
-      uses: ./version-number
+  coverlet-coverage-badge-check:
+    name: Check the 'badges/coverlet-coverage-badge' Action
+    needs: verify-secrets-variables
+    if: ${{ needs.verify-secrets-variables.outputs.data-available == 'true' }}
+    uses: ./.github/workflows/check-badges-coverlet-coverage-badge-action.yml
+    with:
+      gist-owner: ${{ vars.GIST_OWNER }}
+    secrets:
+      gist-id: ${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}
+      gist-auth-token: ${{ secrets.TOKEN_GITHUB_GIST }}
 
-    - name: Check version-number action
-      shell: bash
-      run: |
-        echo "Build version: ${{ steps.version-number.outputs.build-version }}"
-        echo "Suffix version: ${{ steps.version-number.outputs.suffix-version }}"
-        echo "Semantic version 1.0: ${{ steps.version-number.outputs.semantic-version-1 }}"
-        echo "Semantic version 2.0: ${{ steps.version-number.outputs.semantic-version-2 }}"
-        echo "Build version with githash: ${{ steps.version-number.outputs.build-githash-version }}"
-        echo "Suffix version with githash: ${{ steps.version-number.outputs.suffix-githash-version }}"
-        echo "Semantic version 2.0 with githash: ${{ steps.version-number.outputs.semantic-githash-version-2 }}"
-        echo "Major: ${{ steps.version-number.outputs.major }}"
-        echo "Minor: ${{ steps.version-number.outputs.minor }}"
-        echo "Patch: ${{ steps.version-number.outputs.patch }}"
-        echo "Build: ${{ steps.version-number.outputs.build }}"
-        echo "Attempt: ${{ steps.version-number.outputs.attempt }}"
-        echo "Today: ${{ steps.version-number.outputs.today }}"
-        echo "Git hash: ${{ steps.version-number.outputs.githash }}"
-        echo "Suffix: ${{ steps.version-number.outputs.suffix }}"
+  shields-io-badge-action-check:
+    name: Check the 'badges/shields-io-badge' Action
+    needs: verify-secrets-variables
+    if: ${{ needs.verify-secrets-variables.outputs.data-available == 'true' }}
+    uses: ./.github/workflows/check-badges-shields-io-badge-action.yml
+    with:
+      gist-owner: ${{ vars.GIST_OWNER }}
+    secrets:
+      gist-id: ${{ vars.BADGE_COVERLET_COVERAGE_GIST_ID }}
+      gist-auth-token: ${{ secrets.TOKEN_GITHUB_GIST }}
 
-    - name: Run badges/shields-io-badge action
-      if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}
-      id: badges-shields-io-badge
-      uses: ./badges/shields-io-badge
-      with:
-        label: shields.io
-        label-color: lightblue
-        message: badge
-        message-color: gold
-        logo: github
-        logo-color: blue
-        style: flat
+  uno-platform-read-manifest-action-check:
+    name: Check the 'devhub/uno-platform/read-manifest' Action
+    uses: ./.github/workflows/check-devhub-uno-platform-read-manifest-action.yml
 
-        gist-filename: "${{ github.event.repository.name }}-shields-io-badge.json"
-        gist-id: ${{ env.gist-id }}
-        gist-auth-token: ${{ env.gist-auth-token }}
-        gist-owner: ${{ env.gist-owner }}
+  uno-platform-setup-action-check:
+    name: Check the 'devhub/uno-platform/setup' Action
+    uses: ./.github/workflows/check-devhub-uno-platform-setup-action.yml
 
-    - name: Check badges/shields-io-badge action
-      if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}
-      shell: bash
-      run: |
-        link='${{ steps.badges-shields-io-badge.outputs.badge-link }}'
-        echo -e 'Badge link: '$link'\n'
+  appimage-action-check:
+    name: Check the 'package/appimage' Action
+    uses: ./.github/workflows/check-package-appimage-action.yml
 
-    - name: Run badges/coverlet-coverage-badge action
-      if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}
-      id: badges-coverlet-coverage-badge
-      uses: ./badges/coverlet-coverage-badge
-      with:
-        report-root: ./badges/coverlet-coverage-badge/.test-reports
-        report-filename: coverage.cobertura.xml
+  nuget-action-action-check:
+    name: Check the 'package/nuget' Action
+    uses: ./.github/workflows/check-package-nuget-action.yml
 
-        gist-filename-format: "${{ github.event.repository.name }}-{0}-test-coverage.json"
-        gist-id: ${{ env.gist-id }}
-        gist-auth-token: ${{ env.gist-auth-token }}
-        gist-owner: ${{ env.gist-owner }}
+  file-read-action-check:
+    name: Check the 'toolset/file/read' Action
+    uses: ./.github/workflows/check-toolset-file-read-action.yml
 
-    - name: Check badges/coverlet-coverage-badge action
-      if: ${{ env.gist-id != '' && env.gist-auth-token != '' }}
-      shell: bash
-      run: |
-        json='${{ steps.badges-coverlet-coverage-badge.outputs.badges-links }}'
+  file-replace-text-action-check:
+    name: Check the 'toolset/file/replace-text' Action
+    uses: ./.github/workflows/check-toolset-file-replace-text-action.yml
 
-        len=$(echo $json | jq '. | length')
-        for ((i=0; i<$len; i++)); do
-          echo -e "Badge link #"$i" $(echo $json | jq -r '.['$i']')\n"
-        done
+  select-config-action-check:
+    name: Check the 'toolset/select-configuration' Action
+    uses: ./.github/workflows/check-toolset-select-config-action.yml
 
-    - name: Run pack-nuget action
-      uses: ./pack-nuget
-      with:
-        project: ./pack-nuget/.test-project/Nuget/Nuget.csproj
-        configuration: Release
-        push-to-nuget: false
-        push-to-github: false
-        upload-artifact: false
-
-    - name: Run pre-build/replace action
-      uses: ./pre-build/replace
-      with:
-        file: ./pre-build/replace/.test-replace/test-file.txt
-        placeholder: "<placeholder>"
-        value: "new value"
-
-    - name: Check pre-build/replace action
-      shell: bash
-      run: | 
-        actual_file="./pre-build/replace/.test-replace/test-file.txt"
-        expected_file="./pre-build/replace/.test-replace/expected-file.txt"
-        if (cmp -s "$actual_file" "$expected_file"); then
-          echo "The 'pre-build/replace' action is passed the tests"
-        else
-          echo "::error::The 'pre-build/replace' action is failed the tests"
-          echo "Differences:"
-          diff "$actual_file" "$expected_file"
-          exit 1
-        fi
+  find-out-version-action-check:
+    name: Check the 'toolset/find-out-version' Action
+    uses: ./.github/workflows/check-toolset-version-action.yml

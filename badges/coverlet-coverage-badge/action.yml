@@ -16,6 +16,8 @@
 #                                                                              #
 ################################################################################
 
+---
+
 name: "Coverlet coverage badge"
 
 description: "It creates test coverage badge from the 'coverlet.collector' test report"
@@ -29,7 +31,7 @@ inputs:
     description: "The label format of the package badges"
     required: false
     default: "{0}: test coverage"
-  label-color: 
+  label-color:
     description: "The left color"
     type: string
     default: grey
@@ -68,7 +70,7 @@ inputs:
     required: false
     default: ${{ github.repository_owner }}
 
-outputs: 
+outputs:
   badges-links:
     value: ${{ steps.create-links.outputs.badges }}
 

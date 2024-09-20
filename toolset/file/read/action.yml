@@ -1,0 +1,91 @@
+################################################################################
+#                                                                              #
+#   Copyright 2024 Finebits (https://finebits.com)                             #
+#                                                                              #
+#   Licensed under the Apache License, Version 2.0 (the "License");            #
+#   you may not use this file except in compliance with the License.           #
+#   You may obtain a copy of the License at                                    #
+#                                                                              #
+#       http://www.apache.org/licenses/LICENSE-2.0                             #
+#                                                                              #
+#   Unless required by applicable law or agreed to in writing, software        #
+#   distributed under the License is distributed on an "AS IS" BASIS,          #
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+#   See the License for the specific language governing permissions and        #
+#   limitations under the License.                                             #
+#                                                                              #
+################################################################################
+
+---
+
+name: Read File
+
+description: To read a file.
+
+inputs:
+  url:
+    description: 'Link to file'
+    type: string
+
+  file:
+    description: 'Path to local file'
+    type: string
+
+outputs:
+  content:
+    value: ${{ steps.read.outputs.content }}
+
+runs:
+  using: "composite"
+
+  steps:
+
+    - name: verify
+      if: ${{ inputs.file == '' && inputs.url == '' }}
+      shell: bash
+      run: |
+        echo "::error::Input parameters "file" and "url" are empty."
+        exit 1
+
+    - id: download
+      if: ${{ inputs.url != ''}}
+      shell: bash
+      run: |
+        url="${{ inputs.url }}"
+
+        echo "::debug::url is '$url'"
+
+        download_dir="$(mktemp -d)"
+
+        name="$(date +%Y%m%d%H%M%S)-$RANDOM"
+        file="$download_dir/$name"
+        code=$(curl --location --silent --request GET --output "$file" --write-out '%{http_code}' "$url")
+
+        echo "file=$file" >> $GITHUB_OUTPUT
+        echo "code=$code" >> $GITHUB_OUTPUT
+
+    - id: file-path
+      shell: bash
+      run: |
+
+        if [ -f "${{ steps.download.outputs.file }}" ] && [[ "${{ steps.download.outputs.code }}" == "200" ]]; then
+          file="${{ steps.download.outputs.file }}"
+        elif [ -f "${{ inputs.file }}" ]; then
+          file="${{ inputs.file }}"
+        else
+          echo "::error::Input parameters "file" and "url" are empty."
+          exit 1
+        fi
+
+        echo "::debug::file is '$file'"
+        echo "file=$file" >> $GITHUB_OUTPUT
+
+    - id: read
+      shell: bash
+      run: |
+        file="${{ steps.file-path.outputs.file }}"
+        file_content=$(cat "$file")
+
+        echo "content<<EOF" >> $GITHUB_OUTPUT
+        echo "$file_content" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT

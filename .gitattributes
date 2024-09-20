@@ -32,9 +32,12 @@
 
 *.bash                                                      text eol=lf
 *.sh                                                        text eol=lf
+
+
+# Test artifacts
+
 package/appimage/.test/Test.AppDir/AppRun                   text eol=lf
 package/appimage/.test/Test.AppDir/test.desktop             text eol=lf
-
 
 
 # Set file behavior to: treat as binary

@@ -3,105 +3,106 @@
 [![GitHub release](https://img.shields.io/github/release/finebits/github-actions.svg)](https://GitHub.com/finebits/github-actions/tags/)
 [![License](https://img.shields.io/github/license/finebits/github-actions.svg)](https://github.com/finebits/github-actions/blob/main/LICENSE)
 [![Check action](https://img.shields.io/github/actions/workflow/status/finebits/github-actions/check-actions.yml?branch=main&event=push&logo=github&label=check)](https://github.com/finebits/github-actions/actions/workflows/check-actions.yml?query=branch%3Amain+event%3Apush)
+[![YAML validation](https://img.shields.io/github/actions/workflow/status/finebits/github-actions/yamllint-validation.yml?branch=main&event=push&logo=yaml&label=validation)](https://github.com/finebits/github-actions/actions/workflows/yamllint-validation.yml?query=branch%3Amain+event%3Apush)
 
 ## Overview
 
- 1. [Action 'version-number'](#action-version-number)
-    - [Summary](#summary)
-    - [Using](#using)
-    - [Action inputs](#action-inputs)
-    - [Action outputs](#action-outputs)
- 2. [Action 'badges/shields-io-badge'](#action-badgesshields-io-badge)
-    - [Summary](#summary-1)
-    - [Using](#using-1)
-    - [Action inputs](#action-inputs-1)
-    - [Action outputs](#action-outputs-1)
- 3. [Action 'badges/coverlet-coverage-badge'](#action-badgescoverlet-coverage-badge)
-    - [Summary](#summary-2)
-    - [Using](#using-2)
-    - [Action inputs](#action-inputs-2)
-    - [Action outputs](#action-outputs-2)
- 4. [Action 'pack-nuget'](#action-pack-nuget)
-    - [Summary](#summary-3)
-    - [Using](#using-3)
-    - [Action inputs](#action-inputs-3)
-    - [Action outputs](#action-outputs-3)
- 5. [Action 'upload-release-asset'](#action-upload-release-asset)
-    - [Summary](#summary-4)
-    - [Using](#using-4)
-    - [Action inputs](#action-inputs-4)
-    - [Action outputs](#action-outputs-4)
- 6. [Action 'pre-build/replace'](#action-pre-buildreplace)
-    - [Summary](#summary-5)
-    - [Using](#using-5)
-    - [Action inputs](#action-inputs-5)
-    - [Action outputs](#action-outputs-5)
+- [Action 'badges/coverlet-coverage-badge'](#action-badgescoverlet-coverage-badge)
+- [Action 'badges/shields-io-badge'](#action-badgesshields-io-badge)
+- [Action 'devhub/uno-platform/read-manifest'](#action-devhubuno-platformread-manifest)
+- [Action 'devhub/uno-platform/setup'](#action-devhubuno-platformsetup)
+- [Action 'package/appimage/pack'](#action-packageappimagepack)
+- [Action 'package/appimage/setup-appimagetool'](#action-packageappimagesetup-appimagetool)
+- [Action 'package/nuget/pack'](#action-packagenugetpack)
+- [Action 'toolset/file/read'](#action-toolsetfileread)
+- [Action 'toolset/file/replace-text'](#action-toolsetfilereplace-text)
+- [Action 'toolset/find-out-version'](#action-toolsetfind-out-version)
+- [Action 'toolset/github/upload-release-asset'](#action-toolsetgithubupload-release-asset)
+- [Action 'toolset/select-configuration'](#action-toolsetselect-configuration)
 
-## Action `version-number`
+## Action `badges/coverlet-coverage-badge`
 
 ### Summary
 
-Gets a version number using a git tag, a git commit, a github workflow context.
+This creates test coverage [badges](https://shields.io/badges/endpoint-badge) from the `coverlet.collector` test report. Example badge: <sub><sub>![Shields.io badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/finebits-github/74f6d448f4f568a286d4622e92afbc75/raw/github-actions-total-test-coverage.json)</sub></sub>
 
 ### Using
 
-```yaml
-    - id: version-number
-      uses: finebits/github-actions/version-number@v1
+1. Test project:
+    - Add nuget [coverlet.collector](https://www.nuget.org/packages/coverlet.collector).
+2. Github Gist:
+    - [Create secret gist](https://gist.github.com);
+    - Copy `gist-id` to new repository or organization variables (e.g., variable name `GIST_ID`).
+3. Personal access tokens:
+    - [Generate new token](https://github.com/settings/tokens);
+    - Add `Gists` permission;
+    - Copy token value to new repository or organization secret (e.g., secret name `TOKEN_GITHUB_GIST`).
+4. Action `badges/coverlet-coverage-badge` can be added to the Github workflow:
 
-    - name: 
-      run: |
-        echo "Current version: ${{ steps.version-number.outputs.semantic-version-1 }}"
+```yaml
+- shell: bash
+  run: |
+    dotnet test ./source/test.csproj --collect:"XPlat Code Coverage" --results-directory="./source/TestResults"
+
+- id: coverlet-coverage-badge
+  uses: finebits/github-actions/badges/coverlet-coverage-badge@v2
+  with:
+    report-root: ./source/TestResults/**/
+    report-filename: coverage.cobertura.xml
+    gist-filename-format: "${{ github.event.repository.name }}-{0}-test-coverage.json"
+    gist-id: ${{ vars.GIST_ID }}
+    gist-auth-token: ${{ secrets.TOKEN_GITHUB_GIST }}
+
+- shell: bash
+  run: |
+    json='${{ steps.coverlet-coverage-badge.outputs.badges-links }}'
+
+    len=$(echo $json | jq '. | length')
+    for ((i=0; i<$len; i++)); do
+      echo -e "Badge link #"$i" $(echo $json | jq -r '.['$i']')\n"
+    done
 ```
 
 ### Action inputs
 
-Action has no inputs.
+- `label` - The badge label, default: _"Test coverage"_
+- `package-label-format` - The label format of the package badges, default: _"{0}: test coverage"_
+- `label-color` - Background color of the left part (hex, rgb, rgba, hsl, hsla and css named colors supported), default: _grey_
+- `logo` - One of the [named logos](https://github.com/simple-icons/simple-icons/blob/master/slugs.md) supported by Shields
+- `logo-svg` - An SVG string containing a custom logo
+- `logo-color` - Supported for named logos and Shields logos
+- `style` - The default template to use, default: _flat_
+- `gist-filename-format` - The format name for the 'Github Gist' file that stores the badge's metadata, default: _"{0}-test-coverage.json"_
+- `report-root` - **(required)** Report root directory
+- `report-filename` - Report filename, default: _"coverage.cobertura.xml"_
+- `gist-id` - **(required)** The unique identifier of the 'Github Gist' where badge metadata is stored
+- `gist-auth-token` - **(required)** Authentication token to update the the 'Github Gist
+- `gist-owner` - 'Github Gist' owner, default: _${{ github.repository_owner }}_
 
 ### Action outputs
 
-- `build` - contains the workflow run number (look at [github action context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context));
-- `attempt` - contains the workflow re-run number (look at [github action context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context));
-- `today` - contains the date of the workflow execution in the format `yymmdd`;
-- `githash` - contains the git commit hash;
-
-If there is **tag** in the format `v{major}[.{minor}[.{patch}]][-{suffix}]` (ex. v1.2-beta) then
-
-- `major` - contains the value of the **major** component of the version number, default value 1;
-- `minor` - contains the value of the **minor** component of the version number, default value 0;
-- `patch` - contains the value of the **patch** component of the version number, default value 0;
-- `suffix` - contains the **suffix** version, it can be empty;
-
-Preset version formats:
-
-- `build-version` - version format: `{major}.{minor}.{patch}.{build}`
-- `suffix-version` - version format: `{major}.{minor}.{patch}.{build}[-{suffix}]`
-- `semantic-version-1` - version format: `{major}.{minor}.{patch}[-{suffix}]`
-- `semantic-version-2` - version format: `{major}.{minor}.{patch}[-{suffix}]+{build}.{attempt}`
-- `build-githash-version` - version format: `{major}.{minor}.{patch}.{build}+{githash}`
-- `suffix-githash-version` - version format: `{major}.{minor}.{patch}.{build}[-{suffix}]+{githash}`
-- `semantic-githash-version-2` - version format: `{major}.{minor}.{patch}[-{suffix}]+{build}.{attempt}.{githash}`
+- `badges-links` - contains a json array of markdown badges links
 
 ## Action `badges/shields-io-badge`
 
 ### Summary
 
-It generates [Shields.io endpoint badge](https://shields.io/badges/endpoint-badge). Example badge: <sub><sub>![Shields.io badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/finebits-github/74f6d448f4f568a286d4622e92afbc75/raw/github-actions-shields-io-badge.json)</sub></sub>
+This generates [Shields.io endpoint badge](https://shields.io/badges/endpoint-badge). Example badge: <sub><sub>![Shields.io badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/finebits-github/74f6d448f4f568a286d4622e92afbc75/raw/github-actions-shields-io-badge.json)</sub></sub>
 
 ### Using
 
 1. Github Gist:
     - [Create secret gist](https://gist.github.com);
-    - Copy `gist-id` to new repository or organization variables (ex: variable name `GIST_ID`).
+    - Copy `gist-id` to new repository or organization variables (e.g., variable name `GIST_ID`).
 2. Personal access tokens:
     - [Generate new token](https://github.com/settings/tokens);
     - Add `Gists` permission;
-    - Copy token value to new repository or organization secret (ex: secret name `TOKEN_GITHUB_GIST`).
-3. Action `shields-io-badge` can be added to the github workflow:
+    - Copy token value to new repository or organization secret (e.g., secret name `TOKEN_GITHUB_GIST`).
+3. Action `badges/shields-io-badge` can be added to the Github workflow:
 
 ```yaml
 - id: shields-io-badge
-  uses: finebits/github-actions/badges/shields-io-badge@v1
+  uses: finebits/github-actions/badges/shields-io-badge@v2
   with:
     label: shields.io
     label-color: lightblue
@@ -114,147 +115,314 @@ It generates [Shields.io endpoint badge](https://shields.io/badges/endpoint-badg
     gist-id: ${{ vars.GIST_ID }}
     gist-auth-token: ${{ secrets.TOKEN_GITHUB_GIST }}
 
-- name: Badge link
+- shell: bash
   run: |
-    echo "Current version: ${{ steps.shields-io-badge.outputs.badge-link }}"
+    echo "Badge: ${{ steps.shields-io-badge.outputs.badge-link }}"
 ```
 
 ### Action inputs
 
-- `label` - (required) The left side text of the badge, it might be empty;
-- `message` - (required) The right side text, it can't be empty;
-- `label-color` - Background color of the left part (hex, rgb, rgba, hsl, hsla and css named colors supported), default: grey;
-- `message-color` - Background color of the right part (hex, rgb, rgba, hsl, hsla and css named colors supported), default: lightgrey;
-- `is-error` - True to treat this as an error badge, default: false;
-- `logo` - One of the [named logos](https://github.com/simple-icons/simple-icons/blob/master/slugs.md) supported by Shields, default: none;
-- `logo-svg` - An SVG string containing a custom logo, default: none;
-- `logo-color` - Supported for named logos and Shields logos, default: none;
-- `logo-width` - Logo width, default: none;
-- `logo-position` - Logo position, default: none;
-- `style` - The default template to use, default: flat;
-- `badge-description` - gist file description;
-- `gist-filename` - (required) The format name for the 'Github Gist' file that stores the badge's metadata;
-- `gist-id` - (required) The unique identifier of the 'Github Gist' where badge metadata is stored;
-- `gist-auth-token` - (required) Authentication token to update the the 'Github Gist';
-- `gist-owner` - 'Github Gist' owner, default: ${{ github.repository_owner }}.
+- `label` - **(required)** The left side text of the badge, it might be empty
+- `message` - **(required)** The right side text, it can't be empty
+- `label-color` - Background color of the left part (hex, rgb, rgba, hsl, hsla and css named colors supported), default: _grey_
+- `message-color` - Background color of the right part (hex, rgb, rgba, hsl, hsla and css named colors supported), default: _lightgrey_
+- `is-error` - True to treat this as an error badge, default: _false_
+- `logo` - One of the [named logos](https://github.com/simple-icons/simple-icons/blob/master/slugs.md) supported by Shields
+- `logo-svg` - An SVG string containing a custom logo
+- `logo-color` - Supported for named logos and Shields logos
+- `logo-width` - Logo width
+- `logo-position` - Logo position
+- `style` - The default template to use, default: _flat_
+- `badge-description` - gist file description
+- `gist-filename` - **(required)** The format name for the 'Github Gist' file that stores the badge's metadata
+- `gist-id` - **(required)** The unique identifier of the 'Github Gist' where badge metadata is stored
+- `gist-auth-token` - **(required)** Authentication token to update the the 'Github Gist'
+- `gist-owner` - 'Github Gist' owner, default: _${{ github.repository_owner }}_
 
 ### Action outputs
 
-- `badge-link` - markdown badge link.
+- `badge-link` - markdown badge link
 
-## Action `badges/coverlet-coverage-badge`
+## Action `devhub/uno-platform/read-manifest`
 
 ### Summary
 
-It creates test coverage [badges](https://shields.io/badges/endpoint-badge) from the `coverlet.collector` test report. Example badge: <sub><sub>![Shields.io badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/finebits-github/74f6d448f4f568a286d4622e92afbc75/raw/github-actions-total-test-coverage.json)</sub></sub>
+Read the Uno Platform setup manifest from the `uno-check` tool.
 
 ### Using
 
-1. Test project:
-    - Add nuget [coverlet.collector v6.0.0](https://www.nuget.org/packages/coverlet.collector/6.0.0).
-2. Github Gist:
-    - [Create secret gist](https://gist.github.com);
-    - Copy `gist-id` to new repository or organization variables (ex: variable name `GIST_ID`).
-3. Personal access tokens:
-    - [Generate new token](https://github.com/settings/tokens);
-    - Add `Gists` permission;
-    - Copy token value to new repository or organization secret (ex: secret name `TOKEN_GITHUB_GIST`).
-4. Update the github workflow:
+> [!IMPORTANT]
+> **Prerequisites:** .NET SDK (i.e., _uses: actions/setup-dotnet_)
 
 ```yaml
-- name: Test project.
-  run: |
-    dotnet test ./source/test.csproj --collect:"XPlat Code Coverage" --results-directory="./source/TestResults"
+- id: uno-check-manifest
+  uses: finebits/github-actions/devhub/uno-platform/read-manifest@v2
 
-- id: coverlet-coverage-badge
-  uses: finebits/github-actions/badges/coverlet-coverage-badge@v1
+- shell: bash
+  run: |
+    dotnet_version="${{ fromJSON(steps.uno-check-manifest.outputs.content).check.variables.DOTNET_SDK_VERSION }}"
+```
+
+### Action inputs
+
+- `uno-check-manifest` - Specific manifest URL of the **uno-check** tool
+- `uno-check-version` - Specific version of the **uno-check** tool
+
+### Action outputs
+
+- `content` - Contents of the Uno Platform manifest file
+
+## Action `devhub/uno-platform/setup`
+
+### Summary
+
+Sets up the Uno Platform and its dependencies.
+
+### Using
+
+> [!IMPORTANT]
+> **Prerequisites:** .NET SDK (i.e., _uses: actions/setup-dotnet_)
+
+```yaml
+- uses: finebits/github-actions/devhub/uno-platform/setup@v2
+```
+
+### Action inputs
+
+- `uno-check-manifest` - Specific manifest URL of the **uno-check** tool
+- `uno-check-version` - Specific version of the **uno-check** tool
+
+### Action outputs
+
+_Action has no outputs._
+
+## Action `package/appimage/pack`
+
+### Summary
+
+This packages a desktop application as an [AppImage](https://appimage.org/) that runs on common Linux-based operating systems such as RHEL, CentOS, Ubuntu, Fedora, Debian and etc.
+
+### Using
+
+> [!IMPORTANT]
+> This action can only be used on Linux (i.e., _runs-on: ubuntu-latest_).
+
+```yaml
+jobs:
+  appimage:
+    runs-on: ubuntu-latest
+```
+
+Action `package/appimage/pack` can be used in the Github workflow:
+
+```yaml
+- uses: finebits/github-actions/package/appimage/pack@v2
   with:
-    report-root: ./source/TestResults/**/
-    report-filename: coverage.cobertura.xml
-    gist-filename-format: "${{ github.event.repository.name }}-{0}-test-coverage.json"
-    gist-id: ${{ vars.GIST_ID }}
-    gist-auth-token: ${{ secrets.TOKEN_GITHUB_GIST }}
-
-- name: Badges
-  run: |
-    json='${{ steps.coverlet-coverage-badge.outputs.badges-links }}'
-
-    len=$(echo $json | jq '. | length')
-    for ((i=0; i<$len; i++)); do
-      echo -e "Badge link #"$i" $(echo $json | jq -r '.['$i']')\n"
-    done
+    package-runtime: x86_64
+    package-app-dir: ./.publish/appimage-package/AppDir
+    package-output-dir: ./publish/output/packages
 ```
 
 ### Action inputs
 
-- `label` - The badge label, default: "Test coverage";
-- `package-label-format` - The label format of the package badges, default: "{0}: test coverage";
-- `label-color` - Background color of the left part (hex, rgb, rgba, hsl, hsla and css named colors supported), default: grey;
-- `logo` - One of the [named logos](https://github.com/simple-icons/simple-icons/blob/master/slugs.md) supported by Shields, default: none;
-- `logo-svg` - An SVG string containing a custom logo, default: none;
-- `logo-color` - Supported for named logos and Shields logos, default: none;
-- `style` - The default template to use, default: flat;
-- `gist-filename-format` - The format name for the 'Github Gist' file that stores the badge's metadata, default: "{0}-test-coverage.json";
-- `report-root` - (required) Report root directory;
-- `report-filename` - Report filename, default: "coverage.cobertura.xml";
-- `gist-id` - (required) The unique identifier of the 'Github Gist' where badge metadata is stored;
-- `gist-auth-token` - (required) Authentication token to update the the 'Github Gist;
-- `gist-owner` - 'Github Gist' owner, default: ${{ github.repository_owner }}.
+- `package-app-dir` - **(required)** Path to Package [AppDir](https://docs.appimage.org/introduction/concepts.html#appdirs) directory
+- `package-runtime` - The package runtime. It can take one of the values: [aarch64, armhf, i686, x86_64], default: _x86_64_
+- `package-output-dir` - Path to output directory, default: _./.output/_
 
 ### Action outputs
 
-- `badges-links` - contains a json array of markdown badges links. Test coverage badges by packages and total.
+- `package` - Path to file *.AppImage
 
-## Action `pack-nuget`
+## Action `package/appimage/setup-appimagetool`
 
 ### Summary
 
-It packs the project into a NuGet package. Also **pack-nuget** action can:
+This setups [appimagetool](https://github.com/AppImage/appimagetool), its [runtimes](https://github.com/AppImage/type2-runtime) and [static tools](https://github.com/probonopd/static-tools).
 
-- sign the NuGet package;
-- push to **nuget.org** and/or **nuget.pkg.github.com**;
-- save the NuGet artifact.
+### Using
+
+> [!IMPORTANT]
+> This action can only be used on Linux (i.e., _runs-on: ubuntu-latest_).
+
+```yaml
+jobs:
+  appimage:
+    runs-on: ubuntu-latest
+```
+
+Action `package/appimage/setup-appimagetool` can be used in the Github workflow:
+
+```yaml
+- uses: finebits/github-actions/package/appimage/setup-appimagetool@v2
+```
+
+### Action inputs
+
+_Action has no inputs._
+
+### Action outputs
+
+_Action has no outputs._
+
+## Action `package/nuget/pack`
+
+### Summary
+
+This packages the project into a NuGet package. Also **pack-nuget** action can:
+
+- sign the NuGet package
+- push to **nuget.org** and/or **nuget.pkg.github.com**
+- save the NuGet artifact to Github
 
 ### Using
 
 ```yaml
-  - name: Pack
-    uses: finebits/github-actions/pack-nuget@v1
-    with:
-        project: ./source/Hello.Nuget.csproj
-        configuration: Release
-        upload-artifact: true
-        artifact-name: Hello.Nuget
-        push-to-nuget: true
-        nuget-apikey: ${{ secrets.NUGET_APIKEY }}
-        push-to-github: true
-        github-token: ${{ secrets.TOKEN_GITHUB_PACKAGE }}
-        github-owner: ${{ github.repository_owner }}
-        certificate: ${{ secrets.NUGET_BASE64_CERT }}
-        certificate-password: ${{ secrets.NUGET_CERT_PASSWORD }}
+- uses: finebits/github-actions/package/nuget/pack@v2
+  with:
+    project: ./source/Hello.Nuget.csproj
+    configuration: Release
+    upload-artifact: true
+    artifact-name: Hello.Nuget
+    push-to-nuget: true
+    nuget-apikey: ${{ secrets.NUGET_APIKEY }}
+    push-to-github: true
+    github-token: ${{ secrets.TOKEN_GITHUB_PACKAGE }}
+    github-owner: ${{ github.repository_owner }}
+    certificate: ${{ secrets.NUGET_BASE64_CERT }}
+    certificate-password: ${{ secrets.NUGET_CERT_PASSWORD }}
 ```
 
 ### Action inputs
 
-- `project` - (required) Project file for NuGet packaging;
-- `configuration` - (required) Defines the build configuration;
-- `upload-artifact` - The **true** value allows you to save the NuGet artifact, default: false;
-- `artifact-name` - Defines the artifact file name, default: nuget;
-- `push-to-nuget` - The **true** value allows you to push the nuget to **nuget.org**, default: false;
-- `nuget-apikey` - The API key for nuget.org;
-- `push-to-github` - The **true** value allows you to push the nuget to **nuget.pkg.github.com**, default: false;
-- `github-token` - Github token (required **write:packages** scopes);
-- `github-owner` - Github package owner;
-- `certificate` - **Base64** encoded certificate;
-- `certificate-password` - A password string;
-- `file-version` - Redefines assembly version, default version calculated from git tag;
-- `package-version` - Redefines the NuGet package version, default version calculated from git tag;
+- `project` - **(required)** Project file for NuGet packaging
+- `configuration` - **(required)** Defines the build configuration
+- `upload-artifact` - The **true** value allows you to save the NuGet artifact, default: _false_
+- `artifact-name` - Defines the artifact file name, default: _nuget_
+- `push-to-nuget` - The **true** value allows you to push the nuget to **nuget.org**, default: _false_
+- `nuget-apikey` - The API key for nuget.org
+- `push-to-github` - The **true** value allows you to push the nuget to **nuget.pkg.github.com**, default: _false_
+- `github-token` - Github token (required **write:packages** scopes)
+- `github-owner` - Github package owner
+- `certificate` - **Base64** encoded certificate
+- `certificate-password` - A password string
+- `file-version` - Redefines assembly version, default version calculated from git tag
+- `package-version` - Redefines the NuGet package version, default version calculated from git tag
 
 ### Action outputs
 
-- `artifact-full-name` - final nuget artifact name.
+- `artifact-full-name` - final nuget artifact name
 
-## Action `upload-release-asset`
+## Action `toolset/file/read`
+
+### Summary
+
+This reads the contents of a file and saves it in the output.
+
+### Using
+
+Action `toolset/file/read` can read file in the Github workflow:
+
+```yaml
+- id: read-config
+  uses: finebits/github-actions/toolset/file/read@v2
+  with:
+    url: http://site.com/config.json
+    file: config.json
+
+- shell: bash
+  run: |
+    option="${{ fromJSON(steps.read-config.outputs.content).option }}"
+```
+
+where **config.json**:
+
+```json
+{ 
+  "option":"value"
+}
+```
+
+### Action inputs
+
+- `url` - Link to file.
+- `file` - Path to local file. This is used if the input `url` is empty or the http status is not OK(200).
+
+### Action outputs
+
+- `content` - file contents
+
+## Action `toolset/file/replace-text`
+
+### Summary
+
+This replaces all occurrences of a **placeholder** with a given **value** string inside a file.
+
+### Using
+
+```yaml
+- uses: finebits/github-actions/toolset/file/replace-text@v2
+  with:
+    file: ./source/hello.js
+    placeholder: <!placeholder>
+    value: "hello world"
+```
+
+### Action inputs
+
+- `file` - **(required)** Path to source file
+- `placeholder` - **(required)** Placeholder string
+- `value` - **(required)** Final value
+
+### Action outputs
+
+_Action has no outputs._
+
+## Action `toolset/find-out-version`
+
+### Summary
+
+This gets a version number using a git tag, a git commit, a Github workflow context.
+
+### Using
+
+```yaml
+- id: version
+  uses: finebits/github-actions/toolset/find-out-version@v2
+
+- shell: bash
+  run: |
+    echo "Current version: ${{ steps.version.outputs.preset-semantic-1 }}"
+```
+
+### Action inputs
+
+_Action has no inputs._
+
+### Action outputs
+
+- `build` - contains the run number of the workflow (look at [github action context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context))
+- `attempt` - contains the re-run number of the workflow (look at [github action context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context))
+- `today` - contains the date of the workflow execution in the format `yymmdd`
+- `githash` - contains the git commit hash
+
+If there is **tag** in the format `v{major}[.{minor}[.{patch}]][-{suffix}]` (e.g., v1.2-beta) then
+
+- `major` - contains the value of the **major** component of the version number, default value 1
+- `minor` - contains the value of the **minor** component of the version number, default value 0
+- `patch` - contains the value of the **patch** component of the version number, default value 0
+- `suffix` - contains the **suffix** version, it can be empty
+
+Preset version formats:
+
+- `preset-build` - version format: `{major}.{minor}.{patch}.{build}`
+- `preset-suffix` - version format: `{major}.{minor}.{patch}.{build}[-{suffix}]`
+- `preset-semantic-1` - version format: `{major}.{minor}.{patch}[-{suffix}]`
+- `preset-semantic-2` - version format: `{major}.{minor}.{patch}[-{suffix}]+{build}.{attempt}`
+- `preset-build-githash` - version format: `{major}.{minor}.{patch}.{build}+{githash}`
+- `preset-suffix-githash` - version format: `{major}.{minor}.{patch}.{build}[-{suffix}]+{githash}`
+- `preset-semantic-2-githash` - version format: `{major}.{minor}.{patch}[-{suffix}]+{build}.{attempt}.{githash}`
+
+## Action `toolset/github/upload-release-asset`
 
 ### Summary
 
@@ -263,49 +431,97 @@ It uploads an asset to the existing release. Also **upload-release-asset** actio
 ### Using
 
 ```yaml
-  - name: Upload assets
-    uses: finebits/github-actions/upload-release-asset@v1
-    with:
-      github-token: ${{ secrets.GITHUB_TOKEN }}
-      tag: ${{ github.event.release.tag_name }}
-      path: "assets/*"
+- uses: finebits/github-actions/toolset/github/upload-release-asset@v2
+  with:
+    github-token: ${{ secrets.GITHUB_TOKEN }}
+    tag: ${{ github.event.release.tag_name }}
+    path: "assets/*"
 ```
 
 ### Action inputs
 
-- `github-token` - (required) The github token must have **contents:write** permission;
-- `path` - (required) Path to asset file. This can be a pattern-path to several files;
-- `tag` - The name of the tag. To use the latest release, leave the value unset. default: unset;
-- `github-api-version` - To specify a version of the Github REST API, default: 2022-11-28;
-- `github-repository` - The name of the repository (ex: _finebits/github-actions_). The name is not case sensitive. default: ${GITHUB_REPOSITORY}
+- `github-token` - **(required)** The github token must have **contents:write** permission
+- `path` - **(required)** Path to asset file. This can be a pattern-path to several files
+- `tag` - The name of the tag. To use the latest release, leave the value unset. default: _unset_
+- `github-api-version` - To specify a version of the Github REST API, default: _2022-11-28_
+- `github-repository` - The name of the repository (e.g., _finebits/github-actions_). The name is not case sensitive. default: _${GITHUB_REPOSITORY}_
 
 ### Action outputs
 
- Action has no outputs.
+ _Action has no outputs._
 
-## Action `pre-build/replace`
+## Action `toolset/select-configuration`
 
 ### Summary
 
-To replace all occurrences of a **placeholder** with a given **value** string inside a file.
+This allows you to select configurations from JSON by keywords.
 
 ### Using
 
+The **config.json** file contains several configurations:
+
+```json
+[
+  {
+    "keywords":["A","B"],
+    "option":"value-a"
+  },
+  {
+    "keywords":["A","C"],
+    "option":"value-b"
+  },
+  {
+    "keywords":["C","B"],
+    "option":"value-c"
+  }
+]
+```
+
+Action `toolset/select-configuration` can select a configuration in the Github workflow:
+
 ```yaml
-  - name: Replace code
-    uses: finebits/github-actions/pre-build/replace@v1
-    with:
-      file: ./source/hello.js
-      placeholder: <!placeholder>
-      value: "hello world"
+- id: config
+  uses: finebits/github-actions/toolset/select-configuration@v2
+  with:
+    json-file: config.json
+    keywords: "A,B"
+
+- shell: bash
+  run: |
+    option="${{ fromJson(steps.config.outputs.config-json)[0].option }}"
+```
+
+Action `toolset/select-configuration` can be used as a source of strategy:
+
+```yaml
+jobs:
+  prepare:
+    runs-on: 'ubuntu-latest'
+    outputs:
+      matrix: ${{ steps.config.outputs.matrix }}
+    steps:
+      - id: config
+        uses: finebits/github-actions/toolset/select-configuration@v2
+        with:
+          json-file: config.json
+          keywords: "A"
+
+  process:
+    needs: prepare
+    strategy:
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
 ```
 
 ### Action inputs
 
-- `file` - (required) Path to source file;
-- `placeholder` - (required) Placeholder string;
-- `value` - (required) Final value.
+- `json` - JSON data. This should only be empty if the input `json-file` has path to JSON-file
+- `json-file` - Path to JSON file. This is ignored if the input `json` is not empty
+- `keywords` - **(required)** A set of keywords separated by the "," symbol
+- `configs-set-jsonpath` - JSON path to the configuration set, where "." is the JSON root, default: _'.'_
+- `keywords-set-jsonpath` - JSON path to a set of keys, where "." is the configuration root, default: _'.keywords'_
+- `exclude-keywords` - It excludes keywords from the output JSON configurations, default: _true_
 
 ### Action outputs
 
- Action has no outputs.
+- `config-json` - output configuration array in JSON format
+- `matrix` - configurations prepared as a source of strategy

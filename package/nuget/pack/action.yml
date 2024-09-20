@@ -16,16 +16,19 @@
 #                                                                              #
 ################################################################################
 
-name: Pack Nuget
+---
 
-description:
+name: Pack NuGet Package
+
+description: |
+   This packs the .NET project into NuGet Package and then push it to nuget.org or github.com
 
 inputs:
   project:
     description: 'The project file to build'
     type: string
     required: true
-  
+
   configuration:
     description: 'Defines the build configuration'
     type: string
@@ -95,7 +98,7 @@ inputs:
     required: false
     default: ''
 
-outputs: 
+outputs:
   artifact-full-name:
     value: ${{ steps.nuget.outputs.artifact-full-name }}
 
@@ -117,10 +120,10 @@ runs:
 
     - name: Get version number
       id: version
-      uses: finebits/github-actions/version-number@v1
+      uses: finebits/github-actions/toolset/find-out-version@v2
 
     - name: Save nuget parameters
-      id: nuget 
+      id: nuget
       shell: bash
       run: |
         file_version="${{ inputs.file-version }}"
@@ -139,12 +142,12 @@ runs:
         echo "package-version=$package_version" >> $GITHUB_OUTPUT
         echo "artifact-full-name=$artifact_name-v$package_version" >> $GITHUB_OUTPUT
       env:
-        auto-file-version: ${{ steps.version.outputs.suffix-version }}
-        auto-package-version: ${{ steps.version.outputs.semantic-githash-version-2 }}
+        auto-file-version: ${{ steps.version.outputs.preset-suffix }}
+        auto-package-version: ${{ steps.version.outputs.preset-semantic-2-githash }}
 
     - name: Build nuget
       shell: bash
-      run: | 
+      run: |
         dotnet clean ${{ inputs.project }} --configuration ${{ inputs.configuration }}
         dotnet build ${{ inputs.project }} --configuration ${{ inputs.configuration }} --property:Version=${{ env.file-version }} --property:ContinuousIntegrationBuild=true
       env:

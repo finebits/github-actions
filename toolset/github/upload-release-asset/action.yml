@@ -1,0 +1,117 @@
+################################################################################
+#                                                                              #
+#   Copyright 2024 Finebits (https://finebits.com)                             #
+#                                                                              #
+#   Licensed under the Apache License, Version 2.0 (the "License");            #
+#   you may not use this file except in compliance with the License.           #
+#   You may obtain a copy of the License at                                    #
+#                                                                              #
+#       http://www.apache.org/licenses/LICENSE-2.0                             #
+#                                                                              #
+#   Unless required by applicable law or agreed to in writing, software        #
+#   distributed under the License is distributed on an "AS IS" BASIS,          #
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+#   See the License for the specific language governing permissions and        #
+#   limitations under the License.                                             #
+#                                                                              #
+################################################################################
+
+---
+
+name: Upload Release Asset
+
+description: To upload the asset into release.
+
+inputs:
+  github-token:
+    description: 'The token must have contents:write permission'
+    type: string
+    required: true
+
+  path:
+    description: 'Path to asset file'
+    type: string
+    required: true
+
+  tag:
+    description: 'The name of the tag. To use the latest release, leave the value unset.'
+    type: string
+    default: ''
+    required: false
+
+  github-api-version:
+    description: 'To specify a version of the Github REST API'
+    type: string
+    default: '2022-11-28'
+    required: false
+
+  github-repository:
+    description: 'The name of the repository without the .git extension (pattern: {owner}/{repo}). The name is not case sensitive.'
+    type: string
+    default: ${GITHUB_REPOSITORY}
+    required: false
+
+runs:
+  using: "composite"
+
+  steps:
+
+    - name: Upload asset
+      shell: bash
+      run: |
+
+        url="${GITHUB_API_URL}/repos/${{ inputs.github-repository }}/releases/latest"
+        tag="${{ inputs.tag }}"
+
+        if [ ! -z "${tag}" ]; then
+          url="${GITHUB_API_URL}/repos/${{ inputs.github-repository }}/releases/tags/${tag}"
+        fi
+
+        response=$(curl --request GET \
+                        --silent \
+                        --location \
+                        --header "Accept: application/vnd.github+json" \
+                        --header "Authorization: Bearer ${{ inputs.github-token }}" \
+                        --header "X-GitHub-Api-Version: ${{ inputs.github-api-version }}" \
+                        "${url}")
+
+        echo "::debug::get-release response: $response"
+        upload_url=$(echo "$response" | jq -r ".upload_url")
+
+        pattern=${{ inputs.path }}
+
+        for asset in ${pattern}; do
+          if [ -f "$asset" ]; then
+            echo "Found asset: $asset"
+            asset_name="${asset##*/}"
+
+            encoded_name=$(echo "${asset_name}" | jq -R -r @uri)
+            upload_file_url="${upload_url%%[?{]*}?name=${encoded_name}&label=${encoded_name}"
+
+            response=$(curl --request POST \
+                            --silent \
+                            --location \
+                            --header "Accept: application/vnd.github+json" \
+                            --header "Authorization: Bearer ${{ inputs.github-token }}" \
+                            --header "X-GitHub-Api-Version: ${{ inputs.github-api-version }}" \
+                            --header "Content-Type: application/octet-stream" \
+                            "${upload_file_url}" \
+                            --data-binary "@${asset}")
+
+            echo "::debug::upload-asset response: $response"
+
+            upload_name=$(echo "$response" | jq -r ".name")
+            upload_state=$(echo "$response" | jq -r ".state")
+
+            if [ "${upload_name}" != "null" ]; then
+              echo "::notice::${upload_name}: ${upload_state}"
+            else
+              message=$(echo "$response" | jq -r ".message")
+
+              if [ "${message}" != "null" ]; then
+                echo "::warning::${message}"
+              fi
+            fi
+
+          fi
+        done
