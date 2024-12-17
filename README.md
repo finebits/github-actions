@@ -363,15 +363,15 @@ This replaces all occurrences of a **placeholder** with a given **value** string
 - uses: finebits/github-actions/toolset/file/replace-text@v2
   with:
     file: ./source/hello.js
-    placeholder: <!placeholder>
-    value: "hello world"
+    find-what: <!placeholder>
+    replace-with: "hello world"
 ```
 
 ### Action inputs
 
 - `file` - **(required)** Path to source file
-- `placeholder` - **(required)** Placeholder string
-- `value` - **(required)** Final value
+- `find-what` - **(required)** Replacement text
+- `replace-with` - **(required)** Required text
 
 ### Action outputs
 
