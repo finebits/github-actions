@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-#   Copyright 2024 Finebits (https://finebits.com)                             #
+#   Copyright 2025 Finebits (https://finebits.com)                             #
 #                                                                              #
 #   Licensed under the Apache License, Version 2.0 (the "License");            #
 #   you may not use this file except in compliance with the License.           #
@@ -83,11 +83,19 @@ jobs:
       - name: Check 'toolset/select-configuration [json]' action
         shell: bash
         run: |
-          actual_length=$(echo '${{ steps.select-config-from-json-one-output.outputs.config-json }}' | jq '. | length')
+          actual_length="${{ steps.select-config-from-json-one-output.outputs.length }}"
           expected_length=1
 
           if [ "$actual_length" != "$expected_length" ]; then
-            echo "::error::The 'toolset/select-configuration' action failed the tests. Number of configurations is '$actual_length' but expected '$expected_length'."
+            echo "::error::The 'toolset/select-configuration' action failed the tests. Output 'length' is '$actual_length' but expected '$expected_length'."
+            exit 1
+          fi
+
+          is_empty="${{ steps.select-config-from-json-one-output.outputs.is-empty }}"
+          expected_is_empty=false
+
+          if [ "$is_empty" != "$expected_is_empty" ]; then
+            echo "::error::The 'toolset/select-configuration' action failed the tests. Output 'is-empty' is '$is_empty' but expected '$expected_is_empty'."
             exit 1
           fi
 
@@ -99,11 +107,19 @@ jobs:
             exit 1
           fi
 
-          actual_length=$(echo '${{ steps.select-config-from-json-several-output.outputs.config-json }}' | jq '. | length')
+          actual_length="${{ steps.select-config-from-json-several-output.outputs.length }}"
           expected_length=2
 
           if [ "$actual_length" != "$expected_length" ]; then
-            echo "::error::The 'toolset/select-configuration' action failed the tests. Number of configurations is '$actual_length' but expected '$expected_length'."
+            echo "::error::The 'toolset/select-configuration' action failed the tests. Output 'length' is '$actual_length' but expected '$expected_length'."
+            exit 1
+          fi
+
+          is_empty="${{ steps.select-config-from-json-several-output.outputs.is-empty }}"
+          expected_is_empty=false
+
+          if [ "$is_empty" != "$expected_is_empty" ]; then
+            echo "::error::The 'toolset/select-configuration' action failed the tests. Output 'is-empty' is '$is_empty' but expected '$expected_is_empty'."
             exit 1
           fi
 
@@ -115,19 +131,35 @@ jobs:
             exit 1
           fi
 
-          actual_length=$(echo '${{ steps.select-config-from-json-none-output.outputs.config-json }}' | jq '. | length')
+          actual_length="${{ steps.select-config-from-json-none-output.outputs.length }}"
           expected_length=0
 
           if [ "$actual_length" != "$expected_length" ]; then
-            echo "::error::The 'toolset/select-configuration' action failed the tests. Number of configurations is '$actual_length' but expected '$expected_length'."
+            echo "::error::The 'toolset/select-configuration' action failed the tests. Output 'length' is '$actual_length' but expected '$expected_length'."
             exit 1
           fi
 
-          actual_length=$(echo '${{ steps.select-config-from-json-double-key.outputs.config-json }}' | jq '. | length')
+          is_empty="${{ steps.select-config-from-json-none-output.outputs.is-empty }}"
+          expected_is_empty=true
+
+          if [ "$is_empty" != "$expected_is_empty" ]; then
+            echo "::error::The 'toolset/select-configuration' action failed the tests. Output 'is-empty' is '$is_empty' but expected '$expected_is_empty'."
+            exit 1
+          fi
+
+          actual_length="${{ steps.select-config-from-json-double-key.outputs.length }}"
           expected_length=2
 
           if [ "$actual_length" != "$expected_length" ]; then
-            echo "::error::The 'toolset/select-configuration' action failed the tests. Number of configurations is '$actual_length' but expected '$expected_length'."
+            echo "::error::The 'toolset/select-configuration' action failed the tests. Output 'length' is '$actual_length' but expected '$expected_length'."
+            exit 1
+          fi
+
+          is_empty="${{ steps.select-config-from-json-double-key.outputs.is-empty }}"
+          expected_is_empty=false
+
+          if [ "$is_empty" != "$expected_is_empty" ]; then
+            echo "::error::The 'toolset/select-configuration' action failed the tests. Output 'is-empty' is '$is_empty' but expected '$expected_is_empty'."
             exit 1
           fi
 
@@ -136,6 +168,22 @@ jobs:
 
           if [ "$actual_option" != "$expected_option" ]; then
             echo "::error::The 'toolset/select-configuration' action failed the tests. Configuration option is '$actual_option' but expected '$expected_option'."
+            exit 1
+          fi
+
+          actual_length="${{ steps.select-config-from-json-with-keywords.outputs.length }}"
+          expected_length=1
+
+          if [ "$actual_length" != "$expected_length" ]; then
+            echo "::error::The 'toolset/select-configuration' action failed the tests. Output 'length' is '$actual_length' but expected '$expected_length'."
+            exit 1
+          fi
+
+          is_empty="${{ steps.select-config-from-json-with-keywords.outputs.is-empty }}"
+          expected_is_empty=false
+
+          if [ "$is_empty" != "$expected_is_empty" ]; then
+            echo "::error::The 'toolset/select-configuration' action failed the tests. Output 'is-empty' is '$is_empty' but expected '$expected_is_empty'."
             exit 1
           fi
 
@@ -159,6 +207,14 @@ jobs:
       - name: Check 'toolset/select-configuration [json-file]' action
         shell: bash
         run: |
+          is_empty="${{ steps.select-config-from-file.outputs.is-empty }}"
+          expected_is_empty=false
+
+          if [ "$is_empty" != "$expected_is_empty" ]; then
+            echo "::error::The 'toolset/select-configuration' action failed the tests. Output 'is-empty' is '$is_empty' but expected '$expected_is_empty'."
+            exit 1
+          fi
+
           actual_option="${{ fromJson(steps.select-config-from-file.outputs.config-json)[0].option }}"
           expected_option="value-c"
 
