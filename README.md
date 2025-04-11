@@ -525,3 +525,5 @@ jobs:
 
 - `config-json` - output configuration array in JSON format
 - `matrix` - configurations prepared as a source of strategy
+- `length` - contains the number of suitable configurations
+- `is-empty` - true if no matching configuration exists
