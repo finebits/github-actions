@@ -16,7 +16,7 @@
 - [Action 'package/nuget/pack'](#action-packagenugetpack)
 - [Action 'toolset/file/read'](#action-toolsetfileread)
 - [Action 'toolset/file/replace-text'](#action-toolsetfilereplace-text)
-- [Action 'toolset/find-out-version'](#action-toolsetfind-out-version)
+- [Action 'toolset/assign-version'](#action-toolsetassign-version)
 - [Action 'toolset/github/upload-release-asset'](#action-toolsetgithubupload-release-asset)
 - [Action 'toolset/select-configuration'](#action-toolsetselect-configuration)
 
@@ -377,7 +377,7 @@ This replaces all occurrences of a **placeholder** with a given **value** string
 
 _Action has no outputs._
 
-## Action `toolset/find-out-version`
+## Action `toolset/assign-version`
 
 ### Summary
 
@@ -387,11 +387,11 @@ This gets a version number using a git tag, a git commit, a Github workflow cont
 
 ```yaml
 - id: version
-  uses: finebits/github-actions/toolset/find-out-version@v2
+  uses: finebits/github-actions/toolset/assign-version@v2
 
 - shell: bash
   run: |
-    echo "Current version: ${{ steps.version.outputs.preset-semantic-1 }}"
+    echo "Current version: ${{ steps.version.outputs.preset-semantic-v1 }}"
 ```
 
 ### Action inputs
@@ -400,10 +400,13 @@ _Action has no inputs._
 
 ### Action outputs
 
-- `build` - contains the run number of the workflow (look at [github action context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context))
-- `attempt` - contains the re-run number of the workflow (look at [github action context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context))
-- `today` - contains the date of the workflow execution in the format `yymmdd`
-- `githash` - contains the git commit hash
+- `run-number` - contains the run number of the workflow (look at [github action context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context))
+- `run-attempt` - contains the re-run number of the workflow (look at [github action context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context))
+- `today` - contains the date of the workflow execution in the format `yyyymmdd`
+- `today-compact` - contains the date of the workflow execution in the format `yymmdd`
+- `commit-hash` - contains the full SHA-1 hash of the latest commit in the current branch
+- `commit-short-hash` - contains the short SHA-1 hash of the latest commit in the current branch
+- `total-commits` - contains the number of commits for the current branch
 
 If there is **tag** in the format `v{major}[.{minor}[.{patch}]][-{suffix}]` (e.g., v1.2-beta) then
 
@@ -414,13 +417,10 @@ If there is **tag** in the format `v{major}[.{minor}[.{patch}]][-{suffix}]` (e.g
 
 Preset version formats:
 
-- `preset-build` - version format: `{major}.{minor}.{patch}.{build}`
-- `preset-suffix` - version format: `{major}.{minor}.{patch}.{build}[-{suffix}]`
-- `preset-semantic-1` - version format: `{major}.{minor}.{patch}[-{suffix}]`
-- `preset-semantic-2` - version format: `{major}.{minor}.{patch}[-{suffix}]+{build}.{attempt}`
-- `preset-build-githash` - version format: `{major}.{minor}.{patch}.{build}+{githash}`
-- `preset-suffix-githash` - version format: `{major}.{minor}.{patch}.{build}[-{suffix}]+{githash}`
-- `preset-semantic-2-githash` - version format: `{major}.{minor}.{patch}[-{suffix}]+{build}.{attempt}.{githash}`
+- `preset-numeric` - version format: `{major}.{minor}.{patch}`
+- `preset-semantic-v1` - version format: `{major}.{minor}.{patch}[-{suffix}]`
+- `preset-semantic-v2` - version format: `{major}.{minor}.{patch}[-{suffix}]+{commit-hash}`
+- `preset-semantic-v2-extended` - version format: `{major}.{minor}.{patch}[-{suffix}]+{today}.{run-number}.{run-attempt}.{commit-hash}`
 
 ## Action `toolset/github/upload-release-asset`
 
