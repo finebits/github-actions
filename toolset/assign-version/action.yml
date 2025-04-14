@@ -1,0 +1,129 @@
+################################################################################
+#                                                                              #
+#   Copyright 2025 Finebits (https://finebits.com)                             #
+#                                                                              #
+#   Licensed under the Apache License, Version 2.0 (the "License");            #
+#   you may not use this file except in compliance with the License.           #
+#   You may obtain a copy of the License at                                    #
+#                                                                              #
+#       http://www.apache.org/licenses/LICENSE-2.0                             #
+#                                                                              #
+#   Unless required by applicable law or agreed to in writing, software        #
+#   distributed under the License is distributed on an "AS IS" BASIS,          #
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+#   See the License for the specific language governing permissions and        #
+#   limitations under the License.                                             #
+#                                                                              #
+################################################################################
+
+---
+
+name: Assign Version
+
+description: It determines the current version by commit, tag, running workflow.
+
+outputs:
+  major:
+    value: ${{ steps.tag-context.outputs.major }}
+  minor:
+    value: ${{ steps.tag-context.outputs.minor }}
+  patch:
+    value: ${{ steps.tag-context.outputs.patch }}
+  suffix:
+    value: ${{ steps.tag-context.outputs.suffix }}
+
+  run-number:
+    value: ${{ steps.action-context.outputs.run-number }}
+  run-attempt:
+    value: ${{ steps.action-context.outputs.run-attempt }}
+
+  commit-hash:
+    value: ${{ steps.commit-context.outputs.hash }}
+  commit-short-hash:
+    value: ${{ steps.commit-context.outputs.short-hash }}
+  total-commits:
+    value: ${{ steps.commit-context.outputs.total }}
+
+  today:
+    value: ${{ steps.action-context.outputs.today }}
+  today-compact:
+    value: ${{ steps.action-context.outputs.today-compact }}
+
+
+  preset-numeric:
+    value: ${{ steps.preset.outputs.numeric }}
+  preset-semantic-v1: # https://semver.org/spec/v1.0.0.html
+    value: ${{ steps.preset.outputs.semantic-v1 }}
+  preset-semantic-v2: # https://semver.org/spec/v2.0.0.html
+    value: ${{ steps.preset.outputs.semantic-v2 }}
+  preset-semantic-v2-extended: # https://semver.org/spec/v2.0.0.html
+    value: ${{ steps.preset.outputs.semantic-v2-extended }}
+runs:
+  using: "composite"
+
+  steps:
+    - id: tag-context
+      shell: bash
+      run: |
+        regex="v([0-9]+)\.?([0-9]*)\.?([0-9]*)[^a-zA-Z]?(.*)"
+        version=$(git describe --tags --abbrev=0 --match "v[0-9]*" --always)
+
+        echo "tag: $version"
+
+        if [[ $version =~ $regex ]]; then
+          major=${BASH_REMATCH[1]}
+          minor=${BASH_REMATCH[2]}
+          patch=${BASH_REMATCH[3]}
+          suffix=${BASH_REMATCH[4]}
+        else
+          major=0
+          minor=1
+        fi
+
+        echo "major=$([[ -z $major ]] && echo 1 || echo $major)" >> $GITHUB_OUTPUT
+        echo "minor=$([[ -z $minor ]] && echo 0 || echo $minor)" >> $GITHUB_OUTPUT
+        echo "patch=$([[ -z $patch ]] && echo 0 || echo $patch)" >> $GITHUB_OUTPUT
+        echo "suffix=$([[ -z $suffix ]] && echo '' || echo ${suffix##*(-)})" >> $GITHUB_OUTPUT
+
+    - id: commit-context
+      shell: bash
+      run: |
+        echo "hash=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+        echo "short-hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        echo "total=$(git rev-list --count HEAD)" >> $GITHUB_OUTPUT
+
+    - id: action-context
+      shell: bash
+      run: |
+        echo "today=$(date -u "+%Y%m%d")" >> $GITHUB_OUTPUT
+        echo "today-compact=$(date -u "+%y%m%d")" >> $GITHUB_OUTPUT
+        echo "run-number=${{ github.run_number }}" >> $GITHUB_OUTPUT
+        echo "run-attempt=${{ github.run_attempt }}" >> $GITHUB_OUTPUT
+
+    - id: preset
+      shell: bash
+      run: |
+        suffix=${{ env.suffix }}
+        suffix=$([[ -z $suffix ]] && echo '' || echo "-$suffix")
+
+        preset_numeric=${{ env.major }}.${{ env.minor }}.${{ env.patch }}
+        echo "numeric=$(echo $preset_numeric )" >> $GITHUB_OUTPUT
+
+        preset_semantic_v1=${{ env.major }}.${{ env.minor }}.${{ env.patch }}$suffix
+        echo "semantic-v1=$(echo $preset_semantic_v1 )" >> $GITHUB_OUTPUT
+
+        preset_semantic_v2=${{ env.major }}.${{ env.minor }}.${{ env.patch }}$suffix+${{ env.hash }}
+        echo "semantic-v2=$(echo $preset_semantic_v2 )" >> $GITHUB_OUTPUT
+
+        preset_semantic_v2_ext=${{ env.major }}.${{ env.minor }}.${{ env.patch }}$suffix+${{ env.today }}.${{ env.run-number }}.${{ env.run-attempt }}.${{ env.hash }}
+        echo "semantic-v2-extended=$(echo $preset_semantic_v2_ext )" >> $GITHUB_OUTPUT
+
+      env:
+        major: ${{ steps.tag-context.outputs.major }}
+        minor: ${{ steps.tag-context.outputs.minor }}
+        patch: ${{ steps.tag-context.outputs.patch }}
+        suffix: ${{ steps.tag-context.outputs.suffix }}
+        today: ${{ steps.action-context.outputs.today }}
+        run-number: ${{ steps.action-context.outputs.run-number }}
+        run-attempt: ${{ steps.action-context.outputs.run-attempt }}
+        hash: ${{ steps.commit-context.outputs.hash }}
