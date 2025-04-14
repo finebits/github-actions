@@ -26,12 +26,18 @@ on: # yamllint disable-line rule:truthy
     branches:
       - main
       - develop
+      - release
       - release/**
+      - preview
+      - preview/**
   pull_request:
     branches:
       - main
       - develop
+      - release
       - release/**
+      - preview
+      - preview/**
 
 jobs:
 
