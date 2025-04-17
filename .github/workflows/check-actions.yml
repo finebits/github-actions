@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-#   Copyright 2024 Finebits (https://finebits.com)                             #
+#   Copyright 2025 Finebits (https://finebits.com)                             #
 #                                                                              #
 #   Licensed under the Apache License, Version 2.0 (the "License");            #
 #   you may not use this file except in compliance with the License.           #
@@ -123,6 +123,6 @@ jobs:
     name: Check the 'toolset/select-configuration' Action
     uses: ./.github/workflows/check-toolset-select-config-action.yml
 
-  find-out-version-action-check:
-    name: Check the 'toolset/find-out-version' Action
-    uses: ./.github/workflows/check-toolset-version-action.yml
+  assign-version-action-check:
+    name: Check the 'toolset/assign-version' Action
+    uses: ./.github/workflows/check-toolset-assign-version-action.yml
