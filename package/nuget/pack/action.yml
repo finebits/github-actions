@@ -120,7 +120,7 @@ runs:
 
     - name: Get version number
       id: version
-      uses: finebits/github-actions/toolset/assign-version@preview
+      uses: finebits/github-actions/toolset/assign-version@v3
 
     - name: Save nuget parameters
       id: nuget
