@@ -120,7 +120,7 @@ runs:
 
     - name: Get version number
       id: version
-      uses: finebits/github-actions/toolset/find-out-version@v2
+      uses: finebits/github-actions/toolset/assign-version@v3
 
     - name: Save nuget parameters
       id: nuget
@@ -142,8 +142,8 @@ runs:
         echo "package-version=$package_version" >> $GITHUB_OUTPUT
         echo "artifact-full-name=$artifact_name-v$package_version" >> $GITHUB_OUTPUT
       env:
-        auto-file-version: ${{ steps.version.outputs.preset-suffix }}
-        auto-package-version: ${{ steps.version.outputs.preset-semantic-2-githash }}
+        auto-file-version: ${{ steps.version.outputs.preset-semantic-v1 }}
+        auto-package-version: ${{ steps.version.outputs.preset-semantic-v2-extended }}
 
     - name: Build nuget
       shell: bash

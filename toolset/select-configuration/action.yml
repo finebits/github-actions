@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-#   Copyright 2024 Finebits (https://finebits.com)                             #
+#   Copyright 2025 Finebits (https://finebits.com)                             #
 #                                                                              #
 #   Licensed under the Apache License, Version 2.0 (the "License");            #
 #   you may not use this file except in compliance with the License.           #
@@ -24,30 +24,30 @@ description: To select a configuration by keywords.
 
 inputs:
   json:
-    description: 'JSON data'
+    description: JSON data
     type: string
 
   json-file:
-    description: 'Path to JSON file'
+    description: Path to JSON file
     type: string
 
   keywords:
-    description: 'A set of keywords separated by the "," symbol'
+    description: A set of keywords separated by the SPACE symbol
     type: string
     required: true
 
   configs-set-jsonpath:
-    description: 'JSON path to the configuration set, where "." is the JSON root'
+    description: JSON path to the configuration set, where "." is the JSON root
     type: string
     default: '.'
 
   keywords-set-jsonpath:
-    description: 'JSON path to a set of keys, where "." is the configuration root'
+    description: JSON path to a set of keys, where "." is the configuration root
     type: string
     default: '.keywords'
 
   exclude-keywords:
-    description: 'It excludes keywords from the output JSON configurations'
+    description: It excludes keywords from the output JSON configurations
     type: boolean
     default: true
 
@@ -56,6 +56,10 @@ outputs:
     value: ${{ steps.select-config.outputs.config }}
   matrix:
     value: ${{ steps.select-config.outputs.matrix }}
+  length:
+    value: ${{ steps.select-config.outputs.length }}
+  is-empty:
+    value: ${{ steps.select-config.outputs.is-empty }}
 
 runs:
   using: "composite"
@@ -78,17 +82,23 @@ runs:
         keyset_path='${{ inputs.keywords-set-jsonpath }}'
         exclude_keys='${{ inputs.exclude-keywords }}'
 
-        query="(\"$keywords\"/\",\") as \$keys | [ $configs_path[] | ($keyset_path) as \$keyset | select(all(\$keys[]; IN(\$keyset[]))) $("$exclude_keys" && echo "| del($keyset_path)" || echo "") ]"
+        keywords=$(echo $keywords)
+        query="(\"$keywords\"/\" \") as \$keys | [ $configs_path[] | ($keyset_path) as \$keyset | select(all(\$keys[]; IN(\$keyset[]))) $("$exclude_keys" && echo "| del($keyset_path)" || echo "") ]"
         echo "::debug::query: $query"
 
         config=""
         if [[ "$json" ]]; then
-          config=$( echo "$json" | jq -r -c "$query")
+          config=$(echo "$json" | jq -r -c "$query")
         else
-          config=$( jq -r -c "$query" "$json_file" )
+          config=$(jq -r -c "$query" "$json_file")
         fi
 
-        echo "::debug::config: $config"
+        length=$(echo "$config" | jq '. | length')
+        is_empty=$((( length == 0 )) && echo 'true' || echo 'false')
+
+        echo "::debug::config(items: $length): $config"
 
         echo "config=$config" >> $GITHUB_OUTPUT
         echo "matrix={\"include\":$config}" >> $GITHUB_OUTPUT
+        echo "length=$length" >> $GITHUB_OUTPUT
+        echo "is-empty=$is_empty" >> $GITHUB_OUTPUT

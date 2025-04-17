@@ -16,7 +16,7 @@
 - [Action 'package/nuget/pack'](#action-packagenugetpack)
 - [Action 'toolset/file/read'](#action-toolsetfileread)
 - [Action 'toolset/file/replace-text'](#action-toolsetfilereplace-text)
-- [Action 'toolset/find-out-version'](#action-toolsetfind-out-version)
+- [Action 'toolset/assign-version'](#action-toolsetassign-version)
 - [Action 'toolset/github/upload-release-asset'](#action-toolsetgithubupload-release-asset)
 - [Action 'toolset/select-configuration'](#action-toolsetselect-configuration)
 
@@ -45,7 +45,7 @@ This creates test coverage [badges](https://shields.io/badges/endpoint-badge) fr
     dotnet test ./source/test.csproj --collect:"XPlat Code Coverage" --results-directory="./source/TestResults"
 
 - id: coverlet-coverage-badge
-  uses: finebits/github-actions/badges/coverlet-coverage-badge@v2
+  uses: finebits/github-actions/badges/coverlet-coverage-badge@v3
   with:
     report-root: ./source/TestResults/**/
     report-filename: coverage.cobertura.xml
@@ -102,7 +102,7 @@ This generates [Shields.io endpoint badge](https://shields.io/badges/endpoint-ba
 
 ```yaml
 - id: shields-io-badge
-  uses: finebits/github-actions/badges/shields-io-badge@v2
+  uses: finebits/github-actions/badges/shields-io-badge@v3
   with:
     label: shields.io
     label-color: lightblue
@@ -156,7 +156,7 @@ Read the Uno Platform setup manifest from the `uno-check` tool.
 
 ```yaml
 - id: uno-check-manifest
-  uses: finebits/github-actions/devhub/uno-platform/read-manifest@v2
+  uses: finebits/github-actions/devhub/uno-platform/read-manifest@v3
 
 - shell: bash
   run: |
@@ -180,17 +180,18 @@ Sets up the Uno Platform and its dependencies.
 
 ### Using
 
-> [!IMPORTANT]
-> **Prerequisites:** .NET SDK (i.e., _uses: actions/setup-dotnet_)
-
 ```yaml
-- uses: finebits/github-actions/devhub/uno-platform/setup@v2
+- uses: finebits/github-actions/devhub/uno-platform/setup@v3
 ```
 
 ### Action inputs
 
-- `uno-check-manifest` - Specific manifest URL of the **uno-check** tool
-- `uno-check-version` - Specific version of the **uno-check** tool
+- `uno-sdk-version` - Specifies the version of the Uno.Sdk
+- `uno-check-skip` - Skips a checkup by name or ID as listed in uno-check list, default: _xcode vswin vsmac windowshyperv edgewebview2 androidemulator dotnetnewunotemplates_
+- `uno-check-manifest` - Specifies the manifest URL of the 'uno-check' tool
+- `uno-check-version` - Specifies the version of the 'uno-check' tool
+- `default-dotnet-version` - Specifies the version of dotnet to install by default, default: _8.x_
+- `dotnet-install-dir` - Specifies the location of the dotnet. This allows you to ignore the pre-installed dotnet, default: _${{ github.workspace }}/.dotnet_
 
 ### Action outputs
 
@@ -216,7 +217,7 @@ jobs:
 Action `package/appimage/pack` can be used in the Github workflow:
 
 ```yaml
-- uses: finebits/github-actions/package/appimage/pack@v2
+- uses: finebits/github-actions/package/appimage/pack@v3
   with:
     package-runtime: x86_64
     package-app-dir: ./.publish/appimage-package/AppDir
@@ -253,7 +254,7 @@ jobs:
 Action `package/appimage/setup-appimagetool` can be used in the Github workflow:
 
 ```yaml
-- uses: finebits/github-actions/package/appimage/setup-appimagetool@v2
+- uses: finebits/github-actions/package/appimage/setup-appimagetool@v3
 ```
 
 ### Action inputs
@@ -277,7 +278,7 @@ This packages the project into a NuGet package. Also **pack-nuget** action can:
 ### Using
 
 ```yaml
-- uses: finebits/github-actions/package/nuget/pack@v2
+- uses: finebits/github-actions/package/nuget/pack@v3
   with:
     project: ./source/Hello.Nuget.csproj
     configuration: Release
@@ -324,7 +325,7 @@ Action `toolset/file/read` can read file in the Github workflow:
 
 ```yaml
 - id: read-config
-  uses: finebits/github-actions/toolset/file/read@v2
+  uses: finebits/github-actions/toolset/file/read@v3
   with:
     url: http://site.com/config.json
     file: config.json
@@ -360,7 +361,7 @@ This replaces all occurrences of a **placeholder** with a given **value** string
 ### Using
 
 ```yaml
-- uses: finebits/github-actions/toolset/file/replace-text@v2
+- uses: finebits/github-actions/toolset/file/replace-text@v3
   with:
     file: ./source/hello.js
     find-what: <!placeholder>
@@ -377,7 +378,7 @@ This replaces all occurrences of a **placeholder** with a given **value** string
 
 _Action has no outputs._
 
-## Action `toolset/find-out-version`
+## Action `toolset/assign-version`
 
 ### Summary
 
@@ -387,11 +388,11 @@ This gets a version number using a git tag, a git commit, a Github workflow cont
 
 ```yaml
 - id: version
-  uses: finebits/github-actions/toolset/find-out-version@v2
+  uses: finebits/github-actions/toolset/assign-version@v3
 
 - shell: bash
   run: |
-    echo "Current version: ${{ steps.version.outputs.preset-semantic-1 }}"
+    echo "Current version: ${{ steps.version.outputs.preset-semantic-v1 }}"
 ```
 
 ### Action inputs
@@ -400,10 +401,13 @@ _Action has no inputs._
 
 ### Action outputs
 
-- `build` - contains the run number of the workflow (look at [github action context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context))
-- `attempt` - contains the re-run number of the workflow (look at [github action context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context))
-- `today` - contains the date of the workflow execution in the format `yymmdd`
-- `githash` - contains the git commit hash
+- `run-number` - contains the run number of the workflow (look at [github action context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context))
+- `run-attempt` - contains the re-run number of the workflow (look at [github action context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context))
+- `today` - contains the date of the workflow execution in the format `yyyymmdd`
+- `today-compact` - contains the date of the workflow execution in the format `yymmdd`
+- `commit-hash` - contains the full SHA-1 hash of the latest commit in the current branch
+- `commit-short-hash` - contains the short SHA-1 hash of the latest commit in the current branch
+- `total-commits` - contains the number of commits for the current branch
 
 If there is **tag** in the format `v{major}[.{minor}[.{patch}]][-{suffix}]` (e.g., v1.2-beta) then
 
@@ -414,13 +418,10 @@ If there is **tag** in the format `v{major}[.{minor}[.{patch}]][-{suffix}]` (e.g
 
 Preset version formats:
 
-- `preset-build` - version format: `{major}.{minor}.{patch}.{build}`
-- `preset-suffix` - version format: `{major}.{minor}.{patch}.{build}[-{suffix}]`
-- `preset-semantic-1` - version format: `{major}.{minor}.{patch}[-{suffix}]`
-- `preset-semantic-2` - version format: `{major}.{minor}.{patch}[-{suffix}]+{build}.{attempt}`
-- `preset-build-githash` - version format: `{major}.{minor}.{patch}.{build}+{githash}`
-- `preset-suffix-githash` - version format: `{major}.{minor}.{patch}.{build}[-{suffix}]+{githash}`
-- `preset-semantic-2-githash` - version format: `{major}.{minor}.{patch}[-{suffix}]+{build}.{attempt}.{githash}`
+- `preset-numeric` - version format: `{major}.{minor}.{patch}`
+- `preset-semantic-v1` - version format: `{major}.{minor}.{patch}[-{suffix}]`
+- `preset-semantic-v2` - version format: `{major}.{minor}.{patch}[-{suffix}]+{commit-hash}`
+- `preset-semantic-v2-extended` - version format: `{major}.{minor}.{patch}[-{suffix}]+{today}.{run-number}.{run-attempt}.{commit-hash}`
 
 ## Action `toolset/github/upload-release-asset`
 
@@ -431,7 +432,7 @@ It uploads an asset to the existing release. Also **upload-release-asset** actio
 ### Using
 
 ```yaml
-- uses: finebits/github-actions/toolset/github/upload-release-asset@v2
+- uses: finebits/github-actions/toolset/github/upload-release-asset@v3
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
     tag: ${{ github.event.release.tag_name }}
@@ -481,10 +482,10 @@ Action `toolset/select-configuration` can select a configuration in the Github w
 
 ```yaml
 - id: config
-  uses: finebits/github-actions/toolset/select-configuration@v2
+  uses: finebits/github-actions/toolset/select-configuration@v3
   with:
     json-file: config.json
-    keywords: "A,B"
+    keywords: A B
 
 - shell: bash
   run: |
@@ -501,10 +502,10 @@ jobs:
       matrix: ${{ steps.config.outputs.matrix }}
     steps:
       - id: config
-        uses: finebits/github-actions/toolset/select-configuration@v2
+        uses: finebits/github-actions/toolset/select-configuration@v3
         with:
           json-file: config.json
-          keywords: "A"
+          keywords: A
 
   process:
     needs: prepare
@@ -516,7 +517,7 @@ jobs:
 
 - `json` - JSON data. This should only be empty if the input `json-file` has path to JSON-file
 - `json-file` - Path to JSON file. This is ignored if the input `json` is not empty
-- `keywords` - **(required)** A set of keywords separated by the "," symbol
+- `keywords` - **(required)** A set of keywords separated by the SPACE symbol
 - `configs-set-jsonpath` - JSON path to the configuration set, where "." is the JSON root, default: _'.'_
 - `keywords-set-jsonpath` - JSON path to a set of keys, where "." is the configuration root, default: _'.keywords'_
 - `exclude-keywords` - It excludes keywords from the output JSON configurations, default: _true_
@@ -525,3 +526,5 @@ jobs:
 
 - `config-json` - output configuration array in JSON format
 - `matrix` - configurations prepared as a source of strategy
+- `length` - contains the number of suitable configurations
+- `is-empty` - true if no matching configuration exists

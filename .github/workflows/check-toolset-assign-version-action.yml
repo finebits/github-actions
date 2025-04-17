@@ -1,0 +1,160 @@
+################################################################################
+#                                                                              #
+#   Copyright 2025 Finebits (https://finebits.com)                             #
+#                                                                              #
+#   Licensed under the Apache License, Version 2.0 (the "License");            #
+#   you may not use this file except in compliance with the License.           #
+#   You may obtain a copy of the License at                                    #
+#                                                                              #
+#       http://www.apache.org/licenses/LICENSE-2.0                             #
+#                                                                              #
+#   Unless required by applicable law or agreed to in writing, software        #
+#   distributed under the License is distributed on an "AS IS" BASIS,          #
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+#   See the License for the specific language governing permissions and        #
+#   limitations under the License.                                             #
+#                                                                              #
+################################################################################
+
+---
+
+name: Check the 'toolset/assign-version' Action
+
+on: # yamllint disable-line rule:truthy
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+
+  checks:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Run 'toolset/assign-version' action
+        id: assign-version
+        uses: ./toolset/assign-version
+
+      - name: Check 'toolset/assign-version' action
+        shell: bash
+        run: |
+          regex_number="^[0-9]+$"
+
+          major="${{ steps.assign-version.outputs.major }}"
+          echo "Major: $major"
+          if [[ ! $major =~  $regex_number ]]; then
+            echo "::error::The 'toolset/assign-version' action failed the tests. The 'major' output is incorrect."
+            exit 1
+          fi
+
+          minor="${{ steps.assign-version.outputs.minor }}"
+          echo "Minor: $minor"
+          if [[ ! $minor =~  $regex_number ]]; then
+            echo "::error::The 'toolset/assign-version' action failed the tests. The 'minor' output is incorrect."
+            exit 1
+          fi
+
+          patch="${{ steps.assign-version.outputs.patch }}"
+          echo "Patch: $patch"
+          if [[ ! $patch =~  $regex_number ]]; then
+            echo "::error::The 'toolset/assign-version' action failed the tests. The 'patch' output is incorrect."
+            exit 1
+          fi
+
+          regex_suffix="^[a-zA-Z0-9\.-]?$"
+          suffix="${{ steps.assign-version.outputs.suffix }}"
+          echo "Suffix: $suffix"
+          if [[ ! $suffix =~  $regex_suffix ]]; then
+            echo "::error::The 'toolset/assign-version' action failed the tests. The 'suffix' output is incorrect."
+            exit 1
+          fi
+
+          run_number="${{ steps.assign-version.outputs.run-number }}"
+          echo "Run number: $run_number"
+          if [[ ! $run_number =~  $regex_number ]]; then
+            echo "::error::The 'toolset/assign-version' action failed the tests. The 'run-number' output is incorrect."
+            exit 1
+          fi
+
+          run_attempt="${{ steps.assign-version.outputs.run-attempt }}"
+          echo "Run attempt: $run_attempt"
+          if [[ ! $run_attempt =~  $regex_number ]]; then
+            echo "::error::The 'toolset/assign-version' action failed the tests. The 'run-attempt' output is incorrect."
+            exit 1
+          fi
+
+          regex_hex_number="^[0-9a-fA-F]+$"
+          githash="${{ steps.assign-version.outputs.commit-hash }}"
+          echo "Git hash: $githash"
+          if [[ ! $githash =~  $regex_hex_number ]]; then
+            echo "::error::The 'toolset/assign-version' action failed the tests. The 'commit-hash' output is incorrect."
+            exit 1
+          fi
+
+          regex_hex_number="^[0-9a-fA-F]+$"
+          gitshorthash="${{ steps.assign-version.outputs.commit-short-hash }}"
+          echo "Git short hash: $gitshorthash"
+          if [[ ! $gitshorthash =~  $regex_hex_number ]]; then
+            echo "::error::The 'toolset/assign-version' action failed the tests. The 'commit-short-hash' output is incorrect."
+            exit 1
+          fi
+
+          total_commits="${{ steps.assign-version.outputs.total-commits }}"
+          echo "Git total commits: $total_commits"
+          if [[ ! $total_commits =~  $regex_number ]]; then
+            echo "::error::The 'toolset/assign-version' action failed the tests. The 'total-commits' output is incorrect."
+            exit 1
+          fi
+
+          today="${{ steps.assign-version.outputs.today }}"
+          echo "Today: $today"
+          if [[ ! $today =~  $regex_number ]]; then
+            echo "::error::The 'toolset/assign-version' action failed the tests. The 'today' output is incorrect."
+            exit 1
+          fi
+
+          today_compact="${{ steps.assign-version.outputs.today-compact }}"
+          echo "Today compact: $today_compact"
+          if [[ ! $today_compact =~  $regex_number ]]; then
+            echo "::error::The 'toolset/assign-version' action failed the tests. The 'today-compact' output is incorrect."
+            exit 1
+          fi
+
+          preset_numeric_regex="^[0-9]+\.[0-9]+\.[0-9]+$"
+          preset_numeric="${{ steps.assign-version.outputs.preset-numeric}}"
+          echo "Preset Numeric version: $preset_numeric"
+          if [[ ! $preset_numeric =~ $preset_numeric_regex ]]; then
+            echo "::error::The 'toolset/assign-version' action failed the tests. The 'preset-numeric' output is incorrect."
+            exit 1
+          fi
+
+          preset_semantic_v1_regex="^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9\.-]+)?$"
+          preset_semantic_v1="${{ steps.assign-version.outputs.preset-semantic-v1 }}"
+          echo "Preset Semantic version 1.0: $preset_semantic_v1"
+          if [[ ! $preset_semantic_v1 =~ $preset_semantic_v1_regex ]]; then
+            echo "::error::The 'toolset/assign-version' action failed the tests. The 'preset-semantic-v1' output is incorrect."
+            exit 1
+          fi
+
+          preset_semantic_v2_regex="^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9\.-]+)?\+[0-9a-fA-F]+$"
+          preset_semantic_v2="${{ steps.assign-version.outputs.preset-semantic-v2 }}"
+          echo "Preset Semantic version 2.0: $preset_semantic_v2"
+          if [[ ! $preset_semantic_v2 =~ $preset_semantic_v2_regex ]]; then
+            echo "::error::The 'toolset/assign-version' action failed the tests. The 'preset-semantic-v2' output is incorrect."
+            exit 1
+          fi
+
+          preset_semantic_v2_ext_regex="^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9\.-]+)?\+[0-9\.]+.[0-9a-fA-F]+$"
+          preset_semantic_v2_ext="${{ steps.assign-version.outputs.preset-semantic-v2-extended }}"
+          echo "Preset Semantic extended version 2.0: $preset_semantic_v2_ext"
+          if [[ ! $preset_semantic_v2_ext =~ $preset_semantic_v2_ext_regex ]]; then
+            echo "::error::The 'toolset/assign-version' action failed the tests. The 'preset-semantic-v2-extended' output is incorrect."
+            exit 1
+          fi
