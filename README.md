@@ -180,17 +180,18 @@ Sets up the Uno Platform and its dependencies.
 
 ### Using
 
-> [!IMPORTANT]
-> **Prerequisites:** .NET SDK (i.e., _uses: actions/setup-dotnet_)
-
 ```yaml
 - uses: finebits/github-actions/devhub/uno-platform/setup@v2
 ```
 
 ### Action inputs
 
-- `uno-check-manifest` - Specific manifest URL of the **uno-check** tool
-- `uno-check-version` - Specific version of the **uno-check** tool
+- `uno-sdk-version` - Specifies the version of the Uno.Sdk
+- `uno-check-skip` - Skips a checkup by name or ID as listed in uno-check list, default: _xcode vswin vsmac windowshyperv edgewebview2 androidemulator dotnetnewunotemplates_
+- `uno-check-manifest` - Specifies the manifest URL of the 'uno-check' tool
+- `uno-check-version` - Specifies the version of the 'uno-check' tool
+- `default-dotnet-version` - Specifies the version of dotnet to install by default, default: _8.x_
+- `dotnet-install-dir` - Specifies the location of the dotnet. This allows you to ignore the pre-installed dotnet, default: _${{ github.workspace }}/.dotnet_
 
 ### Action outputs
 
