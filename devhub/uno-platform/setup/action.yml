@@ -102,6 +102,12 @@ runs:
         done
         echo "option=$skips" >> $GITHUB_OUTPUT
 
+    - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+      with:
+        dotnet-version: ${{ inputs.default-dotnet-version }}
+      env:
+        DOTNET_INSTALL_DIR: ${{ inputs.dotnet-install-dir }}
+
     - id: read-manifest
       if: ${{ runner.os == 'Linux' }}
       uses: finebits/github-actions/devhub/uno-platform/read-manifest@preview
@@ -114,12 +120,6 @@ runs:
       with:
         distribution: 'microsoft'
         java-version: ${{ fromJson( steps.read-manifest.outputs.content ).check.openjdk.version }}
-
-    - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
-      with:
-        dotnet-version: ${{ inputs.default-dotnet-version }}
-      env:
-        DOTNET_INSTALL_DIR: ${{ inputs.dotnet-install-dir }}
 
     - shell: bash
       run: |
