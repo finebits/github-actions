@@ -14,6 +14,9 @@ updates:
     reviewers:
       - "al-kau"
       - "ValeraFinebits"
+    commit-message:
+      prefix: "build"
+      include: "scope"
 
   # finebits/github-actions/badges/coverlet-coverage-badge action
   - package-ecosystem: "github-actions"
@@ -23,6 +26,9 @@ updates:
     reviewers:
       - "al-kau"
       - "ValeraFinebits"
+    commit-message:
+      prefix: "build"
+      include: "scope"
 
   # finebits/github-actions/badges/shields-io-badge action
   - package-ecosystem: "github-actions"
@@ -32,6 +38,9 @@ updates:
     reviewers:
       - "al-kau"
       - "ValeraFinebits"
+    commit-message:
+      prefix: "build"
+      include: "scope"
 
   # finebits/github-actions/devhub/uno-platform/read-manifest action
   - package-ecosystem: "github-actions"
@@ -41,6 +50,9 @@ updates:
     reviewers:
       - "al-kau"
       - "ValeraFinebits"
+    commit-message:
+      prefix: "build"
+      include: "scope"
 
   # finebits/github-actions/devhub/uno-platform/setup action
   - package-ecosystem: "github-actions"
@@ -50,6 +62,9 @@ updates:
     reviewers:
       - "al-kau"
       - "ValeraFinebits"
+    commit-message:
+      prefix: "build"
+      include: "scope"
 
   # finebits/github-actions/package/appimage/pack action
   - package-ecosystem: "github-actions"
@@ -59,6 +74,9 @@ updates:
     reviewers:
       - "al-kau"
       - "ValeraFinebits"
+    commit-message:
+      prefix: "build"
+      include: "scope"
 
   # finebits/github-actions/package/appimage/setup-appimagetool action
   - package-ecosystem: "github-actions"
@@ -68,6 +86,9 @@ updates:
     reviewers:
       - "al-kau"
       - "ValeraFinebits"
+    commit-message:
+      prefix: "build"
+      include: "scope"
 
   # finebits/github-actions/package/nuget/pack action
   - package-ecosystem: "github-actions"
@@ -77,6 +98,9 @@ updates:
     reviewers:
       - "al-kau"
       - "ValeraFinebits"
+    commit-message:
+      prefix: "build"
+      include: "scope"
 
   # finebits/github-actions/toolset/file/read action
   - package-ecosystem: "github-actions"
@@ -86,6 +110,9 @@ updates:
     reviewers:
       - "al-kau"
       - "ValeraFinebits"
+    commit-message:
+      prefix: "build"
+      include: "scope"
 
   # finebits/github-actions/toolset/file/replace-text action
   - package-ecosystem: "github-actions"
@@ -95,15 +122,21 @@ updates:
     reviewers:
       - "al-kau"
       - "ValeraFinebits"
+    commit-message:
+      prefix: "build"
+      include: "scope"
 
-  # finebits/github-actions/toolset/find-out-version action
+  # finebits/github-actions/toolset/assign-version action
   - package-ecosystem: "github-actions"
-    directory: "/toolset/find-out-version/"
+    directory: "/toolset/assign-version/"
     schedule:
       interval: "weekly"
     reviewers:
       - "al-kau"
       - "ValeraFinebits"
+    commit-message:
+      prefix: "build"
+      include: "scope"
 
   # finebits/github-actions/toolset/github/upload-release-asset action
   - package-ecosystem: "github-actions"
@@ -113,6 +146,9 @@ updates:
     reviewers:
       - "al-kau"
       - "ValeraFinebits"
+    commit-message:
+      prefix: "build"
+      include: "scope"
 
   # finebits/github-actions/toolset/select-configuration action
   - package-ecosystem: "github-actions"
@@ -122,3 +158,6 @@ updates:
     reviewers:
       - "al-kau"
       - "ValeraFinebits"
+    commit-message:
+      prefix: "build"
+      include: "scope"
