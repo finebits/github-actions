@@ -49,35 +49,39 @@ jobs:
         uses: ./toolset/select-configuration
         with:
           json: '${{ env.json }}'
-          keywords: "A,B"
+          keywords: |
+            A
+            B
 
       - name: Run 'toolset/select-configuration [json]' action
         id: select-config-from-json-several-output
         uses: ./toolset/select-configuration
         with:
           json: '${{ env.json }}'
-          keywords: "C"
+          keywords: C
 
       - name: Run 'toolset/select-configuration [json]' action
         id: select-config-from-json-none-output
         uses: ./toolset/select-configuration
         with:
           json: '${{ env.json }}'
-          keywords: "D"
+          keywords: |
+            D
 
       - name: Run 'toolset/select-configuration [json]' action
         id: select-config-from-json-double-key
         uses: ./toolset/select-configuration
         with:
           json: '${{ env.json }}'
-          keywords: "A,A"
+          keywords: A A
 
       - name: Run 'toolset/select-configuration [json]' action
         id: select-config-from-json-with-keywords
         uses: ./toolset/select-configuration
         with:
           json: '${{ env.json }}'
-          keywords: "B,C"
+          keywords: |
+            B C
           exclude-keywords: false
 
       - name: Check 'toolset/select-configuration [json]' action
@@ -200,7 +204,7 @@ jobs:
         uses: ./toolset/select-configuration
         with:
           json-file: "${{ env.test-data-dir }}/config.json"
-          keywords: "c,all"
+          keywords: "c   all"
           configs-set-jsonpath: '.section["config-set"]'
           keywords-set-jsonpath: '.["sub-section"].tags'
 

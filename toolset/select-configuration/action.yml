@@ -24,30 +24,30 @@ description: To select a configuration by keywords.
 
 inputs:
   json:
-    description: 'JSON data'
+    description: JSON data
     type: string
 
   json-file:
-    description: 'Path to JSON file'
+    description: Path to JSON file
     type: string
 
   keywords:
-    description: 'A set of keywords separated by the "," symbol'
+    description: A set of keywords separated by the SPACE symbol
     type: string
     required: true
 
   configs-set-jsonpath:
-    description: 'JSON path to the configuration set, where "." is the JSON root'
+    description: JSON path to the configuration set, where "." is the JSON root
     type: string
     default: '.'
 
   keywords-set-jsonpath:
-    description: 'JSON path to a set of keys, where "." is the configuration root'
+    description: JSON path to a set of keys, where "." is the configuration root
     type: string
     default: '.keywords'
 
   exclude-keywords:
-    description: 'It excludes keywords from the output JSON configurations'
+    description: It excludes keywords from the output JSON configurations
     type: boolean
     default: true
 
@@ -82,7 +82,8 @@ runs:
         keyset_path='${{ inputs.keywords-set-jsonpath }}'
         exclude_keys='${{ inputs.exclude-keywords }}'
 
-        query="(\"$keywords\"/\",\") as \$keys | [ $configs_path[] | ($keyset_path) as \$keyset | select(all(\$keys[]; IN(\$keyset[]))) $("$exclude_keys" && echo "| del($keyset_path)" || echo "") ]"
+        keywords=$(echo $keywords)
+        query="(\"$keywords\"/\" \") as \$keys | [ $configs_path[] | ($keyset_path) as \$keyset | select(all(\$keys[]; IN(\$keyset[]))) $("$exclude_keys" && echo "| del($keyset_path)" || echo "") ]"
         echo "::debug::query: $query"
 
         config=""
