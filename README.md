@@ -45,7 +45,7 @@ This creates test coverage [badges](https://shields.io/badges/endpoint-badge) fr
     dotnet test ./source/test.csproj --collect:"XPlat Code Coverage" --results-directory="./source/TestResults"
 
 - id: coverlet-coverage-badge
-  uses: finebits/github-actions/badges/coverlet-coverage-badge@v2
+  uses: finebits/github-actions/badges/coverlet-coverage-badge@v3
   with:
     report-root: ./source/TestResults/**/
     report-filename: coverage.cobertura.xml
@@ -102,7 +102,7 @@ This generates [Shields.io endpoint badge](https://shields.io/badges/endpoint-ba
 
 ```yaml
 - id: shields-io-badge
-  uses: finebits/github-actions/badges/shields-io-badge@v2
+  uses: finebits/github-actions/badges/shields-io-badge@v3
   with:
     label: shields.io
     label-color: lightblue
@@ -156,7 +156,7 @@ Read the Uno Platform setup manifest from the `uno-check` tool.
 
 ```yaml
 - id: uno-check-manifest
-  uses: finebits/github-actions/devhub/uno-platform/read-manifest@v2
+  uses: finebits/github-actions/devhub/uno-platform/read-manifest@v3
 
 - shell: bash
   run: |
@@ -181,7 +181,7 @@ Sets up the Uno Platform and its dependencies.
 ### Using
 
 ```yaml
-- uses: finebits/github-actions/devhub/uno-platform/setup@v2
+- uses: finebits/github-actions/devhub/uno-platform/setup@v3
 ```
 
 ### Action inputs
@@ -217,7 +217,7 @@ jobs:
 Action `package/appimage/pack` can be used in the Github workflow:
 
 ```yaml
-- uses: finebits/github-actions/package/appimage/pack@v2
+- uses: finebits/github-actions/package/appimage/pack@v3
   with:
     package-runtime: x86_64
     package-app-dir: ./.publish/appimage-package/AppDir
@@ -254,7 +254,7 @@ jobs:
 Action `package/appimage/setup-appimagetool` can be used in the Github workflow:
 
 ```yaml
-- uses: finebits/github-actions/package/appimage/setup-appimagetool@v2
+- uses: finebits/github-actions/package/appimage/setup-appimagetool@v3
 ```
 
 ### Action inputs
@@ -278,7 +278,7 @@ This packages the project into a NuGet package. Also **pack-nuget** action can:
 ### Using
 
 ```yaml
-- uses: finebits/github-actions/package/nuget/pack@v2
+- uses: finebits/github-actions/package/nuget/pack@v3
   with:
     project: ./source/Hello.Nuget.csproj
     configuration: Release
@@ -325,7 +325,7 @@ Action `toolset/file/read` can read file in the Github workflow:
 
 ```yaml
 - id: read-config
-  uses: finebits/github-actions/toolset/file/read@v2
+  uses: finebits/github-actions/toolset/file/read@v3
   with:
     url: http://site.com/config.json
     file: config.json
@@ -361,7 +361,7 @@ This replaces all occurrences of a **placeholder** with a given **value** string
 ### Using
 
 ```yaml
-- uses: finebits/github-actions/toolset/file/replace-text@v2
+- uses: finebits/github-actions/toolset/file/replace-text@v3
   with:
     file: ./source/hello.js
     find-what: <!placeholder>
@@ -388,7 +388,7 @@ This gets a version number using a git tag, a git commit, a Github workflow cont
 
 ```yaml
 - id: version
-  uses: finebits/github-actions/toolset/assign-version@v2
+  uses: finebits/github-actions/toolset/assign-version@v3
 
 - shell: bash
   run: |
@@ -432,7 +432,7 @@ It uploads an asset to the existing release. Also **upload-release-asset** actio
 ### Using
 
 ```yaml
-- uses: finebits/github-actions/toolset/github/upload-release-asset@v2
+- uses: finebits/github-actions/toolset/github/upload-release-asset@v3
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
     tag: ${{ github.event.release.tag_name }}
@@ -482,7 +482,7 @@ Action `toolset/select-configuration` can select a configuration in the Github w
 
 ```yaml
 - id: config
-  uses: finebits/github-actions/toolset/select-configuration@v2
+  uses: finebits/github-actions/toolset/select-configuration@v3
   with:
     json-file: config.json
     keywords: A B
@@ -502,7 +502,7 @@ jobs:
       matrix: ${{ steps.config.outputs.matrix }}
     steps:
       - id: config
-        uses: finebits/github-actions/toolset/select-configuration@v2
+        uses: finebits/github-actions/toolset/select-configuration@v3
         with:
           json-file: config.json
           keywords: A
