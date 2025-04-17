@@ -30,18 +30,41 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
-        uno-check: [deafult, specific-version, specific-manifest]
+        os: [windows-latest, macos-latest, ubuntu-latest, ubuntu-24.04-arm, windows-11-arm]
+        preset: [deafult, specific-version, specific-manifest, specific-unosdk]
         include:
-          - uno-check: deafult
+          - skip: |
+              xcode
+              vswin
+              vsmac
+              windowshyperv
+              edgewebview2
+              androidemulator
+          - preset: deafult
             manifest: ''
             version: ''
-          - uno-check: specific-version
+            unosdk: ''
+          - preset: specific-version
             manifest: ''
             version: '1.27.0'
-          - uno-check: specific-manifest
+            unosdk: ''
+          - preset: specific-manifest
             manifest: 'https://raw.githubusercontent.com/unoplatform/uno.check/cb398a1c107c8ee5a51edb9bf04c8709e87c3504/manifests/uno.ui.manifest.json'
             version: ''
+            unosdk: ''
+          - preset: specific-unosdk
+            manifest: ''
+            version: ''
+            unosdk: '5.5.32'
+          - os: ubuntu-24.04-arm
+            skip: |
+              xcode
+              vswin
+              vsmac
+              windowshyperv
+              edgewebview2
+              androidemulator
+              androidsdk
 
     runs-on: ${{ matrix.os }}
 
@@ -54,5 +77,13 @@ jobs:
       - name: Run 'devhub/uno-platform/setup'
         uses: ./devhub/uno-platform/setup
         with:
+          uno-sdk-version: ${{ matrix.unosdk }}
           uno-check-manifest: ${{ matrix.manifest }}
           uno-check-version: ${{ matrix.version }}
+          uno-check-skip: ${{ matrix.skip }}
+
+      - name: Check 'devhub/uno-platform/setup'
+        shell: bash
+        run: |
+          dotnet new unoapp -o ./test_unoapp -preset "recommended" -platforms "desktop"
+          dotnet build ./test_unoapp
