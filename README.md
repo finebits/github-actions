@@ -485,7 +485,7 @@ Action `toolset/select-configuration` can select a configuration in the Github w
   uses: finebits/github-actions/toolset/select-configuration@v2
   with:
     json-file: config.json
-    keywords: "A,B"
+    keywords: A B
 
 - shell: bash
   run: |
@@ -505,7 +505,7 @@ jobs:
         uses: finebits/github-actions/toolset/select-configuration@v2
         with:
           json-file: config.json
-          keywords: "A"
+          keywords: A
 
   process:
     needs: prepare
@@ -517,7 +517,7 @@ jobs:
 
 - `json` - JSON data. This should only be empty if the input `json-file` has path to JSON-file
 - `json-file` - Path to JSON file. This is ignored if the input `json` is not empty
-- `keywords` - **(required)** A set of keywords separated by the "," symbol
+- `keywords` - **(required)** A set of keywords separated by the SPACE symbol
 - `configs-set-jsonpath` - JSON path to the configuration set, where "." is the JSON root, default: _'.'_
 - `keywords-set-jsonpath` - JSON path to a set of keys, where "." is the configuration root, default: _'.keywords'_
 - `exclude-keywords` - It excludes keywords from the output JSON configurations, default: _true_
