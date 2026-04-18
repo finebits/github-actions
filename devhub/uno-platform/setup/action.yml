@@ -121,7 +121,7 @@ runs:
       run: |
         version="${{ fromJson( steps.read-manifest.outputs.content ).check.openjdk.version }}"
         major="${version%%.*}"
-      
+
         echo "major=$major" >> $GITHUB_OUTPUT
 
     - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
