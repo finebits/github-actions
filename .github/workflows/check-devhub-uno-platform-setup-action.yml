@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-#   Copyright 2025 Finebits (https://finebits.com)                             #
+#   Copyright 2024-2026 Finebits (https://finebits.com)                        #
 #                                                                              #
 #   Licensed under the Apache License, Version 2.0 (the "License");            #
 #   you may not use this file except in compliance with the License.           #
@@ -56,6 +56,16 @@ jobs:
             manifest: ''
             version: ''
             unosdk: '5.5.32'
+          - os: ubuntu-latest
+            skip: |
+              xcode
+              vswin
+              vsmac
+              windowshyperv
+              edgewebview2
+              openjdk
+              androidemulator
+              androidsdk
           - os: ubuntu-24.04-arm
             skip: |
               xcode
@@ -63,6 +73,7 @@ jobs:
               vsmac
               windowshyperv
               edgewebview2
+              openjdk
               androidemulator
               androidsdk
           - os: windows-11-arm

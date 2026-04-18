@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-#   Copyright 2025 Finebits (https://finebits.com)                             #
+#   Copyright 2024-2026 Finebits (https://finebits.com)                        #
 #                                                                              #
 #   Licensed under the Apache License, Version 2.0 (the "License");            #
 #   you may not use this file except in compliance with the License.           #
@@ -45,66 +45,34 @@ runs:
   using: "composite"
 
   steps:
-    - id: uno-check-version
-      if: inputs.uno-check-version != '' && inputs.uno-check-manifest == ''
-      shell: bash
-      run: |
-        cli_option="--version ${{ inputs.uno-check-version }}"
-        echo "option=$cli_option" >> $GITHUB_OUTPUT
-
-    - name: install uno.check tool
+    - id: uno-check-version-manifest
       if: inputs.uno-check-manifest == ''
       shell: bash
       run: |
-        dotnet tool install uno.check \
-               --global ${{ steps.uno-check-version.outputs.option }}
+        version="${{ inputs.uno-check-version }}"
 
-    - id: skip-all
-      if: inputs.uno-check-manifest == ''
-      shell: bash
-      run: |
-        output="$(uno-check list)"
-        pattern="${{ env.regex-pattern }}"
-        skip_options=""
-
-        while [[ $output =~ $pattern ]]; do
-          skip_options="$skip_options --skip=${BASH_REMATCH[1]}"
-          output=${BASH_REMATCH[2]}
-        done
-
-        echo "options=$skip_options" >> $GITHUB_OUTPUT
-      env:
-        regex-pattern: '\(([^\)]*)\)([^$]*)'
-
-    - id: uno-check
-      if: inputs.uno-check-manifest == ''
-      shell: bash
-      run: |
-        log="$(mktemp)"
-        uno-check --verbose --non-interactive --ci \
-                  --logfile=$log ${{ steps.skip-all.outputs.options }}
-
-        content="$(cat "$log")"
-        pattern="${{ env.regex-pattern }}"
-
-        if [[ "$content" =~ $pattern ]]; then
-          echo "manifest-url=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
-        else
-          echo "::error::Uno-check manifest URL not found."
+        if [[ -z $version ]]; then
+          info=($(echo "$(dotnet tool search "uno.check unoplatform")" | echo $(grep "uno.check")))
+          version=$([[ "${info[0]}" = "uno.check" ]] && echo "${info[1]}" || echo "")
         fi
-      env:
-        regex-pattern: 'Loading Manifest from: ([^[:space:]]*)'
+
+        if [[ -z $version ]]; then
+          echo "::error::uno.check tool version not found."
+        fi
+
+        url="https://raw.githubusercontent.com/unoplatform/uno.check/refs/tags/${version}/manifests/uno.ui.manifest.json"
+        echo "url=$url" >> $GITHUB_OUTPUT
 
     - id: manifest-url
       shell: bash
       run: |
         input_url="${{ inputs.uno-check-manifest }}"
-        deafult_url="${{ steps.uno-check.outputs.manifest-url }}"
+        version_url="${{ steps.uno-check-version-manifest.outputs.url }}"
 
-        url="${input_url:-$deafult_url}"
+        url="${input_url:-$version_url}"
         echo "url=$url" >> $GITHUB_OUTPUT
 
     - id: read-manifest
-      uses: finebits/github-actions/toolset/file/read@v3
+      uses: finebits/github-actions/toolset/file/read@preview/v3.0.1
       with:
         url: ${{ steps.manifest-url.outputs.url }}

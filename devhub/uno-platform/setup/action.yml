@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-#   Copyright 2025 Finebits (https://finebits.com)                             #
+#   Copyright 2024-2026 Finebits (https://finebits.com)                        #
 #                                                                              #
 #   Licensed under the Apache License, Version 2.0 (the "License");            #
 #   you may not use this file except in compliance with the License.           #
@@ -110,16 +110,25 @@ runs:
 
     - id: read-manifest
       if: ${{ runner.os == 'Linux' }}
-      uses: finebits/github-actions/devhub/uno-platform/read-manifest@v3
+      uses: finebits/github-actions/devhub/uno-platform/read-manifest@preview/v3.0.1
       with:
         uno-check-manifest: ${{ inputs.uno-check-manifest }}
         uno-check-version: ${{ inputs.uno-check-version }}
+
+    - id: java-version
+      if: ${{ runner.os == 'Linux' }}
+      shell: bash
+      run: |
+        version="${{ fromJson( steps.read-manifest.outputs.content ).check.openjdk.version }}"
+        major="${version%%.*}"
+      
+        echo "major=$major" >> $GITHUB_OUTPUT
 
     - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
       if: ${{ runner.os == 'Linux' }}
       with:
         distribution: 'microsoft'
-        java-version: ${{ fromJson( steps.read-manifest.outputs.content ).check.openjdk.version }}
+        java-version: ${{ steps.java-version.outputs.major }}
 
     - shell: bash
       run: |
