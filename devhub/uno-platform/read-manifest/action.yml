@@ -73,6 +73,6 @@ runs:
         echo "url=$url" >> $GITHUB_OUTPUT
 
     - id: read-manifest
-      uses: finebits/github-actions/toolset/file/read@preview/v3.0.1
+      uses: finebits/github-actions/toolset/file/read@v3.0.1
       with:
         url: ${{ steps.manifest-url.outputs.url }}
